@@ -34,12 +34,24 @@ import urllib.request
 from abc import ABC, abstractmethod
 
 # Sensible default per provider when AI_MODEL isn't set. Ollama's is a
-# small, widely-available open model; Anthropic's and Gemini's are each
-# vendor's current fast/general-purpose model.
+# small, widely-available open model; Anthropic's is its current
+# fast/general-purpose model. Gemini's is a "flash-lite" tier rather than
+# plain "flash": verified live (2026-09-04) that flash-lite gets a much
+# higher free-tier daily quota than plain flash (our account hit a 20
+# req/day cap on gemini-3.6-flash), doesn't spend hidden "thinking"
+# tokens on simple questions (gemini-3.6-flash spent ~404 invisible
+# reasoning tokens vs. 177 visible-answer tokens on one test reply --
+# pure latency/quota waste for concise farming Q&A), and answers
+# correctly in Kiswahili including typo'd/informal input. Deliberately
+# gemini-3.1-flash-lite, not the newer gemini-3.5-flash-lite: the latter
+# is Google's officially-recommended replacement for the retired
+# gemini-2.5-flash-lite, but was returning repeated 503 "high demand"
+# errors in live testing at the time of this change -- revisit once its
+# availability stabilizes.
 DEFAULT_MODELS = {
     "ollama": "llama3.2:1b",
     "anthropic": "claude-sonnet-5",
-    "gemini": "gemini-3.6-flash",
+    "gemini": "gemini-3.1-flash-lite",
 }
 
 
