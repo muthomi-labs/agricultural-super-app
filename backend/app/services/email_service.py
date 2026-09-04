@@ -17,6 +17,8 @@ Callers (auth_service) decide how to handle each; this module never
 silently pretends a send succeeded when it didn't.
 """
 
+import html
+
 from flask import current_app
 from flask_mail import Message
 
@@ -67,6 +69,8 @@ def password_reset_email(username, reset_url, expires_in_minutes):
         "will not be changed.\n\n"
         f"-- The {APP_NAME} Team"
     )
+
+    username = html.escape(username)
 
     html_body = f"""\
 <!doctype html>
@@ -140,6 +144,10 @@ def new_signup_email(username, email, role, manage_url):
         f"Manage this user (e.g. promote to admin) here:\n{manage_url}\n\n"
         f"-- The {APP_NAME} Team"
     )
+
+    username = html.escape(username)
+    email = html.escape(email)
+    role = html.escape(role)
 
     html_body = f"""\
 <!doctype html>

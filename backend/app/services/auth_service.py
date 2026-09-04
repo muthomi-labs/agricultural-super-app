@@ -3,6 +3,7 @@
 import hashlib
 import secrets
 from datetime import datetime, timedelta
+from urllib.parse import quote
 
 from flask import current_app
 
@@ -58,7 +59,7 @@ def _notify_admins_of_new_signup(user):
     if not admin_emails:
         return
 
-    manage_url = f"{current_app.config['FRONTEND_URL']}/admin/users?search={user.username}"
+    manage_url = f"{current_app.config['FRONTEND_URL']}/admin/users?search={quote(user.username)}"
     html_body, text_body = email_service.new_signup_email(
         username=user.username,
         email=user.email,
@@ -66,11 +67,13 @@ def _notify_admins_of_new_signup(user):
         manage_url=manage_url,
     )
 
+    subject_safe_username = user.username.replace("\r", "").replace("\n", "")
+
     for admin_email in admin_emails:
         try:
             email_service.send_email(
                 to=admin_email,
-                subject=f"New AgriConnect signup: {user.username}",
+                subject=f"New AgriConnect signup: {subject_safe_username}",
                 html_body=html_body,
                 text_body=text_body,
             )

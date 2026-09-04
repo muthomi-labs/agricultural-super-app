@@ -77,6 +77,28 @@ class TestRegisterUser:
         assert "amina" in outbox[0].body
         assert "amina@example.com" in outbox[0].body
 
+    def test_manage_url_url_encodes_the_username(self, app, monkeypatch):
+        from app.extensions import mail
+
+        monkeypatch.setitem(app.config, "ADMIN_NOTIFICATION_EMAILS", ["admin@example.com"])
+
+        with mail.record_messages() as outbox:
+            auth_service.register_user(_register_data(username="a&b=c", email="ab@example.com"))
+
+        assert "search=a%26b%3Dc" in outbox[0].body
+        assert "search=a&b=c" not in outbox[0].body
+
+    def test_subject_strips_newlines_from_username(self, app, monkeypatch):
+        from app.extensions import mail
+
+        monkeypatch.setitem(app.config, "ADMIN_NOTIFICATION_EMAILS", ["admin@example.com"])
+
+        with mail.record_messages() as outbox:
+            auth_service.register_user(_register_data(username="amina\r\nBcc: evil@example.com", email="a@example.com"))
+
+        assert "\r" not in outbox[0].subject
+        assert "\n" not in outbox[0].subject
+
     def test_does_not_raise_when_email_is_not_configured(self, app, monkeypatch):
         monkeypatch.setitem(app.config, "ADMIN_NOTIFICATION_EMAILS", ["admin@example.com"])
         monkeypatch.setitem(app.config, "MAIL_SERVER", None)

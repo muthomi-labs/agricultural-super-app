@@ -93,6 +93,16 @@ class TestPasswordResetEmail:
         assert "<html>" in html
         assert "</html>" in html
 
+    def test_html_escapes_a_malicious_username(self):
+        html, text = email_service.password_reset_email(
+            username="<img src=x onerror=alert(1)>",
+            reset_url="http://example.com/reset?token=x",
+            expires_in_minutes=60,
+        )
+        assert "<img" not in html
+        assert "&lt;img" in html
+        assert "<img src=x onerror=alert(1)>" in text
+
 
 class TestNewSignupEmail:
     def test_includes_username_email_and_role(self):
@@ -126,3 +136,25 @@ class TestNewSignupEmail:
         )
         assert "<html>" in html
         assert "</html>" in html
+
+    def test_html_escapes_a_malicious_username(self):
+        html, text = email_service.new_signup_email(
+            username="<img src=x onerror=alert(1)>",
+            email="amina@example.com",
+            role="farmer",
+            manage_url="http://x/admin/users",
+        )
+        assert "<img" not in html
+        assert "&lt;img" in html
+        # The plain-text body is not HTML and needs no escaping.
+        assert "<img src=x onerror=alert(1)>" in text
+
+    def test_html_escapes_malicious_email_and_role(self):
+        html, _text = email_service.new_signup_email(
+            username="amina",
+            email="<script>alert(1)</script>@example.com",
+            role="<b>admin</b>",
+            manage_url="http://x/admin/users",
+        )
+        assert "<script>" not in html
+        assert "<b>admin</b>" not in html
