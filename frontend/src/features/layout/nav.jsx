@@ -9,6 +9,7 @@ import {
   PlusIcon,
   ShieldIcon,
   UserIcon,
+  UsersIcon,
 } from '@/components/icons'
 
 /** Primary navigation for the app shell's desktop left sidebar (`Sidebar.jsx`).
@@ -20,6 +21,7 @@ export const sidebarNavItems = [
   { to: '/create', label: 'Create', icon: <PlusIcon /> },
   { to: '/farmclips', label: 'FarmClips', icon: <ClapperIcon /> },
   { to: '/communities', label: 'Communities', icon: <CommunityIcon /> },
+  { to: '/experts', label: 'Experts', icon: <UsersIcon /> },
   { to: '/messages', label: 'Messages', icon: <MessageIcon /> },
   { to: '/notifications', label: 'Notifications', icon: <HeartIcon /> },
   { to: '/saved', label: 'Saved', icon: <BookmarkIcon /> },
