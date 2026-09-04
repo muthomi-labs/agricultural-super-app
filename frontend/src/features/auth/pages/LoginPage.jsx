@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Button, Input, PasswordInput } from '@/components/ui'
 import { useAuth, errorMessage } from '@/features/auth/AuthContext'
 import { AuthLayout } from './AuthLayout'
 import './auth.css'
 
 export function LoginPage() {
+  const { t } = useTranslation('auth')
   const { login } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
@@ -20,8 +22,8 @@ export function LoginPage() {
 
   function validate() {
     const errors = {}
-    if (!usernameOrEmail.trim()) errors.usernameOrEmail = 'Username or email is required.'
-    if (!password) errors.password = 'Password is required.'
+    if (!usernameOrEmail.trim()) errors.usernameOrEmail = t('login.errors.usernameOrEmailRequired')
+    if (!password) errors.password = t('login.errors.passwordRequired')
     setFieldErrors(errors)
     return Object.keys(errors).length === 0
   }
@@ -43,36 +45,36 @@ export function LoginPage() {
 
   return (
     <AuthLayout
-      title="Welcome back"
-      subtitle="Log in to see the latest from experts and farmers."
+      title={t('login.title')}
+      subtitle={t('login.subtitle')}
       footer={
         <>
-          New here? <Link to="/register">Create an account</Link>
+          {t('login.newHere')} <Link to="/register">{t('login.createAccount')}</Link>
         </>
       }
     >
       <form onSubmit={handleSubmit} noValidate>
         <Input
-          label="Username or email"
+          label={t('login.usernameOrEmail')}
           name="usernameOrEmail"
           type="text"
           autoComplete="username"
           value={usernameOrEmail}
           onChange={(e) => setUsernameOrEmail(e.target.value)}
           error={fieldErrors.usernameOrEmail}
-          placeholder="e.g. jane_kamau"
+          placeholder={t('login.usernameOrEmailPlaceholder')}
         />
         <PasswordInput
-          label="Password"
+          label={t('login.password')}
           name="password"
           autoComplete="current-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           error={fieldErrors.password}
-          placeholder="Your password"
+          placeholder={t('login.passwordPlaceholder')}
         />
         <Link to="/forgot-password" className="asa-auth__forgot">
-          Forgot password?
+          {t('login.forgotPassword')}
         </Link>
         {formError && (
           <p className="asa-auth__error" role="alert">
@@ -80,7 +82,7 @@ export function LoginPage() {
           </p>
         )}
         <Button type="submit" block loading={submitting}>
-          Log in
+          {t('login.submit')}
         </Button>
       </form>
     </AuthLayout>

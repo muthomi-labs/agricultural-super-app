@@ -1,0 +1,23 @@
+{
+  "bar": {
+    "yourStory": "Hadithi yako"
+  },
+  "create": {
+    "close": "Funga",
+    "heading": "Unda hadithi",
+    "previewPlaceholder": "Muhtasari wa hadithi yako utaonekana hapa",
+    "videoNotSupported": "Hadithi za video hazijawezekana bado.",
+    "addVideo": "Ongeza video",
+    "captionPlaceholder": "Ongeza maelezo mafupi…",
+    "captionLabel": "Maelezo ya hadithi",
+    "cancel": "Ghairi",
+    "sharing": "Inashiriki…",
+    "share": "Shiriki hadithi"
+  },
+  "viewer": {
+    "ariaLabel": "Hadithi ya {{name}}",
+    "close": "Funga hadithi",
+    "previous": "Hadithi iliyotangulia",
+    "next": "Hadithi inayofuata"
+  }
+}

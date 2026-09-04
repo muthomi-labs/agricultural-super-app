@@ -1,28 +1,20 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Badge, Button, EmptyState, ErrorState, LoadingState, PageHeader, Tabs } from '@/components/ui'
 import { formatRelativeTime } from '@/lib/format'
 import { errorMessage } from '@/features/auth/AuthContext'
 import { adminService } from '@/services'
 import '../admin.css'
 
-const STATUS_TABS = [
-  { value: 'pending', label: 'Pending' },
-  { value: 'reviewed', label: 'Reviewed' },
-  { value: 'dismissed', label: 'Dismissed' },
-  { value: '', label: 'All' },
-]
-
-const REASON_LABELS = {
-  spam: 'Spam',
-  harassment: 'Harassment',
-  scam: 'Scam',
-  misleading: 'Misleading information',
-  inappropriate: 'Inappropriate content',
-  other: 'Other',
-}
-
 export function AdminReportsPage() {
+  const { t } = useTranslation('admin')
+  const STATUS_TABS = [
+    { value: 'pending', label: t('reports.tabs.pending') },
+    { value: 'reviewed', label: t('reports.tabs.reviewed') },
+    { value: 'dismissed', label: t('reports.tabs.dismissed') },
+    { value: '', label: t('reports.tabs.all') },
+  ]
   const [status, setStatus] = useState('pending')
   const [reports, setReports] = useState([])
   const [loadStatus, setLoadStatus] = useState('loading')
@@ -63,14 +55,14 @@ export function AdminReportsPage() {
 
   return (
     <>
-      <PageHeader title="Reports" subtitle="Posts flagged by the community for review." />
+      <PageHeader title={t('reports.title')} subtitle={t('reports.subtitle')} />
 
       <Tabs items={STATUS_TABS} value={status} onChange={setStatus} className="asa-profile-tabs" />
 
-      {loadStatus === 'loading' && <LoadingState label="Loading reports…" />}
+      {loadStatus === 'loading' && <LoadingState label={t('reports.loading')} />}
       {loadStatus === 'error' && <ErrorState message={error ?? undefined} onRetry={load} />}
       {loadStatus === 'ready' && reports.length === 0 && (
-        <EmptyState title="No reports here" description="Nothing to review right now." icon="🚩" />
+        <EmptyState title={t('reports.emptyTitle')} description={t('reports.emptyDescription')} icon="🚩" />
       )}
 
       {loadStatus === 'ready' && reports.length > 0 && (
@@ -83,17 +75,21 @@ export function AdminReportsPage() {
                     {report.post.title}
                   </Link>
                 ) : (
-                  <span className="asa-admin-list-row__title">Post no longer available</span>
+                  <span className="asa-admin-list-row__title">{t('reports.postUnavailable')}</span>
                 )}
                 <span className="asa-admin-list-row__meta">
-                  Reported by {report.reporter.user.username} for{' '}
-                  <strong>{REASON_LABELS[report.reason] ?? report.reason}</strong> ·{' '}
-                  {formatRelativeTime(report.createdAt)}
+                  {t('reports.reportedByMeta', {
+                    name: report.reporter.user.username,
+                    reason: t(`reports.reasons.${report.reason}`, { defaultValue: report.reason }),
+                    time: formatRelativeTime(report.createdAt),
+                  })}
                 </span>
                 {report.details && <span className="asa-admin-list-row__quote">"{report.details}"</span>}
               </div>
               <div className="asa-admin-list-row__actions">
-                <Badge variant={report.status === 'pending' ? 'warning' : 'default'}>{report.status}</Badge>
+                <Badge variant={report.status === 'pending' ? 'warning' : 'default'}>
+                  {t(`reports.status.${report.status}`, { defaultValue: report.status })}
+                </Badge>
                 {report.status === 'pending' && (
                   <>
                     <Button
@@ -102,7 +98,7 @@ export function AdminReportsPage() {
                       loading={reviewingId === report.id}
                       onClick={() => handleReview(report.id, 'dismissed')}
                     >
-                      Dismiss
+                      {t('reports.dismiss')}
                     </Button>
                     <Button
                       variant="danger"
@@ -110,7 +106,7 @@ export function AdminReportsPage() {
                       loading={reviewingId === report.id}
                       onClick={() => handleReview(report.id, 'reviewed')}
                     >
-                      Mark reviewed
+                      {t('reports.markReviewed')}
                     </Button>
                   </>
                 )}

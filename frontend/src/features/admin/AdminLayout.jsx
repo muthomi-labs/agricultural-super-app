@@ -1,4 +1,5 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Avatar } from '@/components/ui'
 import { useAuth } from '@/features/auth/AuthContext'
 import {
@@ -13,14 +14,6 @@ import {
 } from '@/components/icons'
 import './admin.css'
 
-const NAV_ITEMS = [
-  { to: '/admin', label: 'Dashboard', icon: <SparkleIcon width={18} height={18} />, end: true },
-  { to: '/admin/users', label: 'Users', icon: <UsersIcon width={18} height={18} /> },
-  { to: '/admin/posts', label: 'Content moderation', icon: <MessageIcon width={18} height={18} /> },
-  { to: '/admin/reports', label: 'Reports', icon: <BellIcon width={18} height={18} /> },
-  { to: '/admin/communities', label: 'Communities', icon: <CommunityIcon width={18} height={18} /> },
-]
-
 /**
  * Distinct visual identity from the normal app shell (dark sidebar vs.
  * the light card-based main app) -- deliberately, so it always reads as
@@ -28,8 +21,17 @@ const NAV_ITEMS = [
  * of the regular product.
  */
 export function AdminLayout() {
+  const { t } = useTranslation('admin')
   const { user, logout } = useAuth()
   const navigate = useNavigate()
+
+  const NAV_ITEMS = [
+    { to: '/admin', label: t('nav.dashboard'), icon: <SparkleIcon width={18} height={18} />, end: true },
+    { to: '/admin/users', label: t('nav.users'), icon: <UsersIcon width={18} height={18} /> },
+    { to: '/admin/posts', label: t('nav.contentModeration'), icon: <MessageIcon width={18} height={18} /> },
+    { to: '/admin/reports', label: t('nav.reports'), icon: <BellIcon width={18} height={18} /> },
+    { to: '/admin/communities', label: t('nav.communities'), icon: <CommunityIcon width={18} height={18} /> },
+  ]
 
   const displayName =
     user?.profile.firstName && user?.profile.lastName
@@ -41,7 +43,7 @@ export function AdminLayout() {
       <aside className="asa-admin__sidebar">
         <NavLink to="/" className="asa-admin__brand">
           Agri<span>Connect</span>
-          <span className="asa-admin__brand-badge">Admin</span>
+          <span className="asa-admin__brand-badge">{t('nav.adminBadge')}</span>
         </NavLink>
 
         <nav className="asa-admin__nav" aria-label="Admin">
@@ -61,14 +63,14 @@ export function AdminLayout() {
         <div className="asa-admin__footer">
           <NavLink to="/" className="asa-admin__link">
             <HomeIcon width={18} height={18} />
-            Back to app
+            {t('nav.backToApp')}
           </NavLink>
           <div className="asa-admin__profile">
             <Avatar imageUrl={user?.profile.profileImageUrl} name={displayName} username={user?.user.username} size="sm" />
             <div className="asa-admin__profile-info">
               <span className="asa-admin__profile-name">{displayName}</span>
               <span className="asa-admin__profile-role">
-                <UserIcon width={12} height={12} /> Administrator
+                <UserIcon width={12} height={12} /> {t('nav.administrator')}
               </span>
             </div>
             <button
@@ -78,7 +80,7 @@ export function AdminLayout() {
                 logout()
                 navigate('/login')
               }}
-              aria-label="Log out"
+              aria-label={t('nav.logOut')}
             >
               <LogOutIcon width={18} height={18} />
             </button>

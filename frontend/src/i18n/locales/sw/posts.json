@@ -1,0 +1,163 @@
+{
+  "untitledPost": "Chapisho lisilo na kichwa",
+  "feed": {
+    "farmingTip": "Ushauri wa kilimo:",
+    "filters": { "all": "Zote", "announcements": "Matangazo", "following": "Unaofuata" },
+    "empty": {
+      "allTitle": "Bado hakuna machapisho",
+      "allDescription": "Kuwa mtu wa kwanza kushiriki kitu na jumuiya.",
+      "announcementsTitle": "Bado hakuna matangazo",
+      "announcementsDescription": "Matangazo ya jumuiya yataonekana hapa.",
+      "followingTitle": "Hakuna machapisho kutoka kwa unaowafuata",
+      "followingDescription": "Fuata wakulima na wataalamu ili uone machapisho yao hapa.",
+      "writePost": "Andika chapisho"
+    },
+    "tips": [
+      "Badilisha mazao yako kila msimu ili kuweka udongo katika hali nzuri na kupunguza ongezeko la wadudu waharibifu.",
+      "Pima udongo wako kabla ya kupanda ili kuongeza virutubisho vinavyohitajika hasa.",
+      "Kuweka matandazo kuzunguka mimea husaidia kuhifadhi unyevu na kuzuia magugu.",
+      "Mwagilia maji mapema asubuhi ili kupunguza upotevu wa maji kwa mvuke.",
+      "Tenga mnyama mgonjwa mara moja ili kuzuia ugonjwa kuenea kwa mifugo yako.",
+      "Panda miche kwa nafasi ifaayo — msongamano huvutia wadudu waharibifu na magonjwa."
+    ]
+  },
+  "card": {
+    "addCommentPlaceholder": "Ongeza maoni…",
+    "addComment": "Ongeza maoni",
+    "post": "Chapisha",
+    "repostedFrom": "Imerudishwa kutoka kwa",
+    "announcement": "Tangazo la Jumuiya",
+    "reel": "Reel",
+    "comments": "Maoni",
+    "likes": "mapendo",
+    "views": "mionekano",
+    "viewAllComments_one": "Ona maoni {{count}}",
+    "viewAllComments_other": "Ona maoni yote {{count}}"
+  },
+  "menu": {
+    "options": "Chaguo za chapisho",
+    "edit": "Hariri",
+    "delete": "Futa",
+    "report": "Ripoti",
+    "editPost": "Hariri chapisho",
+    "caption": "Maelezo",
+    "pleaseAddContent": "Tafadhali ongeza maudhui.",
+    "cancel": "Ghairi",
+    "saveChanges": "Hifadhi mabadiliko",
+    "deletePostTitle": "Futa chapisho?",
+    "deletePostBody": "Kitendo hiki hakiwezi kutenduliwa.",
+    "confirmDelete": "Futa"
+  },
+  "report": {
+    "title": "Ripoti chapisho",
+    "reasonPrompt": "Kwa nini unaripoti chapisho hili?",
+    "reasons": {
+      "spam": "Barua taka",
+      "harassment": "Unyanyasaji",
+      "scam": "Ulaghai",
+      "misleading": "Taarifa za upotoshaji",
+      "inappropriate": "Maudhui yasiyofaa",
+      "other": "Nyingine"
+    },
+    "detailsLabel": "Maelezo zaidi (si lazima)",
+    "detailsPlaceholder": "Kuna kitu kingine ambacho wasimamizi wanapaswa kujua?",
+    "cancel": "Ghairi",
+    "submit": "Wasilisha ripoti",
+    "thanks": "Asante kwa kutujulisha. Wasimamizi wetu watapitia chapisho hili.",
+    "close": "Funga"
+  },
+  "comments": {
+    "title": "Maoni ({{count}})",
+    "empty": "Bado hakuna maoni — kuwa wa kwanza kujibu.",
+    "closed": "Maoni yamefungwa na msimamizi wa jumuiya.",
+    "reply": "Jibu",
+    "addComment": "Ongeza maoni",
+    "replyTo": "Jibu {{name}}",
+    "replyToPlaceholder": "Jibu {{name}}…",
+    "yourComment": "Maoni yako",
+    "shareThoughts": "Shiriki mawazo yako…",
+    "postReply": "Tuma jibu",
+    "postComment": "Tuma maoni"
+  },
+  "reactions": {
+    "love": "Napenda",
+    "like": "Nzuri",
+    "funny": "Kuchekesha",
+    "wow": "Ajabu",
+    "sad": "Huzuni",
+    "fire": "Muhimu",
+    "removeReaction": "Ondoa mwitikio wako wa {{label}}",
+    "likeThisPost": "Penda chapisho hili",
+    "yourReaction": "Mwitikio wako: {{label}}",
+    "reactToThisPost": "Toa mwitikio kwa chapisho hili"
+  },
+  "actions": {
+    "save": "Hifadhi",
+    "unsave": "Ondoa kwenye hifadhi",
+    "repost": "Rudisha chapisho",
+    "unrepost": "Ondoa kurudisha",
+    "share": "Shiriki",
+    "linkCopied": "Kiungo kimenakiliwa"
+  },
+  "suggested": {
+    "farmersToFollow": "Wakulima wa kufuata",
+    "communitiesToJoin": "Jumuiya za kujiunga",
+    "members": "wanachama",
+    "join": "Jiunge"
+  },
+  "quickComposer": {
+    "defaultPlaceholder": "Una wazo gani?",
+    "postAsAnnouncement": "Chapisha kama tangazo",
+    "addPhotos": "Ongeza picha",
+    "post": "Chapisha"
+  },
+  "createPost": {
+    "heading": "Unda chapisho",
+    "announcementHeading": "Tangazo jipya",
+    "postToHeading": "Chapisha kwa {{name}}",
+    "community": "jumuiya",
+    "captionPlaceholder": "Kuna nini shambani mwako? 🌱",
+    "captionLabel": "Maelezo ya chapisho",
+    "videoReel": "Video (Reel)",
+    "yourFeed": "Mlisho wako",
+    "postAsAnnouncement": "Chapisha kama tangazo la jumuiya",
+    "cancel": "Ghairi",
+    "uploadingPhotos": "Inapakia picha…",
+    "submit": "Chapisha"
+  },
+  "createReel": {
+    "heading": "Unda Reel",
+    "chooseDifferent": "Chagua video nyingine",
+    "selectVideo": "Chagua video kutoka kifaa chako",
+    "fileHint": "MP4, MOV, au WebM. Hadi MB 50.",
+    "coverOptional": "Jalada (si lazima)",
+    "useCurrentFrame": "Tumia fremu ya sasa kama jalada",
+    "captionLabel": "Maelezo ya Reel",
+    "captionPlaceholder": "Eleza Reel yako… ongeza #hashtags kama #Mahindi #KudhibitiWadudu",
+    "yourFeed": "Mlisho wako",
+    "cancel": "Ghairi",
+    "shareReel": "Shiriki Reel",
+    "uploadingVideo": "Inapakia video…",
+    "uploadingVideoPercent": "Inapakia video… {{percent}}%",
+    "uploadingCover": "Inapakia jalada…",
+    "publishing": "Inachapisha…",
+    "defaultTitle": "FarmClip"
+  },
+  "detail": {
+    "loading": "Inapakia chapisho…",
+    "notFound": "Chapisho halikupatikana"
+  },
+  "media": {
+    "postPhotos": "Picha za chapisho",
+    "photoOfCount": "Picha {{index}} kati ya {{total}}"
+  },
+  "saved": {
+    "title": "Zilizohifadhiwa",
+    "subtitle": "Machapisho na Reels ulizohifadhi ili kuzirudia baadaye.",
+    "tabPosts": "Machapisho",
+    "tabReels": "Reels",
+    "noSavedReels": "Hakuna Reels zilizohifadhiwa bado",
+    "noSavedPosts": "Hakuna machapisho yaliyohifadhiwa bado",
+    "description": "Hifadhi maudhui ili uyarudie baadaye."
+  }
+}

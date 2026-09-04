@@ -1,0 +1,26 @@
+{
+  "title": "Arifa",
+  "subtitle": "Shughuli kwenye machapisho na wasifu wako.",
+  "markAllRead": "Weka zote kama zilizosomwa",
+  "loading": "Inapakia arifa…",
+  "emptyTitle": "Bado hakuna arifa",
+  "emptyDescription": "Mtu akipenda, kutoa maoni, au kukufuata, itaonekana hapa.",
+  "groups": {
+    "Today": "Leo",
+    "Yesterday": "Jana",
+    "Earlier": "Hapo awali"
+  },
+  "text": {
+    "post_like": {
+      "post": "{{name}} amependa chapisho lako",
+      "reel": "{{name}} amependa Reel yako"
+    },
+    "post_comment": {
+      "post": "{{name}} ametoa maoni kwenye chapisho lako",
+      "reel": "{{name}} ametoa maoni kwenye Reel yako"
+    },
+    "comment_reply": "{{name}} amejibu maoni yako",
+    "follow": "{{name}} ameanza kukufuata",
+    "default": "{{name}} amewasiliana na maudhui yako"
+  }
+}

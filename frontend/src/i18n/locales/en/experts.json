@@ -1,0 +1,32 @@
+{
+  "list": {
+    "title": "Experts",
+    "subtitle": "Verified agricultural experts ready to help.",
+    "searchPlaceholder": "Search experts by name or location…",
+    "searchAriaLabel": "Search experts",
+    "loading": "Loading experts…",
+    "noMatchesTitle": "No experts match your search",
+    "noMatchesDescription": "Try a different search term.",
+    "noExpertsTitle": "No experts yet",
+    "noExpertsDescription": "Expert profiles will appear here."
+  },
+  "profile": {
+    "loading": "Loading profile…",
+    "back": "Back",
+    "tabPosts": "Posts",
+    "tabReels": "Reels",
+    "noReelsTitle": "No Reels yet",
+    "noPostsTitle": "No posts yet",
+    "farmerNoReels": "This farmer has not shared any Reels.",
+    "expertNoPosts": "This expert has not published any posts."
+  },
+  "follow": {
+    "following": "Following",
+    "follow": "Follow",
+    "nowFollowing": "Following {{name}}",
+    "unfollowed": "Unfollowed {{name}}"
+  },
+  "message": {
+    "message": "Message"
+  }
+}

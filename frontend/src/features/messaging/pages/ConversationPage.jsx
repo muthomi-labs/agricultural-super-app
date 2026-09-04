@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Avatar, Button, ErrorState, LoadingState, Textarea } from '@/components/ui'
 import { SendIcon } from '@/components/icons'
 import { formatRelativeTime } from '@/lib/format'
@@ -9,6 +10,7 @@ import { fetchConversation, markMessageRead, sendMessage } from '@/store/slices/
 import '../messaging.css'
 
 export function ConversationPage() {
+  const { t } = useTranslation('messaging')
   const { conversationId } = useParams()
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
@@ -38,7 +40,7 @@ export function ConversationPage() {
     bottomRef.current?.scrollIntoView({ block: 'end' })
   }, [conversation?.messages.length])
 
-  if (status === 'loading') return <LoadingState label="Loading conversation…" />
+  if (status === 'loading') return <LoadingState label={t('thread.loading')} />
   if (status === 'error' || !conversation) {
     return <ErrorState message={error ?? undefined} onRetry={() => dispatch(fetchConversation(Number(conversationId)))} />
   }
@@ -47,7 +49,7 @@ export function ConversationPage() {
   const partnerName =
     partner?.profile.firstName && partner?.profile.lastName
       ? `${partner.profile.firstName} ${partner.profile.lastName}`
-      : partner?.user.username ?? 'Conversation'
+      : partner?.user.username ?? t('list.conversationFallback')
 
   const orderedMessages = [...conversation.messages].sort((a, b) => a.createdAt.localeCompare(b.createdAt))
 
@@ -62,7 +64,7 @@ export function ConversationPage() {
   return (
     <div className="asa-thread">
       <header className="asa-thread__header">
-        <Button variant="ghost" size="sm" onClick={() => navigate('/messages')} aria-label="Back to messages">
+        <Button variant="ghost" size="sm" onClick={() => navigate('/messages')} aria-label={t('thread.backToMessages')}>
           &larr;
         </Button>
         <Avatar imageUrl={partner?.profile.profileImageUrl} name={partnerName} username={partner?.user.username} size="sm" />
@@ -91,8 +93,8 @@ export function ConversationPage() {
           rows={1}
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
-          placeholder="Type a message…"
-          aria-label="Message"
+          placeholder={t('thread.placeholder')}
+          aria-label={t('thread.ariaLabel')}
           onKeyDown={(e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
               e.preventDefault()
@@ -100,7 +102,7 @@ export function ConversationPage() {
             }
           }}
         />
-        <Button type="submit" loading={sending} disabled={!draft.trim()} aria-label="Send message">
+        <Button type="submit" loading={sending} disabled={!draft.trim()} aria-label={t('thread.send')}>
           <SendIcon width={18} height={18} />
         </Button>
       </form>

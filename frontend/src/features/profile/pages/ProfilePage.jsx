@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Button, EmptyState, Tabs } from '@/components/ui'
 import { useAuth } from '@/features/auth/AuthContext'
 import { fetchFollowersCount, fetchMyFollowing } from '@/store/slices/expertsSlice'
@@ -10,14 +11,14 @@ import { FollowingListModal } from '../components/FollowingListModal'
 import { ProfileHero } from '../components/ProfileHero'
 import '../profile.css'
 
-const TABS = [
-  { value: 'posts', label: 'Your posts' },
-  { value: 'reels', label: 'Reels' },
-  { value: 'saved', label: 'Saved' },
-]
-
 export function ProfilePage() {
+  const { t } = useTranslation('profile')
   const { user } = useAuth()
+  const TABS = [
+    { value: 'posts', label: t('tabs.posts') },
+    { value: 'reels', label: t('tabs.reels') },
+    { value: 'saved', label: t('tabs.saved') },
+  ]
   const dispatch = useAppDispatch()
   const [tab, setTab] = useState('posts')
   const [followingModalOpen, setFollowingModalOpen] = useState(false)
@@ -56,9 +57,9 @@ export function ProfilePage() {
         onFollowingClick={() => setFollowingModalOpen(true)}
         actions={
           <>
-            <Button to="/profile/edit">Edit profile</Button>
+            <Button to="/profile/edit">{t('hero.editProfile')}</Button>
             <Button variant="secondary" to="/profile/change-password">
-              Change password
+              {t('hero.changePassword')}
             </Button>
           </>
         }
@@ -77,9 +78,9 @@ export function ProfilePage() {
           {postsStatus === 'loading' && <GridSkeleton />}
           {postsStatus === 'ready' && textPosts.length === 0 && (
             <EmptyState
-              title="You have not posted yet"
-              description="Share your first agricultural post with the community."
-              action={<Button to="/create">Write a post</Button>}
+              title={t('empty.noPostsTitle')}
+              description={t('empty.noPostsDescription')}
+              action={<Button to="/create">{t('empty.writePost')}</Button>}
             />
           )}
           {postsStatus === 'ready' && textPosts.length > 0 && <PostGrid posts={textPosts} />}
@@ -91,9 +92,9 @@ export function ProfilePage() {
           {postsStatus === 'loading' && <GridSkeleton />}
           {postsStatus === 'ready' && reels.length === 0 && (
             <EmptyState
-              title="No Reels yet"
-              description="Share a short farm video to see it here."
-              action={<Button to="/create/reel">Create a Reel</Button>}
+              title={t('empty.noReelsTitle')}
+              description={t('empty.noReelsDescription')}
+              action={<Button to="/create/reel">{t('empty.createReel')}</Button>}
               icon="🎬"
             />
           )}
@@ -105,7 +106,7 @@ export function ProfilePage() {
         <>
           {savedPostsStatus === 'loading' && <GridSkeleton />}
           {savedPostsStatus === 'ready' && savedPosts.length === 0 && (
-            <EmptyState title="No saved posts yet" description="Save posts to come back to them later." icon="🔖" />
+            <EmptyState title={t('empty.noSavedTitle')} description={t('empty.noSavedDescription')} icon="🔖" />
           )}
           {savedPostsStatus === 'ready' && savedPosts.length > 0 && <PostGrid posts={savedPosts} />}
         </>

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Button, EmptyState, ErrorState, Tabs } from '@/components/ui'
 import { fetchFeed } from '@/store/slices/postsSlice'
 import { fetchMyFollowing } from '@/store/slices/expertsSlice'
@@ -9,27 +10,18 @@ import { SuggestedPanel } from '../components/SuggestedPanel'
 import { FeedSkeleton } from '../components/PostCardSkeleton'
 import '../components/posts.css'
 
-const FEED_FILTERS = [
-  { value: 'all', label: 'All' },
-  { value: 'announcements', label: 'Announcements' },
-  { value: 'following', label: 'Following' },
-]
-
-const FARMING_TIPS = [
-  'Rotate your crops each season to keep the soil healthy and reduce pest build-up.',
-  'Test your soil before planting so you add exactly the nutrients it needs.',
-  'Mulching around plants helps retain moisture and suppress weeds.',
-  'Water early in the morning to reduce evaporation loss.',
-  'Isolate a sick animal right away to stop disease spreading through your herd.',
-  'Space seedlings properly — overcrowding invites pests and disease.',
-]
-
-function tipOfTheDay() {
-  return FARMING_TIPS[new Date().getDate() % FARMING_TIPS.length]
+function tipOfTheDay(tips) {
+  return tips[new Date().getDate() % tips.length]
 }
 
 export function FeedPage() {
+  const { t } = useTranslation('posts')
   const dispatch = useAppDispatch()
+  const FEED_FILTERS = [
+    { value: 'all', label: t('feed.filters.all') },
+    { value: 'announcements', label: t('feed.filters.announcements') },
+    { value: 'following', label: t('feed.filters.following') },
+  ]
   const posts = useAppSelector((state) => state.posts.feed)
   const status = useAppSelector((state) => state.posts.feedStatus)
   const error = useAppSelector((state) => state.posts.feedError)
@@ -49,24 +41,26 @@ export function FeedPage() {
 
   const emptyCopy = {
     all: {
-      title: 'No posts yet',
-      description: 'Be the first person to share something with the community.',
+      title: t('feed.empty.allTitle'),
+      description: t('feed.empty.allDescription'),
     },
     announcements: {
-      title: 'No announcements yet',
-      description: 'Community announcements will show up here.',
+      title: t('feed.empty.announcementsTitle'),
+      description: t('feed.empty.announcementsDescription'),
     },
     following: {
-      title: 'No posts from people you follow',
-      description: 'Follow farmers and experts to see their posts here.',
+      title: t('feed.empty.followingTitle'),
+      description: t('feed.empty.followingDescription'),
     },
   }[filter]
+
+  const tips = t('feed.tips', { returnObjects: true })
 
   return (
     <div className="asa-feed-layout">
       <div className="asa-feed-layout__main">
         <p className="asa-feed-tip">
-          <strong>🌱 Farming tip:</strong> {tipOfTheDay()}
+          <strong>🌱 {t('feed.farmingTip')}</strong> {tipOfTheDay(tips)}
         </p>
 
         <StoryBar />
@@ -79,7 +73,7 @@ export function FeedPage() {
           <EmptyState
             title={emptyCopy.title}
             description={emptyCopy.description}
-            action={filter === 'all' ? <Button to="/create">Write a post</Button> : undefined}
+            action={filter === 'all' ? <Button to="/create">{t('feed.empty.writePost')}</Button> : undefined}
           />
         )}
         {status === 'ready' &&

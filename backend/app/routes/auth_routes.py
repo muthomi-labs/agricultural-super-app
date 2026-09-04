@@ -41,6 +41,11 @@ def register():
               type: string
               enum: [farmer, expert]
               default: farmer
+            language:
+              type: string
+              enum: [en, sw]
+              default: en
+              description: UI/AI language preference.
     responses:
       201:
         description: Account created.

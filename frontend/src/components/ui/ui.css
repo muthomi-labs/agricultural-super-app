@@ -788,3 +788,37 @@
     bottom: var(--space-5);
   }
 }
+
+.asa-lang-switcher {
+  display: inline-flex;
+  padding: 2px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-surface-muted);
+  border: 1px solid var(--color-border);
+}
+
+.asa-lang-switcher__option {
+  border: none;
+  background: transparent;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: var(--transition-base);
+  white-space: nowrap;
+}
+
+.asa-lang-switcher__option:hover {
+  color: var(--color-text);
+}
+
+.asa-lang-switcher__option--active {
+  background-color: var(--color-primary);
+  color: var(--color-primary-contrast);
+}
+
+.asa-lang-switcher__option--active:hover {
+  color: var(--color-primary-contrast);
+}

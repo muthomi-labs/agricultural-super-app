@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Button, ImageUploader, Input, PageHeader, Textarea } from '@/components/ui'
+import { useTranslation } from 'react-i18next'
+import { Button, ImageUploader, Input, LanguageSwitcher, PageHeader, Textarea } from '@/components/ui'
 import { updateProfile } from '@/store/slices/profileSlice'
 import { useAppDispatch } from '@/store/hooks'
 import { useAuth, errorMessage } from '@/features/auth/AuthContext'
 
 export function EditProfilePage() {
+  const { t } = useTranslation('profile')
   const { user, refreshProfile } = useAuth()
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
@@ -55,10 +57,10 @@ export function EditProfilePage() {
 
   return (
     <>
-      <PageHeader title="Edit profile" subtitle="Update your public information." />
+      <PageHeader title={t('edit.title')} subtitle={t('edit.subtitle')} />
       <form onSubmit={handleSubmit}>
         <ImageUploader
-          label="Profile photo"
+          label={t('edit.photo')}
           multiple={false}
           maxFiles={1}
           value={profileImageUrl ? [profileImageUrl] : []}
@@ -66,41 +68,46 @@ export function EditProfilePage() {
           onBusyChange={setImageUploading}
         />
         <Input
-          label="First name"
+          label={t('edit.firstName')}
           name="firstName"
           autoComplete="given-name"
           value={form.firstName}
           onChange={(e) => setField('firstName', e.target.value)}
         />
         <Input
-          label="Last name"
+          label={t('edit.lastName')}
           name="lastName"
           autoComplete="family-name"
           value={form.lastName}
           onChange={(e) => setField('lastName', e.target.value)}
         />
         <Textarea
-          label="Bio"
+          label={t('edit.bio')}
           name="bio"
           rows={4}
           value={form.bio}
           onChange={(e) => setField('bio', e.target.value)}
         />
         <Input
-          label="Location"
+          label={t('edit.location')}
           name="location"
           value={form.location}
           onChange={(e) => setField('location', e.target.value)}
-          placeholder="e.g. Nakuru, Kenya"
+          placeholder={t('edit.locationPlaceholder')}
         />
         <Input
-          label="Phone number"
+          label={t('edit.phoneNumber')}
           name="phoneNumber"
           type="tel"
           autoComplete="tel"
           value={form.phoneNumber}
           onChange={(e) => setField('phoneNumber', e.target.value)}
         />
+        <div className="asa-field">
+          <span className="asa-field__label">{t('edit.language')}</span>
+          <span className="asa-field__hint">{t('edit.languageDescription')}</span>
+          <LanguageSwitcher />
+        </div>
         {error && (
           <p className="asa-form-error" role="alert">
             {error}
@@ -108,10 +115,10 @@ export function EditProfilePage() {
         )}
         <div className="asa-profile-edit__actions">
           <Button type="submit" loading={saving} disabled={saving || imageUploading}>
-            {imageUploading ? 'Waiting for photo to finish uploading…' : 'Save changes'}
+            {imageUploading ? t('edit.waitingForPhoto') : t('edit.saveChanges')}
           </Button>
           <Button variant="ghost" type="button" onClick={() => navigate('/profile')}>
-            Cancel
+            {t('edit.cancel')}
           </Button>
         </div>
       </form>

@@ -1,17 +1,15 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Button, Modal } from '@/components/ui'
 import { errorMessage } from '@/features/auth/AuthContext'
 import { updateCommunitySettings } from '@/store/slices/communitiesSlice'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import '../communities.css'
 
-const PERMISSION_OPTIONS = [
-  { value: 'everyone', label: 'Everyone' },
-  { value: 'experts_only', label: 'Experts only' },
-  { value: 'admins_only', label: 'Admins only' },
-]
+const PERMISSION_VALUES = ['everyone', 'experts_only', 'admins_only']
 
 export function CommunitySettingsModal({ open, onClose, community }) {
+  const { t } = useTranslation('communities')
   const dispatch = useAppDispatch()
   const status = useAppSelector((state) => state.communities.settingsStatus)
   const [postingPermission, setPostingPermission] = useState(community.postingPermission)
@@ -35,25 +33,25 @@ export function CommunitySettingsModal({ open, onClose, community }) {
   }
 
   return (
-    <Modal open={open} title="Community Settings" onClose={onClose}>
+    <Modal open={open} title={t('settings.title')} onClose={onClose}>
       <div className="asa-community-settings">
         <label className="asa-community-settings__field">
-          <span>Who can post?</span>
+          <span>{t('settings.whoCanPost')}</span>
           <select value={postingPermission} onChange={(event) => setPostingPermission(event.target.value)}>
-            {PERMISSION_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
+            {PERMISSION_VALUES.map((value) => (
+              <option key={value} value={value}>
+                {t(`detail.permissions.${value}`)}
               </option>
             ))}
           </select>
         </label>
 
         <label className="asa-community-settings__field">
-          <span>Who can comment?</span>
+          <span>{t('settings.whoCanComment')}</span>
           <select value={messagingPermission} onChange={(event) => setMessagingPermission(event.target.value)}>
-            {PERMISSION_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
+            {PERMISSION_VALUES.map((value) => (
+              <option key={value} value={value}>
+                {t(`detail.permissions.${value}`)}
               </option>
             ))}
           </select>
@@ -65,7 +63,7 @@ export function CommunitySettingsModal({ open, onClose, community }) {
             checked={commentsEnabled}
             onChange={(event) => setCommentsEnabled(event.target.checked)}
           />
-          <span>Allow comments</span>
+          <span>{t('settings.allowComments')}</span>
         </label>
 
         {error && (
@@ -75,7 +73,7 @@ export function CommunitySettingsModal({ open, onClose, community }) {
         )}
 
         <Button onClick={handleSave} loading={status === 'loading'}>
-          Save settings
+          {t('settings.save')}
         </Button>
       </div>
     </Modal>

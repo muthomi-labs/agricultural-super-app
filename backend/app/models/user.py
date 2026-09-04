@@ -38,6 +38,19 @@ class User(db.Model):
         default=True
     )
 
+    # UI/AI language preference -- "en" or "sw" (Kiswahili). Drives both
+    # which language the frontend renders in (see the /auth/me, login,
+    # and register responses, which all dump this via UserSchema) and
+    # which language the AI Farming Assistant defaults to when a
+    # message's own language is ambiguous (see
+    # app/services/ai_service.py's _build_system_prompt).
+    language = db.Column(
+        db.String(5),
+        default="en",
+        nullable=False,
+        server_default="en",
+    )
+
     created_at = db.Column(
         db.DateTime,
         default=datetime.utcnow

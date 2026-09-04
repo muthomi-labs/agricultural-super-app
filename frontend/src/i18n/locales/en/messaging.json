@@ -1,0 +1,19 @@
+{
+  "list": {
+    "title": "Messages",
+    "subtitle": "Conversations with experts and farmers you've connected with.",
+    "loading": "Loading conversations…",
+    "emptyTitle": "No conversations yet",
+    "emptyDescription": "Message an expert from their profile to start a conversation.",
+    "conversationFallback": "Conversation",
+    "youPrefix": "You: {{content}}",
+    "noMessagesYet": "No messages yet"
+  },
+  "thread": {
+    "backToMessages": "Back to messages",
+    "loading": "Loading conversation…",
+    "placeholder": "Type a message…",
+    "ariaLabel": "Message",
+    "send": "Send message"
+  }
+}

@@ -17,6 +17,24 @@ class TestGetUserOr404:
             user_service.get_user_or_404(999999)
 
 
+class TestUpdateLanguage:
+    def test_defaults_to_english(self, create_user):
+        user = create_user(username="amina")
+        assert user.language == "en"
+
+    def test_updates_to_kiswahili(self, create_user):
+        user = create_user(username="amina")
+        updated = user_service.update_language(user, "sw")
+        assert updated.language == "sw"
+        assert user.language == "sw"  # same row, mutated in place
+
+    def test_persists_across_a_fresh_lookup(self, create_user):
+        user = create_user(username="amina")
+        user_service.update_language(user, "sw")
+        reloaded = user_service.get_user_or_404(user.id)
+        assert reloaded.language == "sw"
+
+
 class TestUpsertOwnProfile:
     def test_creates_profile_when_none_exists(self, create_user):
         user = create_user(username="amina")

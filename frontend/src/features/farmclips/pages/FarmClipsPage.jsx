@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { EmptyState, ErrorState } from '@/components/ui'
 import { fetchReels } from '@/store/slices/postsSlice'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
@@ -6,6 +7,7 @@ import { ReelCard } from '../components/ReelCard'
 import '../farmclips.css'
 
 export function FarmClipsPage() {
+  const { t } = useTranslation('reels')
   const dispatch = useAppDispatch()
   const reels = useAppSelector((state) => state.posts.reels)
   const status = useAppSelector((state) => state.posts.reelsStatus)
@@ -20,7 +22,7 @@ export function FarmClipsPage() {
     <div className="asa-reels-page">
       {status === 'loading' && (
         <div className="asa-reels-page__state">
-          <span>Loading FarmClips…</span>
+          <span>{t('loading')}</span>
         </div>
       )}
       {status === 'error' && (
@@ -32,8 +34,8 @@ export function FarmClipsPage() {
         <div className="asa-reels-page__state">
           <EmptyState
             icon="🎬"
-            title="No FarmClips yet"
-            description="Be the first to share a short farm video."
+            title={t('empty.title')}
+            description={t('empty.description')}
           />
         </div>
       )}

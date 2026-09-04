@@ -39,6 +39,7 @@ export function toUserProfile(u) {
       username: u.username,
       email: u.email ?? null,
       role: u.role,
+      language: u.language ?? 'en',
       isActive: u.is_active ?? true,
       createdAt: u.created_at,
       updatedAt: u.updated_at,

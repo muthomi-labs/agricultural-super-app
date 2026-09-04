@@ -1,0 +1,63 @@
+{
+  "appName": "AgriConnect",
+  "buttons": {
+    "save": "Hifadhi",
+    "saving": "Inahifadhi…",
+    "cancel": "Ghairi",
+    "submit": "Wasilisha",
+    "close": "Funga",
+    "closeDialog": "Funga dirisha",
+    "confirm": "Thibitisha",
+    "delete": "Futa",
+    "edit": "Hariri",
+    "back": "Rudi",
+    "next": "Endelea",
+    "tryAgain": "Jaribu tena",
+    "share": "Shiriki",
+    "follow": "Fuata",
+    "unfollow": "Acha kufuata",
+    "seeAll": "Ona zote",
+    "loadMore": "Pakia zaidi",
+    "post": "Chapisha",
+    "comment": "Toa maoni",
+    "reply": "Jibu",
+    "send": "Tuma",
+    "create": "Unda",
+    "upload": "Pakia",
+    "remove": "Ondoa",
+    "logOut": "Toka",
+    "goToFeed": "Nenda kwenye mlisho"
+  },
+  "states": {
+    "loading": "Inapakia…",
+    "somethingWrong": "Hitilafu imetokea",
+    "couldNotLoad": "Hatukuweza kupakia hili. Tafadhali jaribu tena.",
+    "pageNotFound": "Ukurasa haukupatikana",
+    "pageNotFoundDescription": "Ukurasa unaoutafuta haupo."
+  },
+  "verified": "Amethibitishwa",
+  "roles": {
+    "farmer": "Mkulima",
+    "expert": "Mtaalamu",
+    "admin": "Msimamizi"
+  },
+  "language": {
+    "en": "Kiingereza",
+    "sw": "Kiswahili",
+    "select": "Lugha",
+    "changed": "Lugha imesasishwa."
+  },
+  "imageUploader": {
+    "removeImage": "Ondoa picha",
+    "addPhotos": "Ongeza picha",
+    "choosePhoto": "Chagua picha",
+    "uploadFailed": "Kupakia kumeshindwa.",
+    "hint": "JPEG, PNG, au WebP. Hadi MB 5 kila moja."
+  },
+  "time": {
+    "justNow": "sasa hivi",
+    "minutesAgo": "dakika {{count}} zilizopita",
+    "hoursAgo": "saa {{count}} zilizopita",
+    "daysAgo": "siku {{count}} zilizopita"
+  }
+}

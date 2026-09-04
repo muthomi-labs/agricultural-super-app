@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Avatar } from '@/components/ui'
 import { XIcon } from '@/components/icons'
 import { asUtcDate, formatRelativeTime } from '@/lib/format'
@@ -12,6 +13,7 @@ function isExpired(slide) {
 }
 
 export function StoryViewer({ stories, startIndex = 0, onClose }) {
+  const { t } = useTranslation('stories')
   const [userIndex, setUserIndex] = useState(startIndex)
   const [slideIndex, setSlideIndex] = useState(0)
   const [progress, setProgress] = useState(0)
@@ -84,7 +86,7 @@ export function StoryViewer({ stories, startIndex = 0, onClose }) {
   }
 
   return (
-    <div className="asa-story-viewer" role="dialog" aria-modal="true" aria-label={`${story.authorName}'s story`}>
+    <div className="asa-story-viewer" role="dialog" aria-modal="true" aria-label={t('viewer.ariaLabel', { name: story.authorName })}>
       <div className="asa-story-viewer__stage">
         <div className="asa-story-viewer__progress">
           {story.slides.map((s, index) => (
@@ -101,7 +103,7 @@ export function StoryViewer({ stories, startIndex = 0, onClose }) {
           <Avatar imageUrl={story.authorImageUrl} name={story.authorName} username={story.authorUsername} size="sm" />
           <strong>{story.authorName}</strong>
           <time>{formatRelativeTime(slide.createdAt)}</time>
-          <button type="button" className="asa-story-viewer__close" onClick={onClose} aria-label="Close story">
+          <button type="button" className="asa-story-viewer__close" onClick={onClose} aria-label={t('viewer.close')}>
             <XIcon width={16} height={16} />
           </button>
         </div>
@@ -114,13 +116,13 @@ export function StoryViewer({ stories, startIndex = 0, onClose }) {
             type="button"
             className="asa-story-viewer__tap-zone asa-story-viewer__tap-zone--prev"
             onClick={goPrev}
-            aria-label="Previous story"
+            aria-label={t('viewer.previous')}
           />
           <button
             type="button"
             className="asa-story-viewer__tap-zone asa-story-viewer__tap-zone--next"
             onClick={goNext}
-            aria-label="Next story"
+            aria-label={t('viewer.next')}
           />
         </div>
       </div>

@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Avatar, Button, EmptyState, ErrorState, LoadingState, PageHeader } from '@/components/ui'
 import { formatRelativeTime, groupByDay } from '@/lib/format'
 import {
@@ -16,14 +17,14 @@ function actorName(actor) {
     : actor.user.username
 }
 
-function notificationText(notification) {
+function notificationText(t, notification) {
   const name = actorName(notification.actor)
-  const target = notification.isReel ? 'Reel' : 'post'
-  if (notification.type === 'post_like') return `${name} liked your ${target}`
-  if (notification.type === 'post_comment') return `${name} commented on your ${target}`
-  if (notification.type === 'comment_reply') return `${name} replied to your comment`
-  if (notification.type === 'follow') return `${name} started following you`
-  return `${name} interacted with your content`
+  const target = notification.isReel ? 'reel' : 'post'
+  if (notification.type === 'post_like') return t(`text.post_like.${target}`, { name })
+  if (notification.type === 'post_comment') return t(`text.post_comment.${target}`, { name })
+  if (notification.type === 'comment_reply') return t('text.comment_reply', { name })
+  if (notification.type === 'follow') return t('text.follow', { name })
+  return t('text.default', { name })
 }
 
 function notificationLink(notification) {
@@ -32,6 +33,7 @@ function notificationLink(notification) {
 }
 
 export function NotificationsPage() {
+  const { t } = useTranslation('notifications')
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
   const notifications = useAppSelector((state) => state.notifications.items)
@@ -51,25 +53,25 @@ export function NotificationsPage() {
   return (
     <>
       <PageHeader
-        title="Notifications"
-        subtitle="Activity on your posts and profile."
+        title={t('title')}
+        subtitle={t('subtitle')}
         actions={
           hasUnread ? (
             <Button variant="secondary" size="sm" onClick={() => dispatch(markAllNotificationsRead())}>
-              Mark all as read
+              {t('markAllRead')}
             </Button>
           ) : undefined
         }
       />
 
-      {status === 'loading' && <LoadingState label="Loading notifications…" />}
+      {status === 'loading' && <LoadingState label={t('loading')} />}
       {status === 'error' && (
         <ErrorState message={error ?? undefined} onRetry={() => dispatch(fetchNotifications())} />
       )}
       {status === 'ready' && notifications.length === 0 && (
         <EmptyState
-          title="No notifications yet"
-          description="When someone likes, comments on, or follows you, it'll show up here."
+          title={t('emptyTitle')}
+          description={t('emptyDescription')}
           icon="🔔"
         />
       )}
@@ -77,7 +79,7 @@ export function NotificationsPage() {
       {status === 'ready' &&
         groupByDay(notifications, 'createdAt').map(([label, items]) => (
           <section key={label} className="asa-notifications__group">
-            <h2 className="asa-notifications__group-title">{label}</h2>
+            <h2 className="asa-notifications__group-title">{t(`groups.${label}`)}</h2>
             <ul className="asa-notifications__list">
               {items.map((notification) => (
                 <li key={notification.id}>
@@ -94,7 +96,7 @@ export function NotificationsPage() {
                     />
                     <span className="asa-notifications__body">
                       <span className="asa-notifications__text">
-                        {notificationText(notification)}
+                        {notificationText(t, notification)}
                         {notification.postTitle && <> — <em>{notification.postTitle}</em></>}
                       </span>
                       <span className="asa-notifications__time">{formatRelativeTime(notification.createdAt)}</span>

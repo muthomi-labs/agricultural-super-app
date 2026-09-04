@@ -98,7 +98,7 @@ def ask_assistant():
     if messages[-1]["role"] != "user":
         raise ValidationAPIError("The last message must be from the user.")
 
-    reply = ai_service.ask_assistant(messages)
+    reply = ai_service.ask_assistant(messages, language=get_current_user().language)
     return jsonify({"reply": reply}), 200
 
 

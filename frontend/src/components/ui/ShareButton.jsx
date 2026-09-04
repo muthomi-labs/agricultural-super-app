@@ -1,8 +1,10 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Button } from './Button'
 import { ShareIcon } from '@/components/icons'
 
 export function ShareButton({ postId }) {
+  const { t } = useTranslation('posts')
   const [copied, setCopied] = useState(false)
 
   async function handleShare() {
@@ -29,8 +31,8 @@ export function ShareButton({ postId }) {
   return (
     <Button variant="ghost" size="sm" onClick={handleShare} className="asa-post__action">
       <ShareIcon width={18} height={18} />
-      <span className="visually-hidden">Share</span>
-      {copied && <span className="asa-share-feedback">Link copied</span>}
+      <span className="visually-hidden">{t('actions.share')}</span>
+      {copied && <span className="asa-share-feedback">{t('actions.linkCopied')}</span>}
     </Button>
   )
 }

@@ -1,19 +1,22 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { ChevronDownIcon, HeartIcon } from '@/components/icons'
 import './ui.css'
 
 export const REACTIONS = [
-  { type: 'love', emoji: '❤️', label: 'Love' },
-  { type: 'like', emoji: '👍', label: 'Like' },
-  { type: 'funny', emoji: '😂', label: 'Funny' },
-  { type: 'wow', emoji: '😮', label: 'Wow' },
-  { type: 'sad', emoji: '😢', label: 'Sad' },
-  { type: 'fire', emoji: '🔥', label: 'Useful' },
+  { type: 'love', emoji: '❤️' },
+  { type: 'like', emoji: '👍' },
+  { type: 'funny', emoji: '😂' },
+  { type: 'wow', emoji: '😮' },
+  { type: 'sad', emoji: '😢' },
+  { type: 'fire', emoji: '🔥' },
 ]
 
-const REACTIONS_BY_TYPE = Object.fromEntries(REACTIONS.map((reaction) => [reaction.type, reaction]))
-
 export function ReactionPicker({ reactionCounts = {}, myReaction, onReact, onRemove, loading = false }) {
+  const { t } = useTranslation('posts')
+  const REACTIONS_BY_TYPE = Object.fromEntries(
+    REACTIONS.map((reaction) => [reaction.type, { ...reaction, label: t(`reactions.${reaction.type}`) }]),
+  )
   const [open, setOpen] = useState(false)
   const rootRef = useRef(null)
   const close = useCallback(() => setOpen(false), [])
@@ -75,7 +78,7 @@ export function ReactionPicker({ reactionCounts = {}, myReaction, onReact, onRem
           )}
           <span>{totalCount}</span>
           <span className="visually-hidden">
-            {current ? `Remove your ${current.label} reaction` : 'Like this post'}
+            {current ? t('reactions.removeReaction', { label: current.label }) : t('reactions.likeThisPost')}
           </span>
         </button>
         <button
@@ -84,7 +87,9 @@ export function ReactionPicker({ reactionCounts = {}, myReaction, onReact, onRem
           onClick={() => setOpen((value) => !value)}
           aria-haspopup="menu"
           aria-expanded={open}
-          aria-label={current ? `Your reaction: ${current.label}` : 'React to this post'}
+          aria-label={
+            current ? t('reactions.yourReaction', { label: current.label }) : t('reactions.reactToThisPost')
+          }
           disabled={loading}
         >
           <ChevronDownIcon width={14} height={14} />
@@ -93,20 +98,23 @@ export function ReactionPicker({ reactionCounts = {}, myReaction, onReact, onRem
 
       {open && (
         <ul className="asa-reaction-picker__menu" role="menu">
-          {REACTIONS.map((reaction) => (
-            <li key={reaction.type} role="none">
-              <button
-                type="button"
-                role="menuitem"
-                className={`asa-reaction-picker__option ${myReaction === reaction.type ? 'asa-reaction-picker__option--active' : ''}`}
-                onClick={() => handlePick(reaction.type)}
-                aria-label={reaction.label}
-                title={reaction.label}
-              >
-                {reaction.emoji}
-              </button>
-            </li>
-          ))}
+          {REACTIONS.map((reaction) => {
+            const label = t(`reactions.${reaction.type}`)
+            return (
+              <li key={reaction.type} role="none">
+                <button
+                  type="button"
+                  role="menuitem"
+                  className={`asa-reaction-picker__option ${myReaction === reaction.type ? 'asa-reaction-picker__option--active' : ''}`}
+                  onClick={() => handlePick(reaction.type)}
+                  aria-label={label}
+                  title={label}
+                >
+                  {reaction.emoji}
+                </button>
+              </li>
+            )
+          })}
         </ul>
       )}
     </div>

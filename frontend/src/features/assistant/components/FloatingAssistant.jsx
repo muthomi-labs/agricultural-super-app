@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Button, PostContent, Spinner, Textarea } from '@/components/ui'
 import { BotIcon, XIcon } from '@/components/icons'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
@@ -13,6 +14,7 @@ import {
 import '../assistant.css'
 
 export function FloatingAssistant() {
+  const { t } = useTranslation('assistant')
   const location = useLocation()
   const dispatch = useAppDispatch()
 
@@ -76,35 +78,35 @@ export function FloatingAssistant() {
         type="button"
         className="asa-floating-ai__trigger"
         onClick={() => setOpen(true)}
-        aria-label="Open AI assistant"
+        aria-label={t('floating.openLabel')}
       >
         <BotIcon width={20} height={20} />
-        <span>AI</span>
+        <span>{t('floating.trigger')}</span>
       </button>
     )
   }
 
   return (
-    <div className="asa-floating-ai__panel" role="dialog" aria-label="Agricultural AI assistant">
+    <div className="asa-floating-ai__panel" role="dialog" aria-label={t('floating.panelLabel')}>
       <header className="asa-floating-ai__header">
         {view === 'chat' ? (
           <button
             type="button"
             className="asa-floating-ai__icon-btn"
             onClick={() => setView('list')}
-            aria-label="Back to conversations"
+            aria-label={t('conversation.backToConversations')}
           >
             &larr;
           </button>
         ) : (
           <BotIcon width={18} height={18} />
         )}
-        <strong className="asa-floating-ai__title">Agricultural AI</strong>
+        <strong className="asa-floating-ai__title">{t('floating.title')}</strong>
         <button
           type="button"
           className="asa-floating-ai__icon-btn"
           onClick={() => setOpen(false)}
-          aria-label="Close AI assistant"
+          aria-label={t('floating.closeLabel')}
         >
           <XIcon width={16} height={16} />
         </button>
@@ -113,26 +115,26 @@ export function FloatingAssistant() {
       {view === 'list' && (
         <div className="asa-floating-ai__list">
           <Button size="sm" onClick={startNewConversation}>
-            New conversation
+            {t('floating.newConversation')}
           </Button>
 
           {conversationsStatus === 'loading' && <Spinner size="sm" />}
           {conversationsStatus === 'ready' && conversations.length === 0 && (
-            <p className="asa-floating-ai__empty">Ask about crops, pests, soil, livestock, and more.</p>
+            <p className="asa-floating-ai__empty">{t('floating.emptyHint')}</p>
           )}
 
           <ul className="asa-floating-ai__conversations">
             {conversations.map((conversation) => (
               <li key={conversation.id}>
                 <button type="button" onClick={() => openConversation(conversation.id)}>
-                  {conversation.title ?? 'New conversation'}
+                  {conversation.title ?? t('floating.newConversationFallback')}
                 </button>
               </li>
             ))}
           </ul>
 
           <Link to="/assistant" className="asa-floating-ai__full-link" onClick={() => setOpen(false)}>
-            Open full assistant
+            {t('floating.openFull')}
           </Link>
         </div>
       )}
@@ -155,7 +157,7 @@ export function FloatingAssistant() {
               <div className="asa-floating-ai-message asa-floating-ai-message--error">
                 {sendError}
                 <Button variant="outline" size="sm" onClick={() => lastFailedContent && send(lastFailedContent)}>
-                  Try again
+                  {t('floating.tryAgain')}
                 </Button>
               </div>
             )}
@@ -169,8 +171,8 @@ export function FloatingAssistant() {
               rows={1}
               value={draft}
               onChange={(event) => setDraft(event.target.value)}
-              placeholder="Ask anything…"
-              aria-label="Ask the assistant"
+              placeholder={t('floating.askPlaceholder')}
+              aria-label={t('floating.askAriaLabel')}
               onKeyDown={(event) => {
                 if (event.key === 'Enter' && !event.shiftKey) {
                   event.preventDefault()
@@ -178,7 +180,7 @@ export function FloatingAssistant() {
                 }
               }}
             />
-            <Button type="submit" size="sm" loading={sending} disabled={!draft.trim()} aria-label="Send">
+            <Button type="submit" size="sm" loading={sending} disabled={!draft.trim()} aria-label={t('floating.send')}>
               ➤
             </Button>
           </form>

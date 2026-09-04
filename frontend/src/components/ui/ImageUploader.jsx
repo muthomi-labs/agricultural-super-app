@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { CheckIcon, XIcon } from '@/components/icons'
 import { imageFileError, ALLOWED_IMAGE_MIME_TYPES } from '@/lib/imagePolicy'
 import { uploadsService } from '@/services'
@@ -19,6 +20,7 @@ let nextId = 0
  * locked to the camera only.
  */
 export function ImageUploader({ label, value = [], onChange, onBusyChange, multiple = true, maxFiles = 6 }) {
+  const { t } = useTranslation('common')
   const [items, setItems] = useState(() => value.map((url) => ({ id: `existing-${nextId++}`, url, previewUrl: url, status: 'done' })))
   const inputRef = useRef(null)
   const itemsRef = useRef(items)
@@ -74,7 +76,7 @@ export function ImageUploader({ label, value = [], onChange, onBusyChange, multi
         uploadsService
           .uploadImage(item.file, { onProgress: (progress) => updateItem(item.id, { progress }) })
           .then((result) => updateItem(item.id, { status: 'done', url: result.url }))
-          .catch((err) => updateItem(item.id, { status: 'error', error: err?.message ?? 'Upload failed.' }))
+          .catch((err) => updateItem(item.id, { status: 'error', error: err?.message ?? t('imageUploader.uploadFailed') }))
       })
   }
 
@@ -120,7 +122,7 @@ export function ImageUploader({ label, value = [], onChange, onBusyChange, multi
               type="button"
               className="asa-image-uploader__remove"
               onClick={() => handleRemove(item.id)}
-              aria-label="Remove image"
+              aria-label={t('imageUploader.removeImage')}
             >
               <XIcon width={14} height={14} />
             </button>
@@ -132,7 +134,7 @@ export function ImageUploader({ label, value = [], onChange, onBusyChange, multi
         {canAddMore && (
           <button type="button" className="asa-image-uploader__add" onClick={() => inputRef.current?.click()}>
             <span className="asa-image-uploader__add-icon">+</span>
-            <span>{multiple ? 'Add photos' : 'Choose photo'}</span>
+            <span>{multiple ? t('imageUploader.addPhotos') : t('imageUploader.choosePhoto')}</span>
           </button>
         )}
       </div>
@@ -149,7 +151,7 @@ export function ImageUploader({ label, value = [], onChange, onBusyChange, multi
         }}
       />
 
-      <span className="asa-field__hint">JPEG, PNG, or WebP. Up to 5MB each.</span>
+      <span className="asa-field__hint">{t('imageUploader.hint')}</span>
     </div>
   )
 }

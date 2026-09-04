@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Avatar, Card, EmptyState, ErrorState, LoadingState, PostContent, ReactionPicker, RepostButton, SaveButton, ShareButton, VerifiedBadge } from '@/components/ui'
 import { RepeatIcon } from '@/components/icons'
 import { formatRelativeTime } from '@/lib/format'
@@ -11,6 +12,7 @@ import { PostMedia } from '../components/PostMedia'
 import '../components/posts.css'
 
 export function PostDetailPage() {
+  const { t } = useTranslation('posts')
   const { postId } = useParams()
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
@@ -26,9 +28,9 @@ export function PostDetailPage() {
     if (postId) dispatch(fetchPost(Number(postId)))
   }, [dispatch, postId])
 
-  if (status === 'loading') return <LoadingState label="Loading post…" />
+  if (status === 'loading') return <LoadingState label={t('detail.loading')} />
   if (status === 'error') return <ErrorState message={error ?? undefined} onRetry={() => postId && dispatch(fetchPost(Number(postId)))} />
-  if (!post) return <EmptyState title="Post not found" />
+  if (!post) return <EmptyState title={t('detail.notFound')} />
 
   const authorName =
     post.author.profile.firstName && post.author.profile.lastName
@@ -65,13 +67,13 @@ export function PostDetailPage() {
 
         {post.originalPost && (
           <p className="asa-post-card__repost-note">
-            <RepeatIcon width={14} height={14} /> Reposted from{' '}
+            <RepeatIcon width={14} height={14} /> {t('card.repostedFrom')}{' '}
             {post.originalPost.author.profile.firstName || post.originalPost.author.user.username}
           </p>
         )}
 
         {displayedPost.isAnnouncement && (
-          <span className="asa-post-card__announcement">📢 Community Announcement</span>
+          <span className="asa-post-card__announcement">📢 {t('card.announcement')}</span>
         )}
 
         <h1 className="asa-post-detail__title">{displayedPost.title}</h1>
@@ -102,7 +104,11 @@ export function PostDetailPage() {
           <SaveButton saved={post.savedByMe} loading={saveLoading} onToggle={() => dispatch(toggleSave(post.id))} />
         </footer>
 
-        {post.likeCount > 0 && <p className="asa-post-card__likes">{post.likeCount} likes</p>}
+        {post.likeCount > 0 && (
+          <p className="asa-post-card__likes">
+            {post.likeCount} {t('card.likes')}
+          </p>
+        )}
       </Card>
 
       <div id="comments">

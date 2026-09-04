@@ -1,4 +1,5 @@
 import { Fragment, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Avatar, Button, Modal, Textarea, VerifiedBadge } from '@/components/ui'
 import { formatRelativeTime } from '@/lib/format'
 import { addComment } from '@/store/slices/postsSlice'
@@ -23,6 +24,7 @@ function buildCommentTree(comments) {
 }
 
 function CommentRow({ comment, onReply, depth = 0 }) {
+  const { t } = useTranslation('posts')
   return (
     <li className={`asa-comment ${depth > 0 ? 'asa-comment--reply' : ''}`}>
       <Avatar
@@ -39,7 +41,7 @@ function CommentRow({ comment, onReply, depth = 0 }) {
         </div>
         <p className="asa-comment__content">{comment.content}</p>
         <button type="button" className="asa-comment__reply-trigger" onClick={() => onReply(comment)}>
-          Reply
+          {t('comments.reply')}
         </button>
       </div>
     </li>
@@ -47,6 +49,7 @@ function CommentRow({ comment, onReply, depth = 0 }) {
 }
 
 export function CommentSection({ post }) {
+  const { t } = useTranslation('posts')
   const dispatch = useAppDispatch()
   const [open, setOpen] = useState(false)
   const [content, setContent] = useState('')
@@ -84,10 +87,10 @@ export function CommentSection({ post }) {
 
   return (
     <>
-      <section className="asa-comments" aria-label="Comments">
-        <h3 className="asa-comments__title">Comments ({post.comments.length})</h3>
+      <section className="asa-comments" aria-label={t('comments.title', { count: post.comments.length })}>
+        <h3 className="asa-comments__title">{t('comments.title', { count: post.comments.length })}</h3>
         {topLevel.length === 0 ? (
-          <p className="asa-comments__empty">No comments yet — be the first to respond.</p>
+          <p className="asa-comments__empty">{t('comments.empty')}</p>
         ) : (
           <ul className="asa-comments__list">
             {topLevel.map((comment) => (
@@ -102,26 +105,32 @@ export function CommentSection({ post }) {
         )}
 
         {post.commentsOpen === false ? (
-          <p className="asa-comments__closed">🔒 Comments are closed by the community admin.</p>
+          <p className="asa-comments__closed">🔒 {t('comments.closed')}</p>
         ) : (
           <Button variant="outline" size="sm" onClick={() => openComposer(null)}>
-            Add a comment
+            {t('comments.addComment')}
           </Button>
         )}
       </section>
 
-      <Modal open={open} title={replyingTo ? `Reply to ${commentName(replyingTo)}` : 'Add a comment'} onClose={closeComposer}>
+      <Modal
+        open={open}
+        title={replyingTo ? t('comments.replyTo', { name: commentName(replyingTo) }) : t('comments.addComment')}
+        onClose={closeComposer}
+      >
         <Textarea
-          label="Your comment"
+          label={t('comments.yourComment')}
           name="comment"
           value={content}
           onChange={(e) => setContent(e.target.value)}
           error={error ?? undefined}
-          placeholder={replyingTo ? `Reply to ${commentName(replyingTo)}…` : 'Share your thoughts…'}
+          placeholder={
+            replyingTo ? t('comments.replyToPlaceholder', { name: commentName(replyingTo) }) : t('comments.shareThoughts')
+          }
           autoFocus
         />
         <Button onClick={handleSubmit} loading={submitting} disabled={!content.trim()}>
-          {replyingTo ? 'Post reply' : 'Post comment'}
+          {replyingTo ? t('comments.postReply') : t('comments.postComment')}
         </Button>
       </Modal>
     </>

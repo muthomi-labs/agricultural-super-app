@@ -61,6 +61,7 @@ export const mockAuth = {
       username: input.username,
       email: input.email,
       role: 'farmer',
+      language: input.language ?? 'en',
       isActive: true,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -255,6 +256,13 @@ export const mockExperts = {
 }
 
 export const mockUsers = {
+  async updateLanguage(language) {
+    const user = users.find((u) => u.id === currentUserId)
+    if (!user) fail('User not found.', 404)
+    user.language = language
+    return delay(toProfile(user))
+  },
+
   async searchUsers(query, page = 1, pageSize = 20) {
     const term = query.trim().toLowerCase()
     const matches = users

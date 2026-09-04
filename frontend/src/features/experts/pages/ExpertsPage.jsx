@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { EmptyState, ErrorState, LoadingState, PageHeader } from '@/components/ui'
 import { Input } from '@/components/ui'
 import { SearchIcon } from '@/components/icons'
@@ -7,6 +8,7 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { ExpertCard } from '../components/ExpertCard'
 
 export function ExpertsPage() {
+  const { t } = useTranslation('experts')
   const dispatch = useAppDispatch()
   const experts = useAppSelector((state) => state.experts.experts)
   const status = useAppSelector((state) => state.experts.expertsStatus)
@@ -31,8 +33,8 @@ export function ExpertsPage() {
   return (
     <>
       <PageHeader
-        title="Experts"
-        subtitle="Verified agricultural experts ready to help."
+        title={t('list.title')}
+        subtitle={t('list.subtitle')}
       />
 
       <div className="asa-experts__search">
@@ -41,19 +43,19 @@ export function ExpertsPage() {
           name="expertSearch"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search experts by name or location…"
-          aria-label="Search experts"
+          placeholder={t('list.searchPlaceholder')}
+          aria-label={t('list.searchAriaLabel')}
           className="asa-experts__search-input"
         />
         <SearchIcon width={18} height={18} className="asa-experts__search-icon" />
       </div>
 
-      {status === 'loading' && <LoadingState label="Loading experts…" />}
+      {status === 'loading' && <LoadingState label={t('list.loading')} />}
       {status === 'error' && <ErrorState message={error ?? undefined} onRetry={() => dispatch(fetchExperts({ page: 1, pageSize: 50 }))} />}
       {status === 'ready' && visibleExperts.length === 0 && (
         <EmptyState
-          title={query ? 'No experts match your search' : 'No experts yet'}
-          description={query ? 'Try a different search term.' : 'Expert profiles will appear here.'}
+          title={query ? t('list.noMatchesTitle') : t('list.noExpertsTitle')}
+          description={query ? t('list.noMatchesDescription') : t('list.noExpertsDescription')}
         />
       )}
       {status === 'ready' &&

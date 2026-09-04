@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Button, Input, PasswordInput, PasswordRequirements } from '@/components/ui'
 import { useAuth, errorMessage } from '@/features/auth/AuthContext'
 import { isPasswordStrong } from '@/lib/passwordPolicy'
@@ -9,6 +10,7 @@ import './auth.css'
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export function RegisterPage() {
+  const { t, i18n } = useTranslation('auth')
   const { register } = useAuth()
   const navigate = useNavigate()
 
@@ -32,13 +34,13 @@ export function RegisterPage() {
 
   function validate() {
     const errors = {}
-    if (!form.username.trim()) errors.username = 'Username is required.'
-    if (form.username.trim().length < 3) errors.username = 'Username must be at least 3 characters.'
-    if (!form.email.trim()) errors.email = 'Email is required.'
-    else if (!EMAIL_PATTERN.test(form.email.trim())) errors.email = 'Enter a valid email address.'
-    if (!form.password) errors.password = 'Password is required.'
-    else if (!isPasswordStrong(form.password)) errors.password = 'Password does not meet all requirements below.'
-    if (form.confirmPassword !== form.password) errors.confirmPassword = 'Passwords do not match.'
+    if (!form.username.trim()) errors.username = t('register.errors.usernameRequired')
+    if (form.username.trim().length < 3) errors.username = t('register.errors.usernameTooShort')
+    if (!form.email.trim()) errors.email = t('register.errors.emailRequired')
+    else if (!EMAIL_PATTERN.test(form.email.trim())) errors.email = t('register.errors.emailInvalid')
+    if (!form.password) errors.password = t('register.errors.passwordRequired')
+    else if (!isPasswordStrong(form.password)) errors.password = t('register.errors.passwordWeak')
+    if (form.confirmPassword !== form.password) errors.confirmPassword = t('register.errors.confirmPasswordMismatch')
     setFieldErrors(errors)
     return Object.keys(errors).length === 0
   }
@@ -54,6 +56,11 @@ export function RegisterPage() {
         username: form.username.trim(),
         email: form.email.trim(),
         password: form.password,
+        // Whatever language the visitor was using to fill out this form
+        // (see AuthLayout's LanguageSwitcher) becomes the new account's
+        // saved preference, rather than every account silently starting
+        // on English regardless of how they got here.
+        language: i18n.language?.startsWith('sw') ? 'sw' : 'en',
         firstName: form.firstName.trim() || undefined,
         lastName: form.lastName.trim() || undefined,
       })
@@ -67,36 +74,36 @@ export function RegisterPage() {
 
   return (
     <AuthLayout
-      title="Create your account"
-      subtitle="Join the agricultural community and connect with experts."
+      title={t('register.title')}
+      subtitle={t('register.subtitle')}
       footer={
         <>
-          Already have an account? <Link to="/login">Log in</Link>
+          {t('register.alreadyHaveAccount')} <Link to="/login">{t('register.logIn')}</Link>
         </>
       }
     >
       <form onSubmit={handleSubmit} noValidate>
         <Input
-          label="Username"
+          label={t('register.username')}
           name="username"
           autoComplete="username"
           value={form.username}
           onChange={(e) => setField('username', e.target.value)}
           error={fieldErrors.username}
-          placeholder="e.g. jane_kamau"
+          placeholder={t('register.usernamePlaceholder')}
         />
         <Input
-          label="Email"
+          label={t('register.email')}
           name="email"
           type="email"
           autoComplete="email"
           value={form.email}
           onChange={(e) => setField('email', e.target.value)}
           error={fieldErrors.email}
-          placeholder="you@example.com"
+          placeholder={t('register.emailPlaceholder')}
         />
         <PasswordInput
-          label="Password"
+          label={t('register.password')}
           name="password"
           autoComplete="new-password"
           value={form.password}
@@ -106,7 +113,7 @@ export function RegisterPage() {
         />
         {(passwordTouched || form.password) && <PasswordRequirements password={form.password} />}
         <PasswordInput
-          label="Confirm password"
+          label={t('register.confirmPassword')}
           name="confirmPassword"
           autoComplete="new-password"
           value={form.confirmPassword}
@@ -114,7 +121,7 @@ export function RegisterPage() {
           error={fieldErrors.confirmPassword}
         />
         <Input
-          label="First name"
+          label={t('register.firstName')}
           name="firstName"
           autoComplete="given-name"
           value={form.firstName}
@@ -122,7 +129,7 @@ export function RegisterPage() {
           error={fieldErrors.firstName}
         />
         <Input
-          label="Last name"
+          label={t('register.lastName')}
           name="lastName"
           autoComplete="family-name"
           value={form.lastName}
@@ -135,7 +142,7 @@ export function RegisterPage() {
           </p>
         )}
         <Button type="submit" block loading={submitting} disabled={submitting || !isPasswordStrong(form.password)}>
-          Create account
+          {t('register.submit')}
         </Button>
       </form>
     </AuthLayout>

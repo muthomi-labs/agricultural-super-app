@@ -6,11 +6,11 @@
  */
 
 export const PASSWORD_REQUIREMENTS = [
-  { key: 'length', label: 'At least 8 characters', test: (pw) => pw.length >= 8 },
-  { key: 'uppercase', label: 'One uppercase letter', test: (pw) => /[A-Z]/.test(pw) },
-  { key: 'lowercase', label: 'One lowercase letter', test: (pw) => /[a-z]/.test(pw) },
-  { key: 'number', label: 'One number', test: (pw) => /[0-9]/.test(pw) },
-  { key: 'special', label: 'One special character', test: (pw) => /[^A-Za-z0-9]/.test(pw) },
+  { key: 'length', test: (pw) => pw.length >= 8 },
+  { key: 'uppercase', test: (pw) => /[A-Z]/.test(pw) },
+  { key: 'lowercase', test: (pw) => /[a-z]/.test(pw) },
+  { key: 'number', test: (pw) => /[0-9]/.test(pw) },
+  { key: 'special', test: (pw) => /[^A-Za-z0-9]/.test(pw) },
 ]
 
 export function evaluatePassword(password) {

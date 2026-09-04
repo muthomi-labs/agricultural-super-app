@@ -1,4 +1,5 @@
 import { Navigate, createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { EmptyState, Button } from '@/components/ui'
 import { AuthProvider, useAuth } from '@/features/auth/AuthContext'
 import { ProtectedRoute } from '@/features/auth/ProtectedRoute'
@@ -38,11 +39,12 @@ import { AiAssistantPage } from '@/features/assistant/pages/AiAssistantPage'
 import { AiConversationPage } from '@/features/assistant/pages/AiConversationPage'
 
 function NotFoundPage() {
+  const { t } = useTranslation('common')
   return (
     <EmptyState
-      title="Page not found"
-      description="The page you are looking for does not exist."
-      action={<Button to="/">Go to feed</Button>}
+      title={t('states.pageNotFound')}
+      description={t('states.pageNotFoundDescription')}
+      action={<Button to="/">{t('buttons.goToFeed')}</Button>}
     />
   )
 }
@@ -123,8 +125,9 @@ const router = createBrowserRouter([
 
 /** Redirects already-authenticated users away from login/register. */
 function PublicOnlyRoute({ element }) {
+  const { t } = useTranslation('common')
   const { status } = useAuth()
-  if (status === 'loading') return <EmptyState title="Loading…" />
+  if (status === 'loading') return <EmptyState title={t('states.loading')} />
   if (status === 'authenticated') return <Navigate to="/" replace />
   return element
 }

@@ -1,0 +1,85 @@
+{
+  "list": {
+    "title": "Communities",
+    "subtitle": "Join groups of farmers and experts around shared interests.",
+    "newCommunity": "New community",
+    "searchPlaceholder": "Search communities…",
+    "loading": "Loading communities…",
+    "emptyTitle": "No communities yet",
+    "emptyDescription": "Start the first community for your area or specialty.",
+    "createCommunity": "Create a community",
+    "searchResults": "Search results",
+    "noSearchMatches": "No communities match your search",
+    "myCommunities": "My communities",
+    "suggestedForYou": "Suggested for you",
+    "allCommunities": "All communities",
+    "joinedEvery": "You've joined every community",
+    "communityNameRequired": "Community name is required.",
+    "form": {
+      "title": "New community",
+      "name": "Name",
+      "namePlaceholder": "e.g. Maize Farmers KE",
+      "description": "Description",
+      "descriptionPlaceholder": "What is this community about?",
+      "imageUrl": "Image URL (optional)",
+      "submit": "Create community"
+    }
+  },
+  "card": {
+    "members_one": "{{formatted}} member",
+    "members_other": "{{formatted}} members",
+    "yourCommunity": "Your community",
+    "joined": "Joined",
+    "join": "Join"
+  },
+  "detail": {
+    "backToCommunities": "Back to communities",
+    "loading": "Loading community…",
+    "admin": "Admin",
+    "createdBy": "created by",
+    "communitySettings": "Community Settings",
+    "leaveCommunity": "Leave community",
+    "joinCommunity": "Join community",
+    "tabs": {
+      "announcements": "Announcements",
+      "feed": "Feed",
+      "members": "Members",
+      "about": "About"
+    },
+    "noAnnouncementsTitle": "No announcements yet",
+    "noAnnouncementsDescription": "Community admins can post announcements from the Feed tab.",
+    "composerPlaceholder": "Share something with {{name}}…",
+    "onlyExpertsCanPost": "🔒 Only experts can post in this community right now.",
+    "onlyAdminsCanPost": "🔒 Only admins can post in this community right now.",
+    "joinToPost": "👋 Join this community to start posting.",
+    "loadingPosts": "Loading posts…",
+    "noPostsTitle": "No posts yet",
+    "noPostsDescription": "Be the first to share something with this community.",
+    "noMembers": "No members yet",
+    "expertBadge": "Expert",
+    "creatorBadge": "Creator",
+    "adminBadge": "Admin",
+    "demote": "Demote",
+    "promote": "Promote",
+    "remove": "Remove",
+    "noDescription": "No description provided.",
+    "aboutCreatedBy": "Created by",
+    "aboutCreatedOn": "Created on",
+    "aboutMembers": "Members",
+    "aboutWhoCanPost": "Who can post",
+    "aboutWhoCanComment": "Who can comment",
+    "commentsClosed": "Comments closed",
+    "permissions": {
+      "everyone": "Everyone",
+      "experts_only": "Experts only",
+      "admins_only": "Admins only"
+    }
+  },
+  "settings": {
+    "title": "Community Settings",
+    "whoCanPost": "Who can post?",
+    "whoCanComment": "Who can comment?",
+    "allowComments": "Allow comments",
+    "save": "Save settings"
+  }
+}

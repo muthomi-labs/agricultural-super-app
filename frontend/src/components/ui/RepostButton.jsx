@@ -1,7 +1,9 @@
+import { useTranslation } from 'react-i18next'
 import { Button } from './Button'
 import { RepeatIcon } from '@/components/icons'
 
 export function RepostButton({ reposted, count, onToggle, loading = false }) {
+  const { t } = useTranslation('posts')
   return (
     <Button
       variant="ghost"
@@ -13,7 +15,7 @@ export function RepostButton({ reposted, count, onToggle, loading = false }) {
     >
       <RepeatIcon width={18} height={18} />
       <span>{count}</span>
-      <span className="visually-hidden">{reposted ? 'Unrepost' : 'Repost'}</span>
+      <span className="visually-hidden">{reposted ? t('actions.unrepost') : t('actions.repost')}</span>
     </Button>
   )
 }

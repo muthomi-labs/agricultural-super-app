@@ -1,11 +1,74 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Button, ErrorState, LoadingState, PostContent, Spinner, Textarea } from '@/components/ui'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { clearAISendError, fetchAIConversation, streamAIMessage } from '@/store/slices/aiSlice'
+import { looksKiswahili } from '@/lib/language'
+import { aiService } from '@/services'
 import '../assistant.css'
 
+function translationPrompt(content, targetLanguage) {
+  const instruction =
+    targetLanguage === 'sw'
+      ? 'Translate the following agricultural guidance into natural, professional Kiswahili, using correct Kenyan agricultural terminology. Keep any usernames, numbers, dates, emojis, and links unchanged. Reply with only the translation, no commentary.'
+      : 'Translate the following agricultural guidance into natural, professional English, preserving agricultural terminology precisely. Keep any usernames, numbers, dates, emojis, and links unchanged. Reply with only the translation, no commentary.'
+  return `${instruction}\n\n${content}`
+}
+
+/**
+ * "Translate to Kiswahili" / "Translate to English" action on one
+ * assistant reply. Deliberately reuses the existing stateless
+ * /api/ai/assistant endpoint (aiService.askAssistant) rather than a
+ * separate translation system -- see ai_service.py's _build_system_prompt
+ * for the backend half of Kiswahili support. Hidden when the reply
+ * already looks like it's in the target language (looksKiswahili), per
+ * "don't unnecessarily translate it again."
+ */
+function AssistantBubble({ content }) {
+  const { t } = useTranslation('assistant')
+  const [translated, setTranslated] = useState(null)
+  const [translating, setTranslating] = useState(false)
+
+  const alreadyKiswahili = looksKiswahili(content)
+  const targetLanguage = alreadyKiswahili ? 'en' : 'sw'
+  const actionLabel = alreadyKiswahili ? t('conversation.translateToEnglish') : t('conversation.translateToKiswahili')
+
+  async function handleTranslate() {
+    if (translating) return
+    setTranslating(true)
+    try {
+      const reply = await aiService.askAssistant([
+        { role: 'user', content: translationPrompt(content, targetLanguage) },
+      ])
+      setTranslated(reply)
+    } catch {
+      // Best-effort UI affordance -- if it fails, the original content is
+      // still fully readable, so this stays silent rather than showing a
+      // blocking error for a non-critical action.
+    } finally {
+      setTranslating(false)
+    }
+  }
+
+  return (
+    <>
+      <PostContent content={translated ?? content} />
+      <div className="asa-assistant-message__translate">
+        {translated ? (
+          <span className="asa-assistant-message__translated-tag">{t('conversation.translated')}</span>
+        ) : (
+          <button type="button" className="asa-assistant-message__translate-btn" onClick={handleTranslate} disabled={translating}>
+            {translating ? t('conversation.translating') : actionLabel}
+          </button>
+        )}
+      </div>
+    </>
+  )
+}
+
 export function AiConversationPage() {
+  const { t } = useTranslation('assistant')
   const { conversationId } = useParams()
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
@@ -57,7 +120,7 @@ export function AiConversationPage() {
     if (lastFailedContent) send(lastFailedContent)
   }
 
-  if (status === 'loading') return <LoadingState label="Loading conversation…" />
+  if (status === 'loading') return <LoadingState label={t('conversation.loading')} />
   if (status === 'error' || !conversation) {
     return (
       <ErrorState
@@ -70,26 +133,19 @@ export function AiConversationPage() {
   return (
     <div className="asa-assistant">
       <div className="asa-assistant__header">
-        <Button variant="ghost" size="sm" onClick={() => navigate('/assistant')} aria-label="Back to conversations">
+        <Button variant="ghost" size="sm" onClick={() => navigate('/assistant')} aria-label={t('conversation.backToConversations')}>
           &larr;
         </Button>
-        <strong>{conversation.title ?? 'New conversation'}</strong>
+        <strong>{conversation.title ?? t('page.newConversationFallback')}</strong>
       </div>
 
-      <p className="asa-assistant__disclaimer">
-        AI-generated guidance for quick, general advice. For anything high-stakes — disease outbreaks, chemical
-        dosing, big financial decisions — confirm with a verified expert on AgriConnect.
-      </p>
+      <p className="asa-assistant__disclaimer">{t('page.disclaimer')}</p>
 
       <div className="asa-assistant__messages">
         {conversation.messages.map((message) => (
           <div key={message.id} className={`asa-assistant-message asa-assistant-message--${message.role}`}>
             <div className="asa-assistant-message__bubble">
-              {message.role === 'assistant' ? (
-                <PostContent content={message.content} />
-              ) : (
-                message.content
-              )}
+              {message.role === 'assistant' ? <AssistantBubble content={message.content} /> : message.content}
             </div>
           </div>
         ))}
@@ -108,7 +164,7 @@ export function AiConversationPage() {
               {sendError}
               <div style={{ marginTop: 'var(--space-2)' }}>
                 <Button variant="outline" size="sm" onClick={retry}>
-                  Try again
+                  {t('conversation.tryAgain')}
                 </Button>
               </div>
             </div>
@@ -125,8 +181,8 @@ export function AiConversationPage() {
           rows={1}
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
-          placeholder="Ask a farming question…"
-          aria-label="Your question"
+          placeholder={t('conversation.askPlaceholder')}
+          aria-label={t('conversation.askAriaLabel')}
           onKeyDown={(e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
               e.preventDefault()
@@ -135,7 +191,7 @@ export function AiConversationPage() {
           }}
         />
         <Button type="submit" loading={sending} disabled={!draft.trim()}>
-          Ask
+          {t('conversation.ask')}
         </Button>
       </form>
     </div>

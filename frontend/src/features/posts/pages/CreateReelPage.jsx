@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Button, Textarea } from '@/components/ui'
 import { LeafIcon, PlayIcon } from '@/components/icons'
 import { createPost } from '@/store/slices/postsSlice'
@@ -12,6 +13,7 @@ import { uploadsService } from '@/services'
 import '../components/posts.css'
 
 export function CreateReelPage() {
+  const { t } = useTranslation('posts')
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const videoRef = useRef(null)
@@ -90,24 +92,24 @@ export function CreateReelPage() {
     setPublishing(true)
     setFormError(null)
     try {
-      setProgressLabel('Uploading video…')
+      setProgressLabel(t('createReel.uploadingVideo'))
       const { url: videoUrl } = await uploadsService.uploadVideo(file, {
-        onProgress: (percent) => setProgressLabel(`Uploading video… ${percent}%`),
+        onProgress: (percent) => setProgressLabel(t('createReel.uploadingVideoPercent', { percent })),
       })
 
       const imageUrls = []
       if (coverBlob) {
-        setProgressLabel('Uploading cover…')
+        setProgressLabel(t('createReel.uploadingCover'))
         const coverFile = new File([coverBlob], 'cover.jpg', { type: 'image/jpeg' })
         const { url: coverUrl } = await uploadsService.uploadImage(coverFile)
         imageUrls.push(coverUrl)
       }
 
-      setProgressLabel('Publishing…')
+      setProgressLabel(t('createReel.publishing'))
       const communityId = pickedCommunityId ? Number(pickedCommunityId) : null
       const post = await dispatch(
         createPost({
-          title: deriveTitle(caption.trim() || 'FarmClip'),
+          title: deriveTitle(caption.trim() || t('createReel.defaultTitle')),
           content: caption.trim(),
           videoUrl,
           imageUrls,
@@ -125,7 +127,7 @@ export function CreateReelPage() {
 
   return (
     <div className="asa-social-composer">
-      <h1 className="asa-social-composer__heading">Create Reel</h1>
+      <h1 className="asa-social-composer__heading">{t('createReel.heading')}</h1>
 
       <form onSubmit={handlePublish}>
         {previewUrl ? (
@@ -139,26 +141,26 @@ export function CreateReelPage() {
               onLoadedData={() => setVideoReady(true)}
             />
             <button type="button" className="asa-reel-composer__remove" onClick={reset} disabled={publishing}>
-              Choose a different video
+              {t('createReel.chooseDifferent')}
             </button>
           </div>
         ) : (
           <label className="asa-reel-composer__picker">
             <PlayIcon width={32} height={32} />
-            <span>Select a video from your device</span>
+            <span>{t('createReel.selectVideo')}</span>
             <input type="file" accept="video/mp4,video/quicktime,video/webm" className="visually-hidden" onChange={handleFileChange} />
           </label>
         )}
         {fileError && <p className="asa-form-error" role="alert">{fileError}</p>}
-        <p className="asa-field__hint">MP4, MOV, or WebM. Up to 50MB.</p>
+        <p className="asa-field__hint">{t('createReel.fileHint')}</p>
 
         {previewUrl && (
           <div className="asa-reel-composer__cover">
-            <span className="asa-field__label">Cover (optional)</span>
+            <span className="asa-field__label">{t('createReel.coverOptional')}</span>
             <div className="asa-reel-composer__cover-row">
               {coverPreviewUrl && <img src={coverPreviewUrl} alt="" className="asa-reel-composer__cover-preview" />}
               <Button type="button" variant="secondary" size="sm" onClick={captureCoverFrame} disabled={publishing || !videoReady}>
-                Use current frame as cover
+                {t('createReel.useCurrentFrame')}
               </Button>
             </div>
           </div>
@@ -167,11 +169,11 @@ export function CreateReelPage() {
         <Textarea
           label=""
           name="caption"
-          aria-label="Reel caption"
+          aria-label={t('createReel.captionLabel')}
           rows={4}
           value={caption}
           onChange={(e) => setCaption(e.target.value)}
-          placeholder="Describe your Reel… add #hashtags like #Maize #PestControl"
+          placeholder={t('createReel.captionPlaceholder')}
           className="asa-social-composer__textarea"
         />
 
@@ -180,7 +182,7 @@ export function CreateReelPage() {
             <label className="asa-social-composer__attachment asa-social-composer__attachment--select">
               <LeafIcon width={18} height={18} />
               <select value={pickedCommunityId} onChange={(event) => setPickedCommunityId(event.target.value)}>
-                <option value="">Your feed</option>
+                <option value="">{t('createReel.yourFeed')}</option>
                 {myCommunities.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.name}
@@ -196,10 +198,10 @@ export function CreateReelPage() {
 
         <div className="asa-composer__submit-row">
           <Button type="button" variant="secondary" disabled={publishing} onClick={() => navigate('/', { replace: true })}>
-            Cancel
+            {t('createReel.cancel')}
           </Button>
           <Button type="submit" loading={publishing} disabled={publishing || !file}>
-            Share Reel
+            {t('createReel.shareReel')}
           </Button>
         </div>
       </form>

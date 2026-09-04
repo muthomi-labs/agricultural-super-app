@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { CheckIcon, XIcon } from '@/components/icons'
 import { evaluatePassword } from '@/lib/passwordPolicy'
 import './ui.css'
@@ -8,6 +9,7 @@ import './ui.css'
  * without being interrupted mid-keystroke (polite, not assertive).
  */
 export function PasswordRequirements({ password }) {
+  const { t } = useTranslation('auth')
   const requirements = evaluatePassword(password)
 
   return (
@@ -22,7 +24,7 @@ export function PasswordRequirements({ password }) {
           ) : (
             <XIcon width={14} height={14} aria-hidden="true" />
           )}
-          <span>{req.label}</span>
+          <span>{t(`passwordRequirements.${req.key}`)}</span>
         </li>
       ))}
     </ul>

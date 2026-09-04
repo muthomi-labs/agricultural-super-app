@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Button, Dropdown, Modal, Textarea } from '@/components/ui'
 import { MoreIcon } from '@/components/icons'
 import { errorMessage, useAuth } from '@/features/auth/AuthContext'
@@ -18,6 +19,7 @@ function canDeletePost(post, user, community) {
 }
 
 function EditPostModal({ post, open, onClose }) {
+  const { t } = useTranslation('posts')
   const dispatch = useAppDispatch()
   const [content, setContent] = useState(post.content)
   const [fieldError, setFieldError] = useState(null)
@@ -33,7 +35,7 @@ function EditPostModal({ post, open, onClose }) {
 
   async function handleSave() {
     if (!content.trim()) {
-      setFieldError('Please add some content.')
+      setFieldError(t('menu.pleaseAddContent'))
       return
     }
     setFieldError(null)
@@ -49,9 +51,9 @@ function EditPostModal({ post, open, onClose }) {
   }
 
   return (
-    <Modal open={open} title="Edit post" onClose={handleClose}>
+    <Modal open={open} title={t('menu.editPost')} onClose={handleClose}>
       <Textarea
-        label="Caption"
+        label={t('menu.caption')}
         name="content"
         rows={6}
         value={content}
@@ -62,10 +64,10 @@ function EditPostModal({ post, open, onClose }) {
       {error && <p className="asa-post-menu__error">{error}</p>}
       <div className="asa-post-menu__actions">
         <Button variant="secondary" onClick={handleClose} disabled={saving}>
-          Cancel
+          {t('menu.cancel')}
         </Button>
         <Button variant="primary" onClick={handleSave} loading={saving}>
-          Save changes
+          {t('menu.saveChanges')}
         </Button>
       </div>
     </Modal>
@@ -73,6 +75,7 @@ function EditPostModal({ post, open, onClose }) {
 }
 
 export function PostMenu({ post, onDeleted }) {
+  const { t } = useTranslation('posts')
   const { user } = useAuth()
   const dispatch = useAppDispatch()
   const community = useAppSelector((state) => state.communities.current)
@@ -99,24 +102,24 @@ export function PostMenu({ post, onDeleted }) {
   }
 
   const items = []
-  if (canEdit) items.push({ label: 'Edit', onSelect: () => setEditOpen(true) })
-  if (canDelete) items.push({ label: 'Delete', danger: true, onSelect: () => setConfirmOpen(true) })
-  if (canReport) items.push({ label: 'Report', onSelect: () => setReportOpen(true) })
+  if (canEdit) items.push({ label: t('menu.edit'), onSelect: () => setEditOpen(true) })
+  if (canDelete) items.push({ label: t('menu.delete'), danger: true, onSelect: () => setConfirmOpen(true) })
+  if (canReport) items.push({ label: t('menu.report'), onSelect: () => setReportOpen(true) })
 
   return (
     <>
-      <Dropdown label="Post options" trigger={<MoreIcon width={18} height={18} />} items={items} />
+      <Dropdown label={t('menu.options')} trigger={<MoreIcon width={18} height={18} />} items={items} />
       {canEdit && <EditPostModal post={post} open={editOpen} onClose={() => setEditOpen(false)} />}
       {canReport && <ReportPostModal postId={post.id} open={reportOpen} onClose={() => setReportOpen(false)} />}
-      <Modal open={confirmOpen} title="Delete post?" onClose={() => setConfirmOpen(false)}>
-        <p>This action cannot be undone.</p>
+      <Modal open={confirmOpen} title={t('menu.deletePostTitle')} onClose={() => setConfirmOpen(false)}>
+        <p>{t('menu.deletePostBody')}</p>
         {error && <p className="asa-post-menu__error">{error}</p>}
         <div className="asa-post-menu__actions">
           <Button variant="secondary" onClick={() => setConfirmOpen(false)} disabled={deleting}>
-            Cancel
+            {t('menu.cancel')}
           </Button>
           <Button variant="danger" onClick={handleConfirmDelete} loading={deleting}>
-            Delete
+            {t('menu.confirmDelete')}
           </Button>
         </div>
       </Modal>

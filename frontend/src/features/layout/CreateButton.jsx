@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Modal } from '@/components/ui'
 import { PlusIcon } from '@/components/icons'
 import './layout.css'
 
 export function CreateButton({ variant = 'sidebar' }) {
+  const { t } = useTranslation('nav')
   const [open, setOpen] = useState(false)
   const navigate = useNavigate()
 
@@ -18,23 +20,28 @@ export function CreateButton({ variant = 'sidebar' }) {
       {variant === 'sidebar' ? (
         <button type="button" className="asa-sidebar__link asa-sidebar__link--button" onClick={() => setOpen(true)}>
           <PlusIcon />
-          <span>Create</span>
+          <span>{t('create')}</span>
         </button>
       ) : (
-        <button type="button" className="asa-bottom-nav__create" onClick={() => setOpen(true)} aria-label="Create">
+        <button
+          type="button"
+          className="asa-bottom-nav__create"
+          onClick={() => setOpen(true)}
+          aria-label={t('create')}
+        >
           <PlusIcon width={22} height={22} />
         </button>
       )}
 
-      <Modal open={open} title="Create" onClose={() => setOpen(false)}>
+      <Modal open={open} title={t('createMenu.title')} onClose={() => setOpen(false)}>
         <div className="asa-create-menu">
           <button type="button" className="asa-create-menu__option" onClick={() => choose('/create')}>
             <span className="asa-create-menu__icon" aria-hidden="true">
               📝
             </span>
             <span className="asa-create-menu__text">
-              <strong>Post</strong>
-              <small>Share an update with the community</small>
+              <strong>{t('createMenu.post')}</strong>
+              <small>{t('createMenu.postDescription')}</small>
             </span>
           </button>
           <button type="button" className="asa-create-menu__option" onClick={() => choose('/create/story')}>
@@ -42,8 +49,8 @@ export function CreateButton({ variant = 'sidebar' }) {
               📸
             </span>
             <span className="asa-create-menu__text">
-              <strong>Story</strong>
-              <small>Share a photo that disappears from your feed</small>
+              <strong>{t('createMenu.story')}</strong>
+              <small>{t('createMenu.storyDescription')}</small>
             </span>
           </button>
           <button type="button" className="asa-create-menu__option" onClick={() => choose('/create/reel')}>
@@ -51,8 +58,8 @@ export function CreateButton({ variant = 'sidebar' }) {
               🎬
             </span>
             <span className="asa-create-menu__text">
-              <strong>Reel</strong>
-              <small>Share a short farm video</small>
+              <strong>{t('createMenu.reel')}</strong>
+              <small>{t('createMenu.reelDescription')}</small>
             </span>
           </button>
         </div>

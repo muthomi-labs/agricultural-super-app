@@ -1,0 +1,63 @@
+{
+  "appName": "AgriConnect",
+  "buttons": {
+    "save": "Save",
+    "saving": "Saving…",
+    "cancel": "Cancel",
+    "submit": "Submit",
+    "close": "Close",
+    "closeDialog": "Close dialog",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "edit": "Edit",
+    "back": "Back",
+    "next": "Next",
+    "tryAgain": "Try again",
+    "share": "Share",
+    "follow": "Follow",
+    "unfollow": "Unfollow",
+    "seeAll": "See all",
+    "loadMore": "Load more",
+    "post": "Post",
+    "comment": "Comment",
+    "reply": "Reply",
+    "send": "Send",
+    "create": "Create",
+    "upload": "Upload",
+    "remove": "Remove",
+    "logOut": "Log out",
+    "goToFeed": "Go to feed"
+  },
+  "states": {
+    "loading": "Loading…",
+    "somethingWrong": "Something went wrong",
+    "couldNotLoad": "We could not load this content. Please try again.",
+    "pageNotFound": "Page not found",
+    "pageNotFoundDescription": "The page you are looking for does not exist."
+  },
+  "verified": "Verified",
+  "roles": {
+    "farmer": "Farmer",
+    "expert": "Expert",
+    "admin": "Admin"
+  },
+  "language": {
+    "en": "English",
+    "sw": "Kiswahili",
+    "select": "Language",
+    "changed": "Language updated."
+  },
+  "imageUploader": {
+    "removeImage": "Remove image",
+    "addPhotos": "Add photos",
+    "choosePhoto": "Choose photo",
+    "uploadFailed": "Upload failed.",
+    "hint": "JPEG, PNG, or WebP. Up to 5MB each."
+  },
+  "time": {
+    "justNow": "just now",
+    "minutesAgo": "{{count}}m ago",
+    "hoursAgo": "{{count}}h ago",
+    "daysAgo": "{{count}}d ago"
+  }
+}

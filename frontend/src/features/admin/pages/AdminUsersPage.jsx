@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Badge, Button, ErrorState, Input, LoadingState, Modal, PageHeader } from '@/components/ui'
 import { formatDate } from '@/lib/format'
 import { errorMessage, useAuth } from '@/features/auth/AuthContext'
@@ -9,6 +10,7 @@ import '../admin.css'
 const ROLES = ['farmer', 'expert', 'admin']
 
 export function AdminUsersPage() {
+  const { t } = useTranslation('admin')
   const dispatch = useAppDispatch()
   const { user: currentAdmin } = useAuth()
   const users = useAppSelector((state) => state.admin.users)
@@ -60,7 +62,7 @@ export function AdminUsersPage() {
 
   return (
     <>
-      <PageHeader title="Users" subtitle={`${total} registered user${total === 1 ? '' : 's'}.`} />
+      <PageHeader title={t('users.title')} subtitle={t('users.subtitle', { count: total })} />
 
       <form className="asa-admin-toolbar" onSubmit={handleFilterSubmit}>
         <Input
@@ -68,20 +70,20 @@ export function AdminUsersPage() {
           name="search"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search by username, email, or name…"
-          aria-label="Search users"
+          placeholder={t('users.searchPlaceholder')}
+          aria-label={t('users.searchAriaLabel')}
         />
         <select
           className="asa-input"
           style={{ width: 'auto' }}
           value={role}
           onChange={(e) => setRole(e.target.value)}
-          aria-label="Filter by role"
+          aria-label={t('users.filterByRole')}
         >
-          <option value="">All roles</option>
+          <option value="">{t('users.allRoles')}</option>
           {ROLES.map((r) => (
             <option key={r} value={r}>
-              {r}
+              {t(`common:roles.${r}`)}
             </option>
           ))}
         </select>
@@ -90,18 +92,18 @@ export function AdminUsersPage() {
           style={{ width: 'auto' }}
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          aria-label="Filter by status"
+          aria-label={t('users.filterByStatus')}
         >
-          <option value="">All statuses</option>
-          <option value="active">Active</option>
-          <option value="inactive">Deactivated</option>
+          <option value="">{t('users.allStatuses')}</option>
+          <option value="active">{t('users.active')}</option>
+          <option value="inactive">{t('users.deactivated')}</option>
         </select>
         <Button type="submit" variant="secondary">
-          Filter
+          {t('users.filter')}
         </Button>
       </form>
 
-      {status === 'loading' && <LoadingState label="Loading users…" />}
+      {status === 'loading' && <LoadingState label={t('users.loading')} />}
       {status === 'error' && <ErrorState message={error ?? undefined} onRetry={() => load(page)} />}
 
       {status === 'ready' && (
@@ -110,12 +112,12 @@ export function AdminUsersPage() {
             <table className="asa-admin-table">
               <thead>
                 <tr>
-                  <th>Username</th>
-                  <th>Email</th>
-                  <th>Role</th>
-                  <th>Status</th>
-                  <th>Joined</th>
-                  <th>Actions</th>
+                  <th>{t('users.columnUsername')}</th>
+                  <th>{t('users.columnEmail')}</th>
+                  <th>{t('users.columnRole')}</th>
+                  <th>{t('users.columnStatus')}</th>
+                  <th>{t('users.columnJoined')}</th>
+                  <th>{t('users.columnActions')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -125,21 +127,23 @@ export function AdminUsersPage() {
                     <tr key={u.user.id}>
                       <td>
                         {u.user.username}
-                        {isSelf && <span className="asa-admin-list-row__meta"> (you)</span>}
+                        {isSelf && <span className="asa-admin-list-row__meta"> {t('users.you')}</span>}
                       </td>
                       <td>{u.user.email}</td>
                       <td>
-                        <Badge variant={u.user.role === 'admin' ? 'success' : 'default'}>{u.user.role}</Badge>
+                        <Badge variant={u.user.role === 'admin' ? 'success' : 'default'}>
+                          {t(`common:roles.${u.user.role}`)}
+                        </Badge>
                       </td>
                       <td>
                         <Badge variant={u.user.isActive ? 'success' : 'danger'}>
-                          {u.user.isActive ? 'Active' : 'Deactivated'}
+                          {u.user.isActive ? t('users.active') : t('users.deactivated')}
                         </Badge>
                       </td>
                       <td>{formatDate(u.user.createdAt)}</td>
                       <td>
                         {isSelf ? (
-                          <span className="asa-admin-list-row__meta">Manage your own account from Profile</span>
+                          <span className="asa-admin-list-row__meta">{t('users.manageOwnAccount')}</span>
                         ) : (
                           <div className="asa-admin-table__actions">
                             <select
@@ -147,11 +151,11 @@ export function AdminUsersPage() {
                               style={{ width: 'auto', minHeight: '2.25rem' }}
                               value={u.user.role}
                               onChange={(e) => setConfirmAction({ user: u, type: 'role', role: e.target.value })}
-                              aria-label={`Change role for ${u.user.username}`}
+                              aria-label={t('users.changeRoleFor', { name: u.user.username })}
                             >
                               {ROLES.map((r) => (
                                 <option key={r} value={r}>
-                                  {r}
+                                  {t(`common:roles.${r}`)}
                                 </option>
                               ))}
                             </select>
@@ -162,7 +166,7 @@ export function AdminUsersPage() {
                                 loading={updateLoadingId === u.user.id}
                                 onClick={() => setConfirmAction({ user: u, type: 'deactivate' })}
                               >
-                                Deactivate
+                                {t('users.deactivate')}
                               </Button>
                             ) : (
                               <Button
@@ -171,7 +175,7 @@ export function AdminUsersPage() {
                                 loading={updateLoadingId === u.user.id}
                                 onClick={() => setConfirmAction({ user: u, type: 'activate' })}
                               >
-                                Reactivate
+                                {t('users.reactivate')}
                               </Button>
                             )}
                           </div>
@@ -185,15 +189,13 @@ export function AdminUsersPage() {
           </div>
 
           <div className="asa-admin-pagination">
-            <span>
-              Page {page} of {totalPages}
-            </span>
+            <span>{t('users.page', { page, totalPages })}</span>
             <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
               <Button variant="ghost" size="sm" disabled={page <= 1} onClick={() => load(page - 1)}>
-                Previous
+                {t('users.previous')}
               </Button>
               <Button variant="ghost" size="sm" disabled={page >= totalPages} onClick={() => load(page + 1)}>
-                Next
+                {t('users.next')}
               </Button>
             </div>
           </div>
@@ -204,10 +206,10 @@ export function AdminUsersPage() {
         open={!!confirmAction}
         title={
           confirmAction?.type === 'deactivate'
-            ? 'Deactivate account?'
+            ? t('users.deactivateTitle')
             : confirmAction?.type === 'activate'
-              ? 'Reactivate account?'
-              : 'Change role?'
+              ? t('users.reactivateTitle')
+              : t('users.changeRoleTitle')
         }
         onClose={() => {
           setConfirmAction(null)
@@ -215,20 +217,18 @@ export function AdminUsersPage() {
         }}
       >
         {confirmAction?.type === 'deactivate' && (
-          <p>
-            <strong>{confirmAction.user.user.username}</strong> will be immediately logged out and unable to log
-            back in until reactivated.
-          </p>
+          <p>{t('users.deactivateBody', { name: confirmAction.user.user.username })}</p>
         )}
         {confirmAction?.type === 'activate' && (
-          <p>
-            <strong>{confirmAction.user.user.username}</strong> will be able to log in again.
-          </p>
+          <p>{t('users.reactivateBody', { name: confirmAction.user.user.username })}</p>
         )}
         {confirmAction?.type === 'role' && (
           <p>
-            Change <strong>{confirmAction.user.user.username}</strong>&apos;s role from{' '}
-            <strong>{confirmAction.user.user.role}</strong> to <strong>{confirmAction.role}</strong>?
+            {t('users.changeRoleBody', {
+              name: confirmAction.user.user.username,
+              from: t(`common:roles.${confirmAction.user.user.role}`),
+              to: t(`common:roles.${confirmAction.role}`),
+            })}
           </p>
         )}
         {actionError && (
@@ -242,10 +242,10 @@ export function AdminUsersPage() {
             loading={!!updateLoadingId}
             onClick={confirmAndRun}
           >
-            Confirm
+            {t('users.confirm')}
           </Button>
           <Button variant="ghost" onClick={() => setConfirmAction(null)}>
-            Cancel
+            {t('users.cancel')}
           </Button>
         </div>
       </Modal>

@@ -36,6 +36,30 @@ class TestUpdateProfile:
         assert response.get_json()["first_name"] == "Second"
 
 
+class TestUpdateLanguage:
+    def test_requires_auth(self, client):
+        response = client.put("/api/users/me/language", json={"language": "sw"})
+        assert response.status_code == 401
+
+    def test_updates_to_kiswahili(self, client, amina):
+        response = client.put("/api/users/me/language", headers=amina["headers"], json={"language": "sw"})
+        assert response.status_code == 200
+        assert response.get_json()["language"] == "sw"
+
+    def test_persists_across_requests(self, client, amina):
+        client.put("/api/users/me/language", headers=amina["headers"], json={"language": "sw"})
+        me = client.get("/api/auth/me", headers=amina["headers"])
+        assert me.get_json()["language"] == "sw"
+
+    def test_rejects_unsupported_language(self, client, amina):
+        response = client.put("/api/users/me/language", headers=amina["headers"], json={"language": "fr"})
+        assert response.status_code == 422
+
+    def test_rejects_missing_language(self, client, amina):
+        response = client.put("/api/users/me/language", headers=amina["headers"], json={})
+        assert response.status_code == 422
+
+
 class TestFollow:
     def test_follow_and_unfollow(self, client, amina, brian):
         follow_response = client.post(f"/api/users/{brian['user']['id']}/follow", headers=amina["headers"])

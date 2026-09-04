@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Button, EmptyState, ErrorState, LoadingState, Modal, PageHeader } from '@/components/ui'
 import { formatRelativeTime } from '@/lib/format'
 import { errorMessage } from '@/features/auth/AuthContext'
@@ -7,6 +8,7 @@ import { postsService } from '@/services'
 import '../admin.css'
 
 export function AdminContentPage() {
+  const { t } = useTranslation('admin')
   const [posts, setPosts] = useState([])
   const [status, setStatus] = useState('loading')
   const [error, setError] = useState(null)
@@ -47,11 +49,11 @@ export function AdminContentPage() {
 
   return (
     <>
-      <PageHeader title="Content moderation" subtitle="Review and remove posts across the platform." />
+      <PageHeader title={t('content.title')} subtitle={t('content.subtitle')} />
 
-      {status === 'loading' && <LoadingState label="Loading posts…" />}
+      {status === 'loading' && <LoadingState label={t('content.loading')} />}
       {status === 'error' && <ErrorState message={error ?? undefined} onRetry={load} />}
-      {status === 'ready' && posts.length === 0 && <EmptyState title="No posts yet" icon="📝" />}
+      {status === 'ready' && posts.length === 0 && <EmptyState title={t('content.noPostsYet')} icon="📝" />}
 
       {status === 'ready' && posts.length > 0 && (
         <div className="asa-admin-list">
@@ -62,12 +64,16 @@ export function AdminContentPage() {
                   {post.title}
                 </Link>
                 <span className="asa-admin-list-row__meta">
-                  by {post.author.user.username} · {formatRelativeTime(post.createdAt)} · {post.likeCount} likes ·{' '}
-                  {post.comments.length} comments
+                  {t('content.byMeta', {
+                    name: post.author.user.username,
+                    time: formatRelativeTime(post.createdAt),
+                    likes: post.likeCount,
+                    comments: post.comments.length,
+                  })}
                 </span>
               </div>
               <Button variant="danger" size="sm" onClick={() => setPendingDelete(post)}>
-                Delete
+                {t('content.delete')}
               </Button>
             </div>
           ))}
@@ -76,15 +82,17 @@ export function AdminContentPage() {
 
       <Modal
         open={!!pendingDelete}
-        title="Delete this post?"
+        title={t('content.deleteTitle')}
         onClose={() => {
           setPendingDelete(null)
           setDeleteError(null)
         }}
       >
         <p>
-          This permanently deletes <strong>{pendingDelete?.title}</strong> by {pendingDelete?.author.user.username},
-          including its comments and likes. This cannot be undone.
+          {t('content.deleteBody', {
+            title: pendingDelete?.title,
+            name: pendingDelete?.author.user.username,
+          })}
         </p>
         {deleteError && (
           <p className="asa-form-error" role="alert">
@@ -93,10 +101,10 @@ export function AdminContentPage() {
         )}
         <div style={{ display: 'flex', gap: 'var(--space-3)' }}>
           <Button variant="danger" loading={deleting} onClick={confirmDelete}>
-            Delete post
+            {t('content.deletePost')}
           </Button>
           <Button variant="ghost" onClick={() => setPendingDelete(null)}>
-            Cancel
+            {t('content.cancel')}
           </Button>
         </div>
       </Modal>

@@ -15,6 +15,37 @@ class TestRegister:
         assert body["user"]["username"] == "amina"
         assert body["user"]["role"] == "farmer"
 
+    def test_defaults_to_english_when_language_omitted(self, client):
+        response = client.post(
+            "/api/auth/register",
+            json={"username": "amina", "email": "amina@example.com", "password": "SuperSecret123!"},
+        )
+        assert response.get_json()["user"]["language"] == "en"
+
+    def test_registers_with_explicit_kiswahili_preference(self, client):
+        response = client.post(
+            "/api/auth/register",
+            json={
+                "username": "fatuma",
+                "email": "fatuma@example.com",
+                "password": "SuperSecret123!",
+                "language": "sw",
+            },
+        )
+        assert response.get_json()["user"]["language"] == "sw"
+
+    def test_invalid_language_returns_422(self, client):
+        response = client.post(
+            "/api/auth/register",
+            json={
+                "username": "amina",
+                "email": "amina@example.com",
+                "password": "SuperSecret123!",
+                "language": "fr",
+            },
+        )
+        assert response.status_code == 422
+
     def test_password_hash_never_appears_in_response(self, client):
         response = client.post(
             "/api/auth/register",

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Button, EmptyState, ErrorState, LoadingState, Tabs } from '@/components/ui'
 import { fetchExpert, fetchFollowersCount, fetchMyFollowing } from '@/store/slices/expertsSlice'
 import { fetchUserPosts } from '@/store/slices/postsSlice'
@@ -12,12 +13,12 @@ import { FollowButton } from '../components/FollowButton'
 import { MessageButton } from '../components/MessageButton'
 import '@/features/experts/experts.css'
 
-const TABS = [
-  { value: 'posts', label: 'Posts' },
-  { value: 'reels', label: 'Reels' },
-]
-
 export function ExpertProfilePage() {
+  const { t } = useTranslation('experts')
+  const TABS = [
+    { value: 'posts', label: t('profile.tabPosts') },
+    { value: 'reels', label: t('profile.tabReels') },
+  ]
   const { userId } = useParams()
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
@@ -45,7 +46,7 @@ export function ExpertProfilePage() {
     dispatch(fetchMyFollowing())
   }, [dispatch, userId])
 
-  if (status === 'loading') return <LoadingState label="Loading profile…" />
+  if (status === 'loading') return <LoadingState label={t('profile.loading')} />
   if (status === 'error' || !expert) return <ErrorState message={error ?? undefined} onRetry={() => dispatch(fetchExpert(Number(userId)))} />
 
   return (
@@ -73,7 +74,7 @@ export function ExpertProfilePage() {
       />
 
       <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>
-        &larr; Back
+        &larr; {t('profile.back')}
       </Button>
 
       <Tabs items={TABS} value={tab} onChange={setTab} className="asa-profile-tabs" />
@@ -81,8 +82,8 @@ export function ExpertProfilePage() {
       {postsStatus === 'loading' && <GridSkeleton />}
       {postsStatus === 'ready' && visible.length === 0 && (
         <EmptyState
-          title={tab === 'reels' ? 'No Reels yet' : 'No posts yet'}
-          description={`This ${tab === 'reels' ? 'farmer has not shared any Reels' : 'expert has not published any posts'}.`}
+          title={tab === 'reels' ? t('profile.noReelsTitle') : t('profile.noPostsTitle')}
+          description={tab === 'reels' ? t('profile.farmerNoReels') : t('profile.expertNoPosts')}
         />
       )}
       {postsStatus === 'ready' && visible.length > 0 && <PostGrid posts={visible} />}

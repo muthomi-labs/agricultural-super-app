@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Button, Input } from '@/components/ui'
 import { useAuth, errorMessage } from '@/features/auth/AuthContext'
 import { AuthLayout } from './AuthLayout'
 import './auth.css'
 
 export function ForgotPasswordPage() {
+  const { t } = useTranslation('auth')
   const { forgotPassword } = useAuth()
 
   const [email, setEmail] = useState('')
@@ -18,7 +20,7 @@ export function ForgotPasswordPage() {
     event.preventDefault()
     if (submitting) return
     if (!email.trim()) {
-      setFieldError('Email is required.')
+      setFieldError(t('forgotPassword.errors.emailRequired'))
       return
     }
     setFieldError(null)
@@ -37,18 +39,18 @@ export function ForgotPasswordPage() {
   if (sent) {
     return (
       <AuthLayout
-        title="Check your email"
-        subtitle="If an account exists for that email, we've sent a link to reset your password."
+        title={t('forgotPassword.checkEmailTitle')}
+        subtitle={t('forgotPassword.checkEmailSubtitle')}
         footer={
           <>
-            Remembered it? <Link to="/login">Back to log in</Link>
+            {t('forgotPassword.rememberedIt')} <Link to="/login">{t('forgotPassword.backToLogin')}</Link>
           </>
         }
       >
         <p className="asa-auth__hint">
-          The link expires in 1 hour. Didn&apos;t get it? Check your spam folder, or{' '}
+          {t('forgotPassword.hint')}{' '}
           <button type="button" className="asa-auth__linklike" onClick={() => setSent(false)}>
-            try again
+            {t('forgotPassword.tryAgain')}
           </button>
           .
         </p>
@@ -58,17 +60,17 @@ export function ForgotPasswordPage() {
 
   return (
     <AuthLayout
-      title="Forgot your password?"
-      subtitle="Enter your email and we'll send you a link to reset it."
+      title={t('forgotPassword.title')}
+      subtitle={t('forgotPassword.subtitle')}
       footer={
         <>
-          Remembered it? <Link to="/login">Back to log in</Link>
+          {t('forgotPassword.rememberedIt')} <Link to="/login">{t('forgotPassword.backToLogin')}</Link>
         </>
       }
     >
       <form onSubmit={handleSubmit} noValidate>
         <Input
-          label="Email"
+          label={t('forgotPassword.email')}
           name="email"
           type="email"
           autoComplete="email"
@@ -83,7 +85,7 @@ export function ForgotPasswordPage() {
           </p>
         )}
         <Button type="submit" block loading={submitting}>
-          Send reset link
+          {t('forgotPassword.submit')}
         </Button>
       </form>
     </AuthLayout>

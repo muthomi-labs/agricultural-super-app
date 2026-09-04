@@ -1,4 +1,6 @@
 import { useCallback, useEffect } from 'react'
+import i18n from '@/i18n'
+import { usersService } from '@/services'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { UNAUTHORIZED_EVENT } from '@/lib/http'
 import {
@@ -25,6 +27,7 @@ import {
  */
 export function AuthProvider({ children }) {
   const dispatch = useAppDispatch()
+  const user = useAppSelector((state) => state.auth.user)
 
   useEffect(() => {
     dispatch(initializeSession())
@@ -37,6 +40,23 @@ export function AuthProvider({ children }) {
     window.addEventListener(UNAUTHORIZED_EVENT, handleUnauthorized)
     return () => window.removeEventListener(UNAUTHORIZED_EVENT, handleUnauthorized)
   }, [dispatch])
+
+  // Once a session is known (login, register, or a restored session via
+  // /auth/me), the account's own saved language preference becomes the
+  // source of truth and overrides whatever a signed-out visitor had
+  // picked with the language switcher (see LanguageSwitcher.jsx) --
+  // "Default to English for existing users unless another preference
+  // already exists" only makes sense read this way: the account, not
+  // the browser, is what "already exists" refers to once you're logged
+  // in. Logging out leaves i18next on whatever it was already showing
+  // (typically that same account language) rather than snapping back to
+  // a guest default, which would be a jarring, pointless flash.
+  useEffect(() => {
+    const preferred = user?.user?.language
+    if (preferred && preferred !== i18n.language) {
+      i18n.changeLanguage(preferred)
+    }
+  }, [user])
 
   return children
 }
@@ -82,6 +102,32 @@ export function useAuth() {
     [dispatch],
   )
 
+  /**
+   * Switches the UI language immediately (so the change feels instant,
+   * regardless of network speed), then -- only for a signed-in user --
+   * persists it to their account (see PUT /users/me/language) so it
+   * follows them to their next session/device. A signed-out visitor's
+   * choice still survives a refresh via i18next-browser-languagedetector's
+   * own localStorage caching (see src/i18n/index.js), just not across
+   * devices until they log in.
+   */
+  const changeLanguage = useCallback(
+    async (language) => {
+      i18n.changeLanguage(language)
+      if (!user) return
+      try {
+        const updated = await usersService.updateLanguage(language)
+        dispatch(profileUpdated(updated))
+      } catch {
+        // Best-effort persistence -- the UI has already switched
+        // language, and a transient save failure here shouldn't block
+        // or roll that back; it just means the preference might not
+        // follow the user to their next session.
+      }
+    },
+    [dispatch, user],
+  )
+
   return {
     status,
     user,
@@ -92,6 +138,7 @@ export function useAuth() {
     forgotPassword,
     resetPassword,
     changePassword,
+    changeLanguage,
   }
 }
 

@@ -1,0 +1,11 @@
+{
+  "loading": "Loading FarmClips…",
+  "empty": {
+    "title": "No FarmClips yet",
+    "description": "Be the first to share a short farm video."
+  },
+  "mute": "Mute",
+  "unmute": "Unmute",
+  "views": "views",
+  "comments": "Comments"
+}

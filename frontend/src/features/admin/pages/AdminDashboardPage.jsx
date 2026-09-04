@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Badge, Card, ErrorState, LoadingState, PageHeader } from '@/components/ui'
 import { formatRelativeTime } from '@/lib/format'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
@@ -17,6 +18,7 @@ function StatCard({ label, value, meta }) {
 }
 
 export function AdminDashboardPage() {
+  const { t } = useTranslation('admin')
   const dispatch = useAppDispatch()
   const stats = useAppSelector((state) => state.admin.stats)
   const status = useAppSelector((state) => state.admin.statsStatus)
@@ -26,48 +28,56 @@ export function AdminDashboardPage() {
     dispatch(fetchAdminStats())
   }, [dispatch])
 
-  if (status === 'loading' || status === 'idle') return <LoadingState label="Loading dashboard…" />
+  if (status === 'loading' || status === 'idle') return <LoadingState label={t('dashboard.loading')} />
   if (status === 'error' || !stats) {
     return <ErrorState message={error ?? undefined} onRetry={() => dispatch(fetchAdminStats())} />
   }
 
   return (
     <>
-      <PageHeader title="Dashboard" subtitle="Live platform statistics." />
+      <PageHeader title={t('dashboard.title')} subtitle={t('dashboard.subtitle')} />
 
       <div className="asa-admin-stats">
         <StatCard
-          label="Total users"
+          label={t('dashboard.totalUsers')}
           value={stats.users.total}
-          meta={`${stats.users.active} active · ${stats.users.inactive} deactivated`}
+          meta={t('dashboard.activeInactive', { active: stats.users.active, inactive: stats.users.inactive })}
         />
         <StatCard
-          label="By role"
+          label={t('dashboard.byRole')}
           value={stats.users.by_role.farmer}
-          meta={`farmers · ${stats.users.by_role.expert} experts · ${stats.users.by_role.admin} admins`}
+          meta={t('dashboard.roleBreakdown', { expert: stats.users.by_role.expert, admin: stats.users.by_role.admin })}
         />
-        <StatCard label="Posts" value={stats.posts.total} meta={`${stats.comments.total} comments`} />
-        <StatCard label="Communities" value={stats.communities.total} />
+        <StatCard
+          label={t('dashboard.posts')}
+          value={stats.posts.total}
+          meta={t('dashboard.commentsCount', { count: stats.comments.total })}
+        />
+        <StatCard label={t('dashboard.communities')} value={stats.communities.total} />
         <Link to="/admin/reports" className="asa-admin-stat-card-link">
           <StatCard
-            label="Reports"
+            label={t('dashboard.reports')}
             value={stats.reports.pending}
-            meta={`${stats.reports.total} total · pending review`}
+            meta={t('dashboard.reportsMeta', { total: stats.reports.total })}
           />
         </Link>
-        <StatCard label="Conversations" value={stats.conversations.total} meta={`${stats.messages.total} messages sent`} />
         <StatCard
-          label="AI Assistant"
-          value={stats.ai.configured ? 'Configured' : 'Not configured'}
-          meta={`provider: ${stats.ai.provider}${stats.ai.model ? ` · ${stats.ai.model}` : ''}`}
+          label={t('dashboard.conversations')}
+          value={stats.conversations.total}
+          meta={t('dashboard.messagesSent', { count: stats.messages.total })}
+        />
+        <StatCard
+          label={t('dashboard.aiAssistant')}
+          value={stats.ai.configured ? t('dashboard.aiConfigured') : t('dashboard.aiNotConfigured')}
+          meta={t('dashboard.aiProviderMeta', { provider: stats.ai.provider }) + (stats.ai.model ? ` · ${stats.ai.model}` : '')}
         />
       </div>
 
       <section className="asa-admin-section">
-        <h2 className="asa-admin-section__title">Recent registrations</h2>
+        <h2 className="asa-admin-section__title">{t('dashboard.recentRegistrations')}</h2>
         <Card padded>
           {stats.recentUsers.length === 0 ? (
-            <p className="asa-admin-list-row__meta">No users yet.</p>
+            <p className="asa-admin-list-row__meta">{t('dashboard.noUsersYet')}</p>
           ) : (
             <div className="asa-admin-list">
               {stats.recentUsers.map((u) => (
@@ -77,10 +87,10 @@ export function AdminDashboardPage() {
                       {u.user.username}
                     </Link>
                     <span className="asa-admin-list-row__meta">
-                      {u.user.email} · joined {formatRelativeTime(u.user.createdAt)}
+                      {u.user.email} · {t('dashboard.joined', { time: formatRelativeTime(u.user.createdAt) })}
                     </span>
                   </div>
-                  <Badge>{u.user.role}</Badge>
+                  <Badge>{t(`common:roles.${u.user.role}`)}</Badge>
                 </div>
               ))}
             </div>
@@ -89,10 +99,10 @@ export function AdminDashboardPage() {
       </section>
 
       <section className="asa-admin-section">
-        <h2 className="asa-admin-section__title">Recent posts</h2>
+        <h2 className="asa-admin-section__title">{t('dashboard.recentPosts')}</h2>
         <Card padded>
           {stats.recentPosts.length === 0 ? (
-            <p className="asa-admin-list-row__meta">No posts yet.</p>
+            <p className="asa-admin-list-row__meta">{t('dashboard.noPostsYet')}</p>
           ) : (
             <div className="asa-admin-list">
               {stats.recentPosts.map((post) => (
@@ -102,7 +112,7 @@ export function AdminDashboardPage() {
                       {post.title}
                     </Link>
                     <span className="asa-admin-list-row__meta">
-                      by {post.author.user.username} · {formatRelativeTime(post.createdAt)}
+                      {t('dashboard.by', { name: post.author.user.username })} · {formatRelativeTime(post.createdAt)}
                     </span>
                   </div>
                 </div>

@@ -1,10 +1,12 @@
 import { NavLink } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/features/auth/AuthContext'
 import { bottomNavItems } from './nav'
 import { CreateButton } from './CreateButton'
 import './layout.css'
 
 export function BottomNav() {
+  const { t } = useTranslation('nav')
   const { user } = useAuth()
   const isAdmin = user?.user.role === 'admin'
   const visibleItems = bottomNavItems.filter((item) => !item.adminOnly || isAdmin)
@@ -26,7 +28,7 @@ export function BottomNav() {
             }
           >
             {item.icon}
-            <span>{item.label}</span>
+            <span>{t(item.labelKey)}</span>
           </NavLink>
         ),
       )}

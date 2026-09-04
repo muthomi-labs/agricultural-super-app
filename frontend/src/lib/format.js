@@ -1,5 +1,7 @@
 /** Small formatting helpers shared across the UI. */
 
+import i18n from '@/i18n'
+
 const DATE_FORMAT_OPTS = {
   year: 'numeric',
   month: 'short',
@@ -18,7 +20,10 @@ export function asUtcDate(value) {
 }
 
 export function formatDate(value) {
-  return asUtcDate(value).toLocaleDateString(undefined, DATE_FORMAT_OPTS)
+  // i18n.language drives this (rather than the browser's own locale) so
+  // a date renders with Kiswahili month names whenever that's the
+  // selected app language, regardless of the device's own locale.
+  return asUtcDate(value).toLocaleDateString(i18n.language, DATE_FORMAT_OPTS)
 }
 
 export function formatRelativeTime(value) {
@@ -27,14 +32,14 @@ export function formatRelativeTime(value) {
   const diffMs = Math.max(0, now - then)
   const minutes = Math.floor(diffMs / 60_000)
 
-  if (minutes < 1) return 'just now'
-  if (minutes < 60) return `${minutes}m ago`
+  if (minutes < 1) return i18n.t('common:time.justNow')
+  if (minutes < 60) return i18n.t('common:time.minutesAgo', { count: minutes })
 
   const hours = Math.floor(minutes / 60)
-  if (hours < 24) return `${hours}h ago`
+  if (hours < 24) return i18n.t('common:time.hoursAgo', { count: hours })
 
   const days = Math.floor(hours / 24)
-  if (days < 7) return `${days}d ago`
+  if (days < 7) return i18n.t('common:time.daysAgo', { count: days })
 
   return formatDate(value)
 }
@@ -44,7 +49,7 @@ export function formatRelativeTime(value) {
  * from the caption so the requirement never surfaces to the user. */
 export function deriveTitle(content) {
   const trimmed = content.trim()
-  if (trimmed.length <= 60) return trimmed || 'Untitled post'
+  if (trimmed.length <= 60) return trimmed || i18n.t('posts:untitledPost')
   return `${trimmed.slice(0, 57).trimEnd()}...`
 }
 

@@ -48,6 +48,42 @@ SYSTEM_PROMPT = (
     "paragraphs or a tight list, not an essay."
 )
 
+# Kiswahili is a first-class language for this assistant, not a bolted-on
+# translation pass -- AgriConnect's farmers are Kenyan, and Kiswahili
+# agricultural vocabulary (mkulima, shamba, mazao, ...) has specific,
+# correct terms that a literal/generic translation routinely gets wrong.
+_LANGUAGE_NAMES = {"en": "English", "sw": "Kiswahili"}
+
+_KISWAHILI_INSTRUCTIONS = (
+    " The user's preferred language is {preferred}. Always reply in "
+    "whichever language the user's own message is written in -- English, "
+    "Kiswahili, or a natural mix of both -- even if that differs from "
+    "their preferred language above; only fall back to their preferred "
+    "language when the message itself doesn't make the language clear "
+    "(e.g. it's just a crop name or very short). When replying in "
+    "Kiswahili, write the way a fluent Kenyan Kiswahili speaker actually "
+    "talks -- never a stiff, literal word-for-word translation from "
+    "English -- and use correct local agricultural terminology, for "
+    "example: mkulima (farmer), shamba (farm), mazao (crops), udongo "
+    "(soil), mbolea (fertilizer), dawa ya kuua wadudu (pesticide), "
+    "mavuno (harvest), mifugo (livestock), umwagiliaji (irrigation), "
+    "mdudu waharibifu (pest), ugonjwa (disease), mbegu (seed), hali ya "
+    "hewa (weather), soko (market), and mtaalamu wa kilimo (agricultural "
+    "expert). Never translate proper names, usernames, or URLs."
+)
+
+
+def _build_system_prompt(language):
+    """
+    Appends a language-awareness clause to the base SYSTEM_PROMPT above.
+    `language` is the caller's account preference ("en"/"sw", from
+    User.language) -- it steers which language the assistant defaults to
+    when a message's own language is ambiguous, but the model is always
+    instructed to mirror whatever language the user actually wrote in.
+    """
+    preferred = _LANGUAGE_NAMES.get(language, _LANGUAGE_NAMES["en"])
+    return SYSTEM_PROMPT + _KISWAHILI_INSTRUCTIONS.format(preferred=preferred)
+
 
 class AIServiceUnavailableError(ApiError):
     """The AI assistant is not configured, or the upstream provider failed."""
@@ -55,11 +91,13 @@ class AIServiceUnavailableError(ApiError):
     status_code = 503
 
 
-def ask_assistant(messages):
+def ask_assistant(messages, language=None):
     """
     `messages` is a list of {"role": "user"|"assistant", "content": str},
     already validated by the route (non-empty, roles alternate loosely --
     the provider itself will reject a genuinely malformed sequence).
+    `language` is the caller's User.language ("en"/"sw"), passed by the
+    route -- see _build_system_prompt.
 
     Returns the assistant's reply text. Never lets a provider-specific
     exception (connection errors, HTTP errors, malformed JSON, ...)
@@ -71,7 +109,7 @@ def ask_assistant(messages):
 
     try:
         provider = get_provider(current_app.config)
-        return provider.complete(trimmed, SYSTEM_PROMPT)
+        return provider.complete(trimmed, _build_system_prompt(language))
     except AIProviderError as err:
         current_app.logger.error("AI assistant provider error: %s", err.log_message)
         raise AIServiceUnavailableError(err.public_message)
@@ -193,7 +231,7 @@ def send_message(user, conversation_id, content):
 
     try:
         provider = get_provider(current_app.config)
-        reply = provider.complete(context, SYSTEM_PROMPT)
+        reply = provider.complete(context, _build_system_prompt(user.language))
     except AIProviderError as err:
         current_app.logger.error("AI assistant provider error: %s", err.log_message)
         raise AIServiceUnavailableError(err.public_message)
@@ -240,7 +278,7 @@ def stream_message(user, conversation_id, content):
     def generate_chunks():
         chunks = []
         try:
-            for chunk in provider.stream_complete(context, SYSTEM_PROMPT):
+            for chunk in provider.stream_complete(context, _build_system_prompt(user.language)):
                 chunks.append(chunk)
                 yield chunk
         except AIProviderError as err:

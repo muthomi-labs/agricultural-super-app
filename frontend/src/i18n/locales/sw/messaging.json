@@ -1,0 +1,19 @@
+{
+  "list": {
+    "title": "Ujumbe",
+    "subtitle": "Mazungumzo na wataalamu na wakulima uliowasiliana nao.",
+    "loading": "Inapakia mazungumzo…",
+    "emptyTitle": "Bado hakuna mazungumzo",
+    "emptyDescription": "Tuma ujumbe kwa mtaalamu kutoka kwenye wasifu wake ili kuanzisha mazungumzo.",
+    "conversationFallback": "Mazungumzo",
+    "youPrefix": "Wewe: {{content}}",
+    "noMessagesYet": "Bado hakuna ujumbe"
+  },
+  "thread": {
+    "backToMessages": "Rudi kwenye ujumbe",
+    "loading": "Inapakia mazungumzo…",
+    "placeholder": "Andika ujumbe…",
+    "ariaLabel": "Ujumbe",
+    "send": "Tuma ujumbe"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "title": "Notifications",
+  "subtitle": "Activity on your posts and profile.",
+  "markAllRead": "Mark all as read",
+  "loading": "Loading notifications…",
+  "emptyTitle": "No notifications yet",
+  "emptyDescription": "When someone likes, comments on, or follows you, it'll show up here.",
+  "groups": {
+    "Today": "Today",
+    "Yesterday": "Yesterday",
+    "Earlier": "Earlier"
+  },
+  "text": {
+    "post_like": {
+      "post": "{{name}} liked your post",
+      "reel": "{{name}} liked your Reel"
+    },
+    "post_comment": {
+      "post": "{{name}} commented on your post",
+      "reel": "{{name}} commented on your Reel"
+    },
+    "comment_reply": "{{name}} replied to your comment",
+    "follow": "{{name}} started following you",
+    "default": "{{name}} interacted with your content"
+  }
+}

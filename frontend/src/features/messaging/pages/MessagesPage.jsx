@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Avatar, EmptyState, ErrorState, LoadingState, PageHeader } from '@/components/ui'
 import { formatRelativeTime } from '@/lib/format'
 import { useAuth } from '@/features/auth/AuthContext'
@@ -21,6 +22,7 @@ function unreadCount(conversation, myId) {
 }
 
 export function MessagesPage() {
+  const { t } = useTranslation('messaging')
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const { user } = useAuth()
@@ -36,14 +38,14 @@ export function MessagesPage() {
 
   return (
     <>
-      <PageHeader title="Messages" subtitle="Conversations with experts and farmers you've connected with." />
+      <PageHeader title={t('list.title')} subtitle={t('list.subtitle')} />
 
-      {status === 'loading' && <LoadingState label="Loading conversations…" />}
+      {status === 'loading' && <LoadingState label={t('list.loading')} />}
       {status === 'error' && <ErrorState message={error ?? undefined} onRetry={() => dispatch(fetchConversations())} />}
       {status === 'ready' && conversations.length === 0 && (
         <EmptyState
-          title="No conversations yet"
-          description="Message an expert from their profile to start a conversation."
+          title={t('list.emptyTitle')}
+          description={t('list.emptyDescription')}
           icon="💬"
         />
       )}
@@ -54,7 +56,7 @@ export function MessagesPage() {
             const name =
               partner?.profile.firstName && partner?.profile.lastName
                 ? `${partner.profile.firstName} ${partner.profile.lastName}`
-                : partner?.user.username ?? 'Conversation'
+                : partner?.user.username ?? t('list.conversationFallback')
             const last = lastMessage(conversation)
             const unread = unreadCount(conversation, myId)
 
@@ -74,7 +76,11 @@ export function MessagesPage() {
                       {last && <span className="asa-conversation-item__time">{formatRelativeTime(last.createdAt)}</span>}
                     </div>
                     <p className={`asa-conversation-item__preview ${unread > 0 ? 'asa-conversation-item__preview--unread' : ''}`}>
-                      {last ? (last.senderId === myId ? `You: ${last.content}` : last.content) : 'No messages yet'}
+                      {last
+                        ? last.senderId === myId
+                          ? t('list.youPrefix', { content: last.content })
+                          : last.content
+                        : t('list.noMessagesYet')}
                     </p>
                   </div>
                   {unread > 0 && <span className="asa-unread-dot">{unread}</span>}

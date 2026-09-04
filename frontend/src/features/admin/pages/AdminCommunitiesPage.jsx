@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Button, EmptyState, ErrorState, LoadingState, Modal, PageHeader } from '@/components/ui'
 import { errorMessage } from '@/features/auth/AuthContext'
 import { communitiesService } from '@/services'
 import '../admin.css'
 
 export function AdminCommunitiesPage() {
+  const { t } = useTranslation('admin')
   const [communities, setCommunities] = useState([])
   const [status, setStatus] = useState('loading')
   const [error, setError] = useState(null)
@@ -46,11 +48,11 @@ export function AdminCommunitiesPage() {
 
   return (
     <>
-      <PageHeader title="Communities" subtitle="Review and remove communities across the platform." />
+      <PageHeader title={t('communities.title')} subtitle={t('communities.subtitle')} />
 
-      {status === 'loading' && <LoadingState label="Loading communities…" />}
+      {status === 'loading' && <LoadingState label={t('communities.loading')} />}
       {status === 'error' && <ErrorState message={error ?? undefined} onRetry={load} />}
-      {status === 'ready' && communities.length === 0 && <EmptyState title="No communities yet" icon="👥" />}
+      {status === 'ready' && communities.length === 0 && <EmptyState title={t('communities.noCommunitiesYet')} icon="👥" />}
 
       {status === 'ready' && communities.length > 0 && (
         <div className="asa-admin-list">
@@ -61,12 +63,14 @@ export function AdminCommunitiesPage() {
                   {community.name}
                 </Link>
                 <span className="asa-admin-list-row__meta">
-                  created by {community.creator.user.username} · {community.members.length} member
-                  {community.members.length === 1 ? '' : 's'}
+                  {t('communities.createdByMeta', {
+                    name: community.creator.user.username,
+                    count: community.members.length,
+                  })}
                 </span>
               </div>
               <Button variant="danger" size="sm" onClick={() => setPendingDelete(community)}>
-                Delete
+                {t('communities.delete')}
               </Button>
             </div>
           ))}
@@ -75,15 +79,17 @@ export function AdminCommunitiesPage() {
 
       <Modal
         open={!!pendingDelete}
-        title="Delete this community?"
+        title={t('communities.deleteTitle')}
         onClose={() => {
           setPendingDelete(null)
           setDeleteError(null)
         }}
       >
         <p>
-          This permanently deletes <strong>{pendingDelete?.name}</strong> and all {pendingDelete?.members.length}{' '}
-          membership record{pendingDelete?.members.length === 1 ? '' : 's'}. This cannot be undone.
+          {t('communities.deleteBody', {
+            name: pendingDelete?.name,
+            count: pendingDelete?.members.length,
+          })}
         </p>
         {deleteError && (
           <p className="asa-form-error" role="alert">
@@ -92,10 +98,10 @@ export function AdminCommunitiesPage() {
         )}
         <div style={{ display: 'flex', gap: 'var(--space-3)' }}>
           <Button variant="danger" loading={deleting} onClick={confirmDelete}>
-            Delete community
+            {t('communities.deleteCommunity')}
           </Button>
           <Button variant="ghost" onClick={() => setPendingDelete(null)}>
-            Cancel
+            {t('communities.cancel')}
           </Button>
         </div>
       </Modal>

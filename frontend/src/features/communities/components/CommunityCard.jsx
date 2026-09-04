@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Button, Card } from '@/components/ui'
 import { UsersIcon } from '@/components/icons'
 import { formatCount } from '@/lib/format'
@@ -9,6 +10,7 @@ import { toggleMembership } from '@/store/slices/communitiesSlice'
 import '../communities.css'
 
 export function CommunityCard({ community }) {
+  const { t } = useTranslation('communities')
   const { user } = useAuth()
   const dispatch = useAppDispatch()
   const loading = useAppSelector((state) => state.communities.membershipLoadingId === community.id)
@@ -44,10 +46,13 @@ export function CommunityCard({ community }) {
         {community.description && <p className="asa-community-card__description">{community.description}</p>}
         <div className="asa-community-card__footer">
           <span className="asa-community-card__meta">
-            {formatCount(community.members.length)} member{community.members.length === 1 ? '' : 's'}
+            {t('card.members', {
+              count: community.members.length,
+              formatted: formatCount(community.members.length),
+            })}
           </span>
           {isCreator ? (
-            <span className="asa-community-card__meta">Your community</span>
+            <span className="asa-community-card__meta">{t('card.yourCommunity')}</span>
           ) : (
             <Button
               variant={isMember ? 'secondary' : 'primary'}
@@ -56,7 +61,7 @@ export function CommunityCard({ community }) {
               loading={loading}
               aria-pressed={isMember}
             >
-              {isMember ? 'Joined' : 'Join'}
+              {isMember ? t('card.joined') : t('card.join')}
             </Button>
           )}
         </div>

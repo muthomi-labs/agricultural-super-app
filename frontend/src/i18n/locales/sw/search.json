@@ -1,0 +1,31 @@
+{
+  "search": {
+    "title": "Tafuta",
+    "subtitle": "Tafuta wakulima na wataalamu katika jumuiya.",
+    "placeholder": "Tafuta watumiaji…",
+    "ariaLabel": "Tafuta watumiaji",
+    "idleTitle": "Tafuta wakulima na wataalamu",
+    "idleDescription": "Andika jina au jina la mtumiaji ili kupata watu katika jumuiya.",
+    "searching": "Inatafuta…",
+    "noResultsTitle": "Hakuna wakulima waliopatikana",
+    "noResultsDescription": "Jaribu kutafuta kwa jina au jina la mtumiaji tofauti."
+  },
+  "explore": {
+    "title": "Gundua",
+    "subtitle": "Gundua wakulima, jumuiya, na machapisho.",
+    "placeholder": "Tafuta wakulima, mazao, jumuiya…",
+    "ariaLabel": "Tafuta wakulima, mazao, jumuiya",
+    "farmers": "Wakulima",
+    "communities": "Jumuiya",
+    "postsAndReels": "Machapisho na Reels",
+    "farmersToFollow": "Wakulima wa kufuata",
+    "loadingFarmers": "Inapakia wakulima…",
+    "noFarmersYet": "Bado hakuna wakulima wa kupendekeza",
+    "seeAllFarmers": "Ona wakulima wote",
+    "loadingCommunities": "Inapakia jumuiya…",
+    "noCommunitiesYet": "Bado hakuna jumuiya",
+    "seeAllCommunities": "Ona jumuiya zote",
+    "recentPostsAndReels": "Machapisho na Reels za hivi karibuni",
+    "noPostsYet": "Bado hakuna machapisho"
+  }
+}

@@ -3,8 +3,11 @@
 from flask import Blueprint, jsonify, request
 
 from app.auth.decorators import get_current_user, jwt_required, optional_jwt
-from app.schemas import PostSchema, profile_schema, user_public_schema, users_public_schema
+from app.errors import ValidationAPIError
+from app.schemas import PostSchema, profile_schema, user_public_schema, user_schema, users_public_schema
 from app.services import post_service, user_service
+
+SUPPORTED_LANGUAGES = {"en", "sw"}
 
 users_bp = Blueprint("users", __name__, url_prefix="/api/users")
 
@@ -216,6 +219,46 @@ def update_my_profile():
     data = profile_schema.load(request.get_json(silent=True) or {}, partial=True)
     profile = user_service.upsert_own_profile(get_current_user(), data)
     return jsonify(profile_schema.dump(profile)), 200
+
+
+@users_bp.put("/me/language")
+@jwt_required
+def update_my_language():
+    """
+    Update the current user's UI/AI language preference.
+    ---
+    tags:
+      - Users
+    security:
+      - BearerAuth: []
+    parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          type: object
+          required: [language]
+          properties:
+            language:
+              type: string
+              enum: [en, sw]
+    responses:
+      200:
+        description: Language preference saved.
+        schema:
+          $ref: '#/definitions/User'
+      422:
+        description: language must be "en" or "sw".
+        schema:
+          $ref: '#/definitions/Error'
+    """
+    payload = request.get_json(silent=True) or {}
+    language = payload.get("language")
+    if language not in SUPPORTED_LANGUAGES:
+        raise ValidationAPIError('language must be "en" or "sw".')
+
+    user = user_service.update_language(get_current_user(), language)
+    return jsonify(user_schema.dump(user)), 200
 
 
 @users_bp.post("/<int:user_id>/follow")

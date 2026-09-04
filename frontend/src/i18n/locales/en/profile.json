@@ -1,0 +1,40 @@
+{
+  "hero": {
+    "posts": "posts",
+    "followers": "followers",
+    "following": "following",
+    "editProfile": "Edit profile",
+    "changePassword": "Change password"
+  },
+  "tabs": {
+    "posts": "Your posts",
+    "reels": "Reels",
+    "saved": "Saved"
+  },
+  "empty": {
+    "noPostsTitle": "You have not posted yet",
+    "noPostsDescription": "Share your first agricultural post with the community.",
+    "writePost": "Write a post",
+    "noReelsTitle": "No Reels yet",
+    "noReelsDescription": "Share a short farm video to see it here.",
+    "createReel": "Create a Reel",
+    "noSavedTitle": "No saved posts yet",
+    "noSavedDescription": "Save posts to come back to them later."
+  },
+  "edit": {
+    "title": "Edit profile",
+    "subtitle": "Update your public information.",
+    "photo": "Profile photo",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "bio": "Bio",
+    "location": "Location",
+    "locationPlaceholder": "e.g. Nakuru, Kenya",
+    "phoneNumber": "Phone number",
+    "language": "Language",
+    "languageDescription": "Choose the language for the app and for AI Farming Assistant replies.",
+    "waitingForPhoto": "Waiting for photo to finish uploading…",
+    "saveChanges": "Save changes",
+    "cancel": "Cancel"
+  }
+}

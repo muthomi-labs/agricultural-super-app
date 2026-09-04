@@ -70,9 +70,10 @@ def create_user(db):
         password="testpassword123",
         role="farmer",
         is_active=True,
+        language="en",
     ):
         email = email or f"{username}@example.com"
-        user = User(username=username, email=email, role=role, is_active=is_active)
+        user = User(username=username, email=email, role=role, is_active=is_active, language=language)
         user.set_password(password)
         db.session.add(user)
         db.session.commit()
@@ -92,12 +93,12 @@ def register_user(client):
     Returns a dict: {"user": <dict>, "token": <str>, "headers": <dict>}.
     """
 
-    def _register_user(username="testuser", email=None, password="TestPassword123!", role="farmer"):
+    def _register_user(username="testuser", email=None, password="TestPassword123!", role="farmer", language=None):
         email = email or f"{username}@example.com"
-        response = client.post(
-            "/api/auth/register",
-            json={"username": username, "email": email, "password": password, "role": role},
-        )
+        body = {"username": username, "email": email, "password": password, "role": role}
+        if language is not None:
+            body["language"] = language
+        response = client.post("/api/auth/register", json=body)
         assert response.status_code == 201, response.get_json()
         body = response.get_json()
         return {

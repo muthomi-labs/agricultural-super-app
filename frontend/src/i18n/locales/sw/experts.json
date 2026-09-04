@@ -1,0 +1,32 @@
+{
+  "list": {
+    "title": "Wataalamu",
+    "subtitle": "Wataalamu wa kilimo waliothibitishwa tayari kusaidia.",
+    "searchPlaceholder": "Tafuta wataalamu kwa jina au mahali…",
+    "searchAriaLabel": "Tafuta wataalamu",
+    "loading": "Inapakia wataalamu…",
+    "noMatchesTitle": "Hakuna mtaalamu anayelingana na utafutaji wako",
+    "noMatchesDescription": "Jaribu neno lingine la utafutaji.",
+    "noExpertsTitle": "Bado hakuna wataalamu",
+    "noExpertsDescription": "Wasifu za wataalamu zitaonekana hapa."
+  },
+  "profile": {
+    "loading": "Inapakia wasifu…",
+    "back": "Rudi",
+    "tabPosts": "Machapisho",
+    "tabReels": "Reels",
+    "noReelsTitle": "Hakuna Reels bado",
+    "noPostsTitle": "Bado hakuna machapisho",
+    "farmerNoReels": "Mkulima huyu hajashiriki Reels yoyote.",
+    "expertNoPosts": "Mtaalamu huyu hajachapisha machapisho yoyote."
+  },
+  "follow": {
+    "following": "Unafuata",
+    "follow": "Fuata",
+    "nowFollowing": "Unamfuata {{name}}",
+    "unfollowed": "Umeacha kumfuata {{name}}"
+  },
+  "message": {
+    "message": "Ujumbe"
+  }
+}

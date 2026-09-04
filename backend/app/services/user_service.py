@@ -82,6 +82,18 @@ def upsert_own_profile(current_user, data):
     return profile
 
 
+def update_language(current_user, language):
+    """
+    Update the caller's own UI/AI language preference. `language` is
+    validated by the route (see user_routes.py) against the same
+    OneOf(["en", "sw"]) list UserSchema uses at registration, so both
+    entry points can never disagree on what a "real" language code is.
+    """
+    current_user.language = language
+    db.session.commit()
+    return current_user
+
+
 def follow_user(current_user, target_user_id):
     if current_user.id == target_user_id:
         raise ValidationAPIError("You cannot follow yourself.")

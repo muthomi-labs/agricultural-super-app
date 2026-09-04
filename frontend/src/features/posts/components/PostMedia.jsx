@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { HeartIcon, LeafIcon } from '@/components/icons'
 
 function handleImageError(event) {
@@ -7,6 +8,7 @@ function handleImageError(event) {
 }
 
 export function PostMedia({ images = [], videoUrl, onDoubleTap }) {
+  const { t } = useTranslation('posts')
   const trackRef = useRef(null)
   const [active, setActive] = useState(0)
   const [burst, setBurst] = useState(false)
@@ -69,14 +71,14 @@ export function PostMedia({ images = [], videoUrl, onDoubleTap }) {
         />
       )}
       {images.length > 1 && (
-        <div className="asa-post-media__dots" role="tablist" aria-label="Post photos">
+        <div className="asa-post-media__dots" role="tablist" aria-label={t('media.postPhotos')}>
           {images.map((image, index) => (
             <button
               key={image.id}
               type="button"
               role="tab"
               aria-selected={index === active}
-              aria-label={`Photo ${index + 1} of ${images.length}`}
+              aria-label={t('media.photoOfCount', { index: index + 1, total: images.length })}
               className={`asa-post-media__dot ${index === active ? 'asa-post-media__dot--active' : ''}`}
               onClick={() => goTo(index)}
             />

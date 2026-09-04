@@ -1,8 +1,10 @@
+import { useTranslation } from 'react-i18next'
 import { Avatar } from '@/components/ui'
 import { VerifiedBadge } from '@/components/ui'
 import '@/features/experts/experts.css'
 
 export function ProfileHero({ profile, followersCount, followingCount, postsCount, onFollowingClick, actions }) {
+  const { t } = useTranslation(['profile', 'common'])
   const name =
     profile.profile.firstName && profile.profile.lastName
       ? `${profile.profile.firstName} ${profile.profile.lastName}`
@@ -30,26 +32,26 @@ export function ProfileHero({ profile, followersCount, followingCount, postsCoun
           <div className="asa-profile-hero__stats">
             {typeof postsCount === 'number' && (
               <span>
-                <span className="asa-profile-hero__stat">{postsCount}</span> posts
+                <span className="asa-profile-hero__stat">{postsCount}</span> {t('profile:hero.posts')}
               </span>
             )}
             {typeof followersCount === 'number' && (
               <span>
-                <span className="asa-profile-hero__stat">{followersCount}</span> followers
+                <span className="asa-profile-hero__stat">{followersCount}</span> {t('profile:hero.followers')}
               </span>
             )}
             {typeof followingCount === 'number' &&
               (onFollowingClick ? (
                 <button type="button" className="asa-profile-hero__stat-btn" onClick={onFollowingClick}>
-                  <span className="asa-profile-hero__stat">{followingCount}</span> following
+                  <span className="asa-profile-hero__stat">{followingCount}</span> {t('profile:hero.following')}
                 </button>
               ) : (
                 <span>
-                  <span className="asa-profile-hero__stat">{followingCount}</span> following
+                  <span className="asa-profile-hero__stat">{followingCount}</span> {t('profile:hero.following')}
                 </span>
               ))}
             <span>
-              <span className="asa-profile-hero__stat">{profile.user.role}</span>
+              <span className="asa-profile-hero__stat">{t(`common:roles.${profile.user.role}`)}</span>
             </span>
           </div>
         </div>

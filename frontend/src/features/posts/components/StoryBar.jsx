@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/features/auth/AuthContext'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { fetchActiveStories } from '@/store/slices/storiesSlice'
@@ -16,6 +17,7 @@ function displayName(actor) {
  * which the backend already guarantees is currently active (expires_at
  * > now); this component never re-derives expiration itself. */
 export function StoryBar() {
+  const { t } = useTranslation('stories')
   const { user } = useAuth()
   const dispatch = useAppDispatch()
   const stories = useAppSelector((state) => state.stories.active)
@@ -60,7 +62,7 @@ export function StoryBar() {
           imageUrl={user.profile.profileImageUrl}
           name={displayName(user)}
           username={user.user.username}
-          label="Your story"
+          label={t('bar.yourStory')}
         />
       )}
       {user && hasOwnStory && (
@@ -69,7 +71,7 @@ export function StoryBar() {
           imageUrl={user.profile.profileImageUrl}
           name={displayName(user)}
           username={user.user.username}
-          label="Your story"
+          label={t('bar.yourStory')}
         />
       )}
 

@@ -23,14 +23,15 @@ export const authService = {
     return { accessToken: session.token, user: toUserProfile(session.user) }
   },
 
-  async register({ username, email, password, role, firstName, lastName }) {
-    if (env.useMocks) return mockAuth.register({ username, email, password, firstName, lastName })
+  async register({ username, email, password, role, language, firstName, lastName }) {
+    if (env.useMocks) return mockAuth.register({ username, email, password, language, firstName, lastName })
 
     const session = await httpClient.post('/auth/register', {
       username,
       email,
       password,
       role: role ?? 'farmer',
+      language: language ?? 'en',
     })
 
     // The token must be stored before the profile call below, since

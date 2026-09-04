@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Avatar, Button, Modal, ReactionPicker, RepostButton, SaveButton, ShareButton } from '@/components/ui'
 import { CommentIcon, EyeCountIcon, HeartIcon, PlayIcon, VolumeIcon } from '@/components/icons'
 import { formatCount, splitHashtags } from '@/lib/format'
@@ -18,6 +19,7 @@ function displayName(actor) {
 }
 
 export function ReelCard({ reel, muted, onToggleMute }) {
+  const { t } = useTranslation('reels')
   const dispatch = useAppDispatch()
   const { user } = useAuth()
   const containerRef = useRef(null)
@@ -107,7 +109,7 @@ export function ReelCard({ reel, muted, onToggleMute }) {
         type="button"
         className="asa-reel-card__mute"
         onClick={onToggleMute}
-        aria-label={muted ? 'Unmute' : 'Mute'}
+        aria-label={muted ? t('unmute') : t('mute')}
       >
         <VolumeIcon muted={muted} width={20} height={20} />
       </button>
@@ -153,7 +155,7 @@ export function ReelCard({ reel, muted, onToggleMute }) {
         )}
 
         <span className="asa-reel-card__views">
-          <EyeCountIcon width={14} height={14} /> {formatCount(reel.viewCount)} views
+          <EyeCountIcon width={14} height={14} /> {formatCount(reel.viewCount)} {t('views')}
         </span>
       </div>
 
@@ -173,7 +175,7 @@ export function ReelCard({ reel, muted, onToggleMute }) {
         >
           <CommentIcon width={20} height={20} />
           <span>{reel.comments.length}</span>
-          <span className="visually-hidden">Comments</span>
+          <span className="visually-hidden">{t('comments')}</span>
         </Button>
         <RepostButton
           reposted={reel.repostedByMe}
@@ -185,7 +187,7 @@ export function ReelCard({ reel, muted, onToggleMute }) {
         <ShareButton postId={reel.id} />
       </div>
 
-      <Modal open={commentsOpen} title="Comments" onClose={() => setCommentsOpen(false)}>
+      <Modal open={commentsOpen} title={t('comments')} onClose={() => setCommentsOpen(false)}>
         <div className="asa-reel-comments">
           <CommentSection post={reel} />
         </div>

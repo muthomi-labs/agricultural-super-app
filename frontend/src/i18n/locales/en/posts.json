@@ -1,0 +1,163 @@
+{
+  "untitledPost": "Untitled post",
+  "feed": {
+    "farmingTip": "Farming tip:",
+    "filters": { "all": "All", "announcements": "Announcements", "following": "Following" },
+    "empty": {
+      "allTitle": "No posts yet",
+      "allDescription": "Be the first person to share something with the community.",
+      "announcementsTitle": "No announcements yet",
+      "announcementsDescription": "Community announcements will show up here.",
+      "followingTitle": "No posts from people you follow",
+      "followingDescription": "Follow farmers and experts to see their posts here.",
+      "writePost": "Write a post"
+    },
+    "tips": [
+      "Rotate your crops each season to keep the soil healthy and reduce pest build-up.",
+      "Test your soil before planting so you add exactly the nutrients it needs.",
+      "Mulching around plants helps retain moisture and suppress weeds.",
+      "Water early in the morning to reduce evaporation loss.",
+      "Isolate a sick animal right away to stop disease spreading through your herd.",
+      "Space seedlings properly — overcrowding invites pests and disease."
+    ]
+  },
+  "card": {
+    "addCommentPlaceholder": "Add a comment…",
+    "addComment": "Add a comment",
+    "post": "Post",
+    "repostedFrom": "Reposted from",
+    "announcement": "Community Announcement",
+    "reel": "Reel",
+    "comments": "Comments",
+    "likes": "likes",
+    "views": "views",
+    "viewAllComments_one": "View {{count}} comment",
+    "viewAllComments_other": "View all {{count}} comments"
+  },
+  "menu": {
+    "options": "Post options",
+    "edit": "Edit",
+    "delete": "Delete",
+    "report": "Report",
+    "editPost": "Edit post",
+    "caption": "Caption",
+    "pleaseAddContent": "Please add some content.",
+    "cancel": "Cancel",
+    "saveChanges": "Save changes",
+    "deletePostTitle": "Delete post?",
+    "deletePostBody": "This action cannot be undone.",
+    "confirmDelete": "Delete"
+  },
+  "report": {
+    "title": "Report post",
+    "reasonPrompt": "Why are you reporting this post?",
+    "reasons": {
+      "spam": "Spam",
+      "harassment": "Harassment",
+      "scam": "Scam",
+      "misleading": "Misleading information",
+      "inappropriate": "Inappropriate content",
+      "other": "Other"
+    },
+    "detailsLabel": "Additional details (optional)",
+    "detailsPlaceholder": "Anything else moderators should know?",
+    "cancel": "Cancel",
+    "submit": "Submit report",
+    "thanks": "Thanks for letting us know. Our moderators will review this post.",
+    "close": "Close"
+  },
+  "comments": {
+    "title": "Comments ({{count}})",
+    "empty": "No comments yet — be the first to respond.",
+    "closed": "Comments are closed by the community admin.",
+    "reply": "Reply",
+    "addComment": "Add a comment",
+    "replyTo": "Reply to {{name}}",
+    "replyToPlaceholder": "Reply to {{name}}…",
+    "yourComment": "Your comment",
+    "shareThoughts": "Share your thoughts…",
+    "postReply": "Post reply",
+    "postComment": "Post comment"
+  },
+  "reactions": {
+    "love": "Love",
+    "like": "Like",
+    "funny": "Funny",
+    "wow": "Wow",
+    "sad": "Sad",
+    "fire": "Useful",
+    "removeReaction": "Remove your {{label}} reaction",
+    "likeThisPost": "Like this post",
+    "yourReaction": "Your reaction: {{label}}",
+    "reactToThisPost": "React to this post"
+  },
+  "actions": {
+    "save": "Save",
+    "unsave": "Unsave",
+    "repost": "Repost",
+    "unrepost": "Unrepost",
+    "share": "Share",
+    "linkCopied": "Link copied"
+  },
+  "suggested": {
+    "farmersToFollow": "Farmers to follow",
+    "communitiesToJoin": "Communities to join",
+    "members": "members",
+    "join": "Join"
+  },
+  "quickComposer": {
+    "defaultPlaceholder": "What's on your mind?",
+    "postAsAnnouncement": "Post as announcement",
+    "addPhotos": "Add photos",
+    "post": "Post"
+  },
+  "createPost": {
+    "heading": "Create post",
+    "announcementHeading": "New announcement",
+    "postToHeading": "Post to {{name}}",
+    "community": "community",
+    "captionPlaceholder": "What's happening on your farm? 🌱",
+    "captionLabel": "Post caption",
+    "videoReel": "Video (Reel)",
+    "yourFeed": "Your feed",
+    "postAsAnnouncement": "Post as community announcement",
+    "cancel": "Cancel",
+    "uploadingPhotos": "Uploading photos…",
+    "submit": "Post"
+  },
+  "createReel": {
+    "heading": "Create Reel",
+    "chooseDifferent": "Choose a different video",
+    "selectVideo": "Select a video from your device",
+    "fileHint": "MP4, MOV, or WebM. Up to 50MB.",
+    "coverOptional": "Cover (optional)",
+    "useCurrentFrame": "Use current frame as cover",
+    "captionLabel": "Reel caption",
+    "captionPlaceholder": "Describe your Reel… add #hashtags like #Maize #PestControl",
+    "yourFeed": "Your feed",
+    "cancel": "Cancel",
+    "shareReel": "Share Reel",
+    "uploadingVideo": "Uploading video…",
+    "uploadingVideoPercent": "Uploading video… {{percent}}%",
+    "uploadingCover": "Uploading cover…",
+    "publishing": "Publishing…",
+    "defaultTitle": "FarmClip"
+  },
+  "detail": {
+    "loading": "Loading post…",
+    "notFound": "Post not found"
+  },
+  "media": {
+    "postPhotos": "Post photos",
+    "photoOfCount": "Photo {{index}} of {{total}}"
+  },
+  "saved": {
+    "title": "Saved",
+    "subtitle": "Posts and Reels you've saved to come back to later.",
+    "tabPosts": "Posts",
+    "tabReels": "Reels",
+    "noSavedReels": "No saved Reels yet",
+    "noSavedPosts": "No saved posts yet",
+    "description": "Save content to come back to it later."
+  }
+}

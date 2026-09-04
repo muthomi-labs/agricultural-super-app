@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Avatar, Button, ImageUploader, Textarea } from '@/components/ui'
 import { ClapperIcon, LeafIcon } from '@/components/icons'
 import { createPost } from '@/store/slices/postsSlice'
@@ -16,6 +17,7 @@ function displayName(user) {
 }
 
 export function CreatePostPage() {
+  const { t } = useTranslation('posts')
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const { user } = useAuth()
@@ -69,8 +71,10 @@ export function CreatePostPage() {
   }
 
   const heading = communityId
-    ? (canPostAnnouncement && isAnnouncement ? 'New announcement' : `Post to ${activeCommunity?.name ?? 'community'}`)
-    : 'Create post'
+    ? canPostAnnouncement && isAnnouncement
+      ? t('createPost.announcementHeading')
+      : t('createPost.postToHeading', { name: activeCommunity?.name ?? t('createPost.community') })
+    : t('createPost.heading')
 
   return (
     <div className="asa-social-composer">
@@ -87,11 +91,11 @@ export function CreatePostPage() {
         <Textarea
           label=""
           name="content"
-          aria-label="Post caption"
+          aria-label={t('createPost.captionLabel')}
           rows={5}
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          placeholder="What's happening on your farm? 🌱"
+          placeholder={t('createPost.captionPlaceholder')}
           className="asa-social-composer__textarea"
           autoFocus
         />
@@ -105,14 +109,14 @@ export function CreatePostPage() {
             onClick={() => navigate('/create/reel')}
           >
             <ClapperIcon width={18} height={18} />
-            Video (Reel)
+            {t('createPost.videoReel')}
           </button>
 
           {myCommunities.length > 0 && !communityIdFromUrl && (
             <label className="asa-social-composer__attachment asa-social-composer__attachment--select">
               <LeafIcon width={18} height={18} />
               <select value={pickedCommunityId} onChange={(event) => setPickedCommunityId(event.target.value)}>
-                <option value="">Your feed</option>
+                <option value="">{t('createPost.yourFeed')}</option>
                 {myCommunities.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.name}
@@ -130,7 +134,7 @@ export function CreatePostPage() {
               checked={isAnnouncement}
               onChange={(event) => setIsAnnouncement(event.target.checked)}
             />
-            <span>📢 Post as community announcement</span>
+            <span>📢 {t('createPost.postAsAnnouncement')}</span>
           </label>
         )}
 
@@ -143,10 +147,10 @@ export function CreatePostPage() {
             disabled={submitting}
             onClick={() => navigate(communityId ? `/communities/${communityId}` : '/', { replace: true })}
           >
-            Cancel
+            {t('createPost.cancel')}
           </Button>
           <Button type="submit" loading={submitting} disabled={submitting || imagesUploading || !content.trim()}>
-            {imagesUploading ? 'Uploading photos…' : 'Post'}
+            {imagesUploading ? t('createPost.uploadingPhotos') : t('createPost.submit')}
           </Button>
         </div>
       </form>

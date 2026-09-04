@@ -1,0 +1,31 @@
+{
+  "search": {
+    "title": "Search",
+    "subtitle": "Find farmers and experts in the community.",
+    "placeholder": "Search users…",
+    "ariaLabel": "Search users",
+    "idleTitle": "Search for farmers and experts",
+    "idleDescription": "Type a name or username to find people in the community.",
+    "searching": "Searching…",
+    "noResultsTitle": "No farmers found",
+    "noResultsDescription": "Try searching with a different name or username."
+  },
+  "explore": {
+    "title": "Explore",
+    "subtitle": "Discover farmers, communities, and posts.",
+    "placeholder": "Search farmers, crops, communities…",
+    "ariaLabel": "Search farmers, crops, communities",
+    "farmers": "Farmers",
+    "communities": "Communities",
+    "postsAndReels": "Posts & Reels",
+    "farmersToFollow": "Farmers to follow",
+    "loadingFarmers": "Loading farmers…",
+    "noFarmersYet": "No farmers to suggest yet",
+    "seeAllFarmers": "See all farmers",
+    "loadingCommunities": "Loading communities…",
+    "noCommunitiesYet": "No communities yet",
+    "seeAllCommunities": "See all communities",
+    "recentPostsAndReels": "Recent posts & Reels",
+    "noPostsYet": "No posts yet"
+  }
+}

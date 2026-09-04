@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Button, EmptyState, ErrorState, LoadingState, PageHeader } from '@/components/ui'
 import { formatRelativeTime } from '@/lib/format'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
@@ -7,6 +8,7 @@ import { createAIConversation, deleteAIConversation, fetchAIConversations } from
 import '../assistant.css'
 
 export function AiAssistantPage() {
+  const { t } = useTranslation('assistant')
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const conversations = useAppSelector((state) => state.ai.conversations)
@@ -26,33 +28,30 @@ export function AiAssistantPage() {
 
   function handleDelete(event, conversationId) {
     event.stopPropagation()
-    if (!window.confirm('Delete this conversation? This cannot be undone.')) return
+    if (!window.confirm(t('page.confirmDelete'))) return
     dispatch(deleteAIConversation(conversationId))
   }
 
   return (
     <>
       <PageHeader
-        title="AI Farming Assistant"
-        subtitle="Ask about crops, pests, soil, livestock, and more."
-        actions={<Button onClick={handleNewConversation}>New conversation</Button>}
+        title={t('page.title')}
+        subtitle={t('page.subtitle')}
+        actions={<Button onClick={handleNewConversation}>{t('page.newConversation')}</Button>}
       />
 
-      <p className="asa-assistant__disclaimer">
-        AI-generated guidance for quick, general advice. For anything high-stakes — disease outbreaks, chemical
-        dosing, big financial decisions — confirm with a verified expert on AgriConnect.
-      </p>
+      <p className="asa-assistant__disclaimer">{t('page.disclaimer')}</p>
 
-      {status === 'loading' && <LoadingState label="Loading conversations…" />}
+      {status === 'loading' && <LoadingState label={t('page.loading')} />}
       {status === 'error' && (
         <ErrorState message={error ?? undefined} onRetry={() => dispatch(fetchAIConversations())} />
       )}
       {status === 'ready' && conversations.length === 0 && (
         <EmptyState
-          title="No conversations yet"
-          description="Start a new conversation to ask the assistant about crops, livestock, soil, pests, and more."
+          title={t('page.emptyTitle')}
+          description={t('page.emptyDescription')}
           icon="🌾"
-          action={<Button onClick={handleNewConversation}>Start your first conversation</Button>}
+          action={<Button onClick={handleNewConversation}>{t('page.startFirst')}</Button>}
         />
       )}
       {status === 'ready' && conversations.length > 0 && (
@@ -64,16 +63,18 @@ export function AiAssistantPage() {
                 className="asa-ai-conversation-item"
                 onClick={() => navigate(`/assistant/${conversation.id}`)}
               >
-                <span className="asa-ai-conversation-item__name">{conversation.title ?? 'New conversation'}</span>
+                <span className="asa-ai-conversation-item__name">
+                  {conversation.title ?? t('page.newConversationFallback')}
+                </span>
                 <span className="asa-ai-conversation-item__time">{formatRelativeTime(conversation.updatedAt)}</span>
               </button>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={(event) => handleDelete(event, conversation.id)}
-                aria-label="Delete conversation"
+                aria-label={t('page.deleteConversation')}
               >
-                Delete
+                {t('page.delete')}
               </Button>
             </li>
           ))}

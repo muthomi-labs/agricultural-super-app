@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Button, PasswordInput, PasswordRequirements } from '@/components/ui'
 import { useAuth, errorMessage } from '@/features/auth/AuthContext'
 import { isPasswordStrong } from '@/lib/passwordPolicy'
@@ -7,6 +8,7 @@ import { AuthLayout } from './AuthLayout'
 import './auth.css'
 
 export function ResetPasswordPage() {
+  const { t } = useTranslation('auth')
   const { resetPassword } = useAuth()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
@@ -21,9 +23,9 @@ export function ResetPasswordPage() {
 
   function validate() {
     const errors = {}
-    if (!password) errors.password = 'Password is required.'
-    else if (!isPasswordStrong(password)) errors.password = 'Password does not meet all requirements below.'
-    if (confirmPassword !== password) errors.confirmPassword = 'Passwords do not match.'
+    if (!password) errors.password = t('resetPassword.errors.passwordRequired')
+    else if (!isPasswordStrong(password)) errors.password = t('resetPassword.errors.passwordWeak')
+    if (confirmPassword !== password) errors.confirmPassword = t('resetPassword.errors.confirmPasswordMismatch')
     setFieldErrors(errors)
     return Object.keys(errors).length === 0
   }
@@ -46,36 +48,34 @@ export function ResetPasswordPage() {
   if (!token) {
     return (
       <AuthLayout
-        title="Invalid reset link"
-        subtitle="This password reset link is missing its token."
+        title={t('resetPassword.invalidLinkTitle')}
+        subtitle={t('resetPassword.invalidLinkSubtitle')}
         footer={
           <>
-            <Link to="/forgot-password">Request a new link</Link>
+            <Link to="/forgot-password">{t('resetPassword.requestNewLink')}</Link>
           </>
         }
       >
-        <p className="asa-auth__hint">
-          Make sure you used the full link from your email, or request a new one.
-        </p>
+        <p className="asa-auth__hint">{t('resetPassword.invalidLinkHint')}</p>
       </AuthLayout>
     )
   }
 
   if (done) {
     return (
-      <AuthLayout title="Password reset" subtitle="Your password has been updated.">
+      <AuthLayout title={t('resetPassword.doneTitle')} subtitle={t('resetPassword.doneSubtitle')}>
         <Button block onClick={() => navigate('/login', { replace: true })}>
-          Log in
+          {t('resetPassword.logIn')}
         </Button>
       </AuthLayout>
     )
   }
 
   return (
-    <AuthLayout title="Choose a new password" subtitle="Enter and confirm your new password.">
+    <AuthLayout title={t('resetPassword.title')} subtitle={t('resetPassword.subtitle')}>
       <form onSubmit={handleSubmit} noValidate>
         <PasswordInput
-          label="New password"
+          label={t('resetPassword.newPassword')}
           name="password"
           autoComplete="new-password"
           value={password}
@@ -84,7 +84,7 @@ export function ResetPasswordPage() {
         />
         <PasswordRequirements password={password} />
         <PasswordInput
-          label="Confirm new password"
+          label={t('resetPassword.confirmNewPassword')}
           name="confirmPassword"
           autoComplete="new-password"
           value={confirmPassword}
@@ -97,7 +97,7 @@ export function ResetPasswordPage() {
           </p>
         )}
         <Button type="submit" block loading={submitting} disabled={submitting || !isPasswordStrong(password)}>
-          Reset password
+          {t('resetPassword.submit')}
         </Button>
       </form>
     </AuthLayout>

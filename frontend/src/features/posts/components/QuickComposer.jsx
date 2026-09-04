@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Button, Textarea } from '@/components/ui'
 import { errorMessage } from '@/features/auth/AuthContext'
 import { createPost } from '@/store/slices/postsSlice'
@@ -6,8 +7,10 @@ import { useAppDispatch } from '@/store/hooks'
 import { deriveTitle } from '@/lib/format'
 import './posts.css'
 
-export function QuickComposer({ communityId, placeholder = "What's on your mind?", allowAnnouncement = false, onPosted }) {
+export function QuickComposer({ communityId, placeholder, allowAnnouncement = false, onPosted }) {
+  const { t } = useTranslation('posts')
   const dispatch = useAppDispatch()
+  const resolvedPlaceholder = placeholder ?? t('quickComposer.defaultPlaceholder')
   const [content, setContent] = useState('')
   const [isAnnouncement, setIsAnnouncement] = useState(false)
   const [submitting, setSubmitting] = useState(false)
@@ -41,8 +44,8 @@ export function QuickComposer({ communityId, placeholder = "What's on your mind?
         rows={2}
         value={content}
         onChange={(event) => setContent(event.target.value)}
-        placeholder={placeholder}
-        aria-label={placeholder}
+        placeholder={resolvedPlaceholder}
+        aria-label={resolvedPlaceholder}
       />
       {allowAnnouncement && (
         <label className="asa-quick-composer__announcement">
@@ -51,7 +54,7 @@ export function QuickComposer({ communityId, placeholder = "What's on your mind?
             checked={isAnnouncement}
             onChange={(event) => setIsAnnouncement(event.target.checked)}
           />
-          <span>📢 Post as announcement</span>
+          <span>📢 {t('quickComposer.postAsAnnouncement')}</span>
         </label>
       )}
       {error && (
@@ -65,10 +68,10 @@ export function QuickComposer({ communityId, placeholder = "What's on your mind?
           size="sm"
           to={communityId ? `/create?communityId=${communityId}` : '/create'}
         >
-          Add photos
+          {t('quickComposer.addPhotos')}
         </Button>
         <Button type="submit" size="sm" loading={submitting} disabled={!content.trim()}>
-          Post
+          {t('quickComposer.post')}
         </Button>
       </div>
     </form>

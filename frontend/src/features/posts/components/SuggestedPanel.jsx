@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Avatar, Button } from '@/components/ui'
 import { fetchExperts, fetchMyFollowing } from '@/store/slices/expertsSlice'
 import { fetchCommunities, toggleMembership } from '@/store/slices/communitiesSlice'
@@ -13,6 +14,7 @@ function displayName(profile) {
 }
 
 export function SuggestedPanel() {
+  const { t } = useTranslation('posts')
   const dispatch = useAppDispatch()
   const { user } = useAuth()
   const experts = useAppSelector((state) => state.experts.experts)
@@ -35,7 +37,7 @@ export function SuggestedPanel() {
     <aside className="asa-suggested-panel">
       {suggestedFarmers.length > 0 && (
         <section className="asa-suggested-panel__section">
-          <h2 className="asa-suggested-panel__title">Farmers to follow</h2>
+          <h2 className="asa-suggested-panel__title">{t('suggested.farmersToFollow')}</h2>
           <ul className="asa-suggested-panel__list">
             {suggestedFarmers.map((expert) => {
               const name = displayName(expert.profile) ?? expert.user.username
@@ -57,20 +59,22 @@ export function SuggestedPanel() {
 
       {suggestedCommunities.length > 0 && (
         <section className="asa-suggested-panel__section">
-          <h2 className="asa-suggested-panel__title">Communities to join</h2>
+          <h2 className="asa-suggested-panel__title">{t('suggested.communitiesToJoin')}</h2>
           <ul className="asa-suggested-panel__list">
             {suggestedCommunities.map((community) => (
               <li key={community.id} className="asa-suggested-panel__row">
                 <Link to={`/communities/${community.id}`} className="asa-suggested-panel__name">
                   🌾 {community.name}
-                  <small>{formatCount(community.members.length)} members</small>
+                  <small>
+                    {formatCount(community.members.length)} {t('suggested.members')}
+                  </small>
                 </Link>
                 <Button
                   size="sm"
                   loading={membershipLoadingId === community.id}
                   onClick={() => dispatch(toggleMembership({ communityId: community.id, userId: user.user.id }))}
                 >
-                  Join
+                  {t('suggested.join')}
                 </Button>
               </li>
             ))}

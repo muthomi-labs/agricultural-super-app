@@ -1,0 +1,85 @@
+{
+  "list": {
+    "title": "Jumuiya",
+    "subtitle": "Jiunge na vikundi vya wakulima na wataalamu wenye maslahi sawa.",
+    "newCommunity": "Jumuiya mpya",
+    "searchPlaceholder": "Tafuta jumuiya…",
+    "loading": "Inapakia jumuiya…",
+    "emptyTitle": "Bado hakuna jumuiya",
+    "emptyDescription": "Anzisha jumuiya ya kwanza kwa eneo lako au utaalamu wako.",
+    "createCommunity": "Unda jumuiya",
+    "searchResults": "Matokeo ya utafutaji",
+    "noSearchMatches": "Hakuna jumuiya inayolingana na utafutaji wako",
+    "myCommunities": "Jumuiya zangu",
+    "suggestedForYou": "Zinazopendekezwa kwako",
+    "allCommunities": "Jumuiya zote",
+    "joinedEvery": "Umejiunga na kila jumuiya",
+    "communityNameRequired": "Jina la jumuiya linahitajika.",
+    "form": {
+      "title": "Jumuiya mpya",
+      "name": "Jina",
+      "namePlaceholder": "mfano: Wakulima wa Mahindi KE",
+      "description": "Maelezo",
+      "descriptionPlaceholder": "Jumuiya hii inahusu nini?",
+      "imageUrl": "Kiungo cha picha (si lazima)",
+      "submit": "Unda jumuiya"
+    }
+  },
+  "card": {
+    "members_one": "Mwanachama {{formatted}}",
+    "members_other": "Wanachama {{formatted}}",
+    "yourCommunity": "Jumuiya yako",
+    "joined": "Umejiunga",
+    "join": "Jiunge"
+  },
+  "detail": {
+    "backToCommunities": "Rudi kwenye jumuiya",
+    "loading": "Inapakia jumuiya…",
+    "admin": "Msimamizi",
+    "createdBy": "iliyoanzishwa na",
+    "communitySettings": "Mipangilio ya Jumuiya",
+    "leaveCommunity": "Ondoka kwenye jumuiya",
+    "joinCommunity": "Jiunge na jumuiya",
+    "tabs": {
+      "announcements": "Matangazo",
+      "feed": "Mlisho",
+      "members": "Wanachama",
+      "about": "Kuhusu"
+    },
+    "noAnnouncementsTitle": "Bado hakuna matangazo",
+    "noAnnouncementsDescription": "Wasimamizi wa jumuiya wanaweza kuchapisha matangazo kutoka kwenye kichupo cha Mlisho.",
+    "composerPlaceholder": "Shiriki kitu na {{name}}…",
+    "onlyExpertsCanPost": "🔒 Wataalamu pekee ndio wanaoweza kuchapisha katika jumuiya hii kwa sasa.",
+    "onlyAdminsCanPost": "🔒 Wasimamizi pekee ndio wanaoweza kuchapisha katika jumuiya hii kwa sasa.",
+    "joinToPost": "👋 Jiunge na jumuiya hii ili uanze kuchapisha.",
+    "loadingPosts": "Inapakia machapisho…",
+    "noPostsTitle": "Bado hakuna machapisho",
+    "noPostsDescription": "Kuwa wa kwanza kushiriki kitu na jumuiya hii.",
+    "noMembers": "Bado hakuna wanachama",
+    "expertBadge": "Mtaalamu",
+    "creatorBadge": "Mwanzilishi",
+    "adminBadge": "Msimamizi",
+    "demote": "Shusha cheo",
+    "promote": "Pandisha cheo",
+    "remove": "Ondoa",
+    "noDescription": "Hakuna maelezo yaliyotolewa.",
+    "aboutCreatedBy": "Ilianzishwa na",
+    "aboutCreatedOn": "Ilianzishwa tarehe",
+    "aboutMembers": "Wanachama",
+    "aboutWhoCanPost": "Nani anaweza kuchapisha",
+    "aboutWhoCanComment": "Nani anaweza kutoa maoni",
+    "commentsClosed": "Maoni yamefungwa",
+    "permissions": {
+      "everyone": "Kila mtu",
+      "experts_only": "Wataalamu pekee",
+      "admins_only": "Wasimamizi pekee"
+    }
+  },
+  "settings": {
+    "title": "Mipangilio ya Jumuiya",
+    "whoCanPost": "Nani anaweza kuchapisha?",
+    "whoCanComment": "Nani anaweza kutoa maoni?",
+    "allowComments": "Ruhusu maoni",
+    "save": "Hifadhi mipangilio"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "bar": {
+    "yourStory": "Your story"
+  },
+  "create": {
+    "close": "Close",
+    "heading": "Create story",
+    "previewPlaceholder": "Your story preview will appear here",
+    "videoNotSupported": "Video stories are not supported yet.",
+    "addVideo": "Add video",
+    "captionPlaceholder": "Add a short caption…",
+    "captionLabel": "Story caption",
+    "cancel": "Cancel",
+    "sharing": "Sharing…",
+    "share": "Share story"
+  },
+  "viewer": {
+    "ariaLabel": "{{name}}'s story",
+    "close": "Close story",
+    "previous": "Previous story",
+    "next": "Next story"
+  }
+}

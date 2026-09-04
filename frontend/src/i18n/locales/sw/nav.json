@@ -1,0 +1,30 @@
+{
+  "home": "Nyumbani",
+  "explore": "Gundua",
+  "create": "Unda",
+  "farmclips": "FarmClips",
+  "communities": "Jumuiya",
+  "experts": "Wataalamu",
+  "messages": "Ujumbe",
+  "notifications": "Arifa",
+  "activity": "Shughuli",
+  "saved": "Zilizohifadhiwa",
+  "profile": "Wasifu",
+  "admin": "Msimamizi",
+  "search": "Gundua na tafuta",
+  "accountMenu": "Menyu ya akaunti",
+  "myProfile": "Wasifu wangu",
+  "adminDashboard": "Dashibodi ya msimamizi",
+  "createPost": "Unda chapisho",
+  "createStory": "Unda hadithi",
+  "createReel": "Unda reel",
+  "createMenu": {
+    "title": "Unda",
+    "post": "Chapisho",
+    "postDescription": "Shiriki taarifa mpya na jumuiya",
+    "story": "Hadithi",
+    "storyDescription": "Shiriki picha inayotoweka kutoka kwenye mlisho wako",
+    "reel": "Reel",
+    "reelDescription": "Shiriki video fupi ya shambani"
+  }
+}

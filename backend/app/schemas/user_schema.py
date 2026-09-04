@@ -92,6 +92,16 @@ class UserSchema(ma.Schema):
     # self-service -- clients cannot flip this via a normal profile update.
     is_active = fields.Boolean(dump_only=True)
 
+    # UI/AI language preference. Settable at registration and later via
+    # PUT /api/users/me/language (see user_routes.py) -- included here
+    # (rather than load_only/dump_only) so both paths share one
+    # validated definition of "a real supported language code."
+    language = fields.String(
+        validate=validate.OneOf(["en", "sw"]),
+        dump_default="en",
+        load_default="en",
+    )
+
     created_at = fields.DateTime(dump_only=True)
     updated_at = fields.DateTime(dump_only=True)
 

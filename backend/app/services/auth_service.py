@@ -35,6 +35,7 @@ def register_user(data):
         username=data["username"],
         email=data["email"],
         role=data.get("role", "farmer"),
+        language=data.get("language", "en"),
     )
     user.set_password(plaintext_password)
 

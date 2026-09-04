@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Avatar, Badge, Button, EmptyState, ErrorState, LoadingState, Tabs, VerifiedBadge } from '@/components/ui'
 import { useAuth } from '@/features/auth/AuthContext'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
@@ -18,14 +19,14 @@ import { canPostInCommunity } from '../permissions'
 import { CommunitySettingsModal } from '../components/CommunitySettingsModal'
 import '../communities.css'
 
-const TABS = [
-  { value: 'announcements', label: 'Announcements' },
-  { value: 'feed', label: 'Feed' },
-  { value: 'members', label: 'Members' },
-  { value: 'about', label: 'About' },
-]
-
 export function CommunityDetailPage() {
+  const { t } = useTranslation('communities')
+  const TABS = [
+    { value: 'announcements', label: t('detail.tabs.announcements') },
+    { value: 'feed', label: t('detail.tabs.feed') },
+    { value: 'members', label: t('detail.tabs.members') },
+    { value: 'about', label: t('detail.tabs.about') },
+  ]
   const { communityId } = useParams()
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
@@ -51,7 +52,7 @@ export function CommunityDetailPage() {
     if (communityId) dispatch(fetchCommunityPosts(Number(communityId)))
   }, [dispatch, communityId])
 
-  if (status === 'loading') return <LoadingState label="Loading community…" />
+  if (status === 'loading') return <LoadingState label={t('detail.loading')} />
   if (status === 'error' || !community) {
     return <ErrorState message={error ?? undefined} onRetry={() => dispatch(fetchCommunity(Number(communityId)))} />
   }
@@ -79,7 +80,7 @@ export function CommunityDetailPage() {
   return (
     <>
       <Button variant="ghost" size="sm" onClick={() => navigate('/communities')}>
-        &larr; Back to communities
+        &larr; {t('detail.backToCommunities')}
       </Button>
 
       <section className="asa-community-hero">
@@ -94,10 +95,14 @@ export function CommunityDetailPage() {
             <div>
               <h1 className="asa-community-hero__name">
                 <span>{community.name}</span>
-                {isAdmin && <Badge variant="default">Admin</Badge>}
+                {isAdmin && <Badge variant="default">{t('detail.admin')}</Badge>}
               </h1>
               <p className="asa-community-hero__meta">
-                {formatCount(community.members.length)} member{community.members.length === 1 ? '' : 's'} · created by{' '}
+                {t('card.members', {
+                  count: community.members.length,
+                  formatted: formatCount(community.members.length),
+                })}{' '}
+                · {t('detail.createdBy')}{' '}
                 {community.creator?.profile.firstName || community.creator?.user.username}
               </p>
             </div>
@@ -105,7 +110,7 @@ export function CommunityDetailPage() {
           <div className="asa-community-hero__actions">
             {isAdmin && (
               <Button variant="secondary" onClick={() => setSettingsOpen(true)}>
-                Community Settings
+                {t('detail.communitySettings')}
               </Button>
             )}
             {!isCreator && (
@@ -115,7 +120,7 @@ export function CommunityDetailPage() {
                 loading={loading}
                 aria-pressed={isMember}
               >
-                {isMember ? 'Leave community' : 'Join community'}
+                {isMember ? t('detail.leaveCommunity') : t('detail.joinCommunity')}
               </Button>
             )}
           </div>
@@ -129,8 +134,8 @@ export function CommunityDetailPage() {
         <>
           {announcements.length === 0 ? (
             <EmptyState
-              title="No announcements yet"
-              description="Community admins can post announcements from the Feed tab."
+              title={t('detail.noAnnouncementsTitle')}
+              description={t('detail.noAnnouncementsDescription')}
               icon="📢"
             />
           ) : (
@@ -144,27 +149,28 @@ export function CommunityDetailPage() {
           {allowedToPost && (
             <QuickComposer
               communityId={community.id}
-              placeholder={`Share something with ${community.name}…`}
+              placeholder={t('detail.composerPlaceholder', { name: community.name })}
               allowAnnouncement={isAdmin}
               onPosted={() => dispatch(fetchCommunityPosts(community.id))}
             />
           )}
           {!allowedToPost && isMember && (
             <p className="asa-community-join-hint">
-              🔒 Only {community.postingPermission === 'experts_only' ? 'experts' : 'admins'} can post in this
-              community right now.
+              {community.postingPermission === 'experts_only'
+                ? t('detail.onlyExpertsCanPost')
+                : t('detail.onlyAdminsCanPost')}
             </p>
           )}
-          {!isMember && <p className="asa-community-join-hint">👋 Join this community to start posting.</p>}
+          {!isMember && <p className="asa-community-join-hint">{t('detail.joinToPost')}</p>}
 
-          {postsStatus === 'loading' && <LoadingState label="Loading posts…" />}
+          {postsStatus === 'loading' && <LoadingState label={t('detail.loadingPosts')} />}
           {postsStatus === 'error' && (
             <ErrorState message={postsError ?? undefined} onRetry={() => dispatch(fetchCommunityPosts(community.id))} />
           )}
           {postsStatus === 'ready' && posts.length === 0 && (
             <EmptyState
-              title="No posts yet"
-              description="Be the first to share something with this community."
+              title={t('detail.noPostsTitle')}
+              description={t('detail.noPostsDescription')}
               icon="🌾"
             />
           )}
@@ -175,7 +181,7 @@ export function CommunityDetailPage() {
       {tab === 'members' && (
         <>
           {community.members.length === 0 ? (
-            <EmptyState title="No members yet" icon="👥" />
+            <EmptyState title={t('detail.noMembers')} icon="👥" />
           ) : (
             <ul className="asa-community-members">
               {community.members.map((membership) => {
@@ -195,11 +201,11 @@ export function CommunityDetailPage() {
                         <VerifiedBadge profile={member?.profile ?? { isVerified: false }} />
                       </div>
                       <div className="asa-community-member-row__badges">
-                        {member?.user.role === 'expert' && <Badge variant="default">Expert</Badge>}
+                        {member?.user.role === 'expert' && <Badge variant="default">{t('detail.expertBadge')}</Badge>}
                         {isRowCreator ? (
-                          <span className="asa-community-member__badge">Creator</span>
+                          <span className="asa-community-member__badge">{t('detail.creatorBadge')}</span>
                         ) : membership.role === 'admin' ? (
-                          <span className="asa-community-member__badge">Admin</span>
+                          <span className="asa-community-member__badge">{t('detail.adminBadge')}</span>
                         ) : null}
                       </div>
                       {isAdmin && !isRowCreator && (
@@ -210,7 +216,7 @@ export function CommunityDetailPage() {
                             loading={rowLoading}
                             onClick={() => handleSetRole(member.user.id, membership.role === 'admin' ? 'member' : 'admin')}
                           >
-                            {membership.role === 'admin' ? 'Demote' : 'Promote'}
+                            {membership.role === 'admin' ? t('detail.demote') : t('detail.promote')}
                           </Button>
                           <Button
                             variant="ghost"
@@ -218,7 +224,7 @@ export function CommunityDetailPage() {
                             loading={rowLoading}
                             onClick={() => handleRemoveMember(member.user.id)}
                           >
-                            Remove
+                            {t('detail.remove')}
                           </Button>
                         </div>
                       )}
@@ -233,18 +239,22 @@ export function CommunityDetailPage() {
 
       {tab === 'about' && (
         <div className="asa-community-about">
-          <p>{community.description || 'No description provided.'}</p>
+          <p>{community.description || t('detail.noDescription')}</p>
           <dl>
-            <dt>Created by</dt>
+            <dt>{t('detail.aboutCreatedBy')}</dt>
             <dd>{community.creator?.profile.firstName || community.creator?.user.username}</dd>
-            <dt>Created on</dt>
+            <dt>{t('detail.aboutCreatedOn')}</dt>
             <dd>{formatDate(community.createdAt)}</dd>
-            <dt>Members</dt>
+            <dt>{t('detail.aboutMembers')}</dt>
             <dd>{community.members.length}</dd>
-            <dt>Who can post</dt>
-            <dd>{community.postingPermission.replace('_', ' ')}</dd>
-            <dt>Who can comment</dt>
-            <dd>{community.commentsEnabled ? community.messagingPermission.replace('_', ' ') : 'Comments closed'}</dd>
+            <dt>{t('detail.aboutWhoCanPost')}</dt>
+            <dd>{t(`detail.permissions.${community.postingPermission}`)}</dd>
+            <dt>{t('detail.aboutWhoCanComment')}</dt>
+            <dd>
+              {community.commentsEnabled
+                ? t(`detail.permissions.${community.messagingPermission}`)
+                : t('detail.commentsClosed')}
+            </dd>
           </dl>
         </div>
       )}

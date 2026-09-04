@@ -14,19 +14,22 @@ import {
 
 /** Primary navigation for the app shell's desktop left sidebar (`Sidebar.jsx`).
  * `adminOnly` items are filtered out for non-admins -- this is the UX layer
- * only; the real access control is server-side (admin_required). */
+ * only; the real access control is server-side (admin_required).
+ * `labelKey` is looked up in the "nav" i18next namespace at render time
+ * (see Sidebar.jsx/BottomNav.jsx) -- this module is plain data, not a
+ * component, so it can't call useTranslation() itself. */
 export const sidebarNavItems = [
-  { to: '/', label: 'Home', icon: <HomeIcon /> },
-  { to: '/explore', label: 'Explore', icon: <CompassIcon /> },
-  { to: '/create', label: 'Create', icon: <PlusIcon /> },
-  { to: '/farmclips', label: 'FarmClips', icon: <ClapperIcon /> },
-  { to: '/communities', label: 'Communities', icon: <CommunityIcon /> },
-  { to: '/experts', label: 'Experts', icon: <UsersIcon /> },
-  { to: '/messages', label: 'Messages', icon: <MessageIcon /> },
-  { to: '/notifications', label: 'Notifications', icon: <HeartIcon /> },
-  { to: '/saved', label: 'Saved', icon: <BookmarkIcon /> },
-  { to: '/profile', label: 'Profile', icon: <UserIcon /> },
-  { to: '/admin', label: 'Admin', icon: <ShieldIcon />, adminOnly: true },
+  { to: '/', labelKey: 'home', icon: <HomeIcon /> },
+  { to: '/explore', labelKey: 'explore', icon: <CompassIcon /> },
+  { to: '/create', labelKey: 'create', icon: <PlusIcon /> },
+  { to: '/farmclips', labelKey: 'farmclips', icon: <ClapperIcon /> },
+  { to: '/communities', labelKey: 'communities', icon: <CommunityIcon /> },
+  { to: '/experts', labelKey: 'experts', icon: <UsersIcon /> },
+  { to: '/messages', labelKey: 'messages', icon: <MessageIcon /> },
+  { to: '/notifications', labelKey: 'notifications', icon: <HeartIcon /> },
+  { to: '/saved', labelKey: 'saved', icon: <BookmarkIcon /> },
+  { to: '/profile', labelKey: 'profile', icon: <UserIcon /> },
+  { to: '/admin', labelKey: 'admin', icon: <ShieldIcon />, adminOnly: true },
 ]
 
 /**
@@ -36,9 +39,9 @@ export const sidebarNavItems = [
  * Header.jsx) -- there is no separate "more" screen.
  */
 export const bottomNavItems = [
-  { to: '/', label: 'Home', icon: <HomeIcon /> },
-  { to: '/explore', label: 'Explore', icon: <CompassIcon /> },
-  { to: '/create', label: 'Create', icon: <PlusIcon /> },
-  { to: '/notifications', label: 'Activity', icon: <HeartIcon /> },
-  { to: '/profile', label: 'Profile', icon: <UserIcon /> },
+  { to: '/', labelKey: 'home', icon: <HomeIcon /> },
+  { to: '/explore', labelKey: 'explore', icon: <CompassIcon /> },
+  { to: '/create', labelKey: 'create', icon: <PlusIcon /> },
+  { to: '/notifications', labelKey: 'activity', icon: <HeartIcon /> },
+  { to: '/profile', labelKey: 'profile', icon: <UserIcon /> },
 ]

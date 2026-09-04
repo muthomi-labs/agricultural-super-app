@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { EmptyState, ErrorState, Input, LoadingState, PageHeader } from '@/components/ui'
 import { SearchIcon } from '@/components/icons'
 import { errorMessage } from '@/features/auth/AuthContext'
@@ -11,6 +12,7 @@ import '../search.css'
 const DEBOUNCE_MS = 350
 
 export function SearchPage() {
+  const { t } = useTranslation('search')
   const dispatch = useAppDispatch()
   const followingIds = useAppSelector((state) => state.experts.followingIds)
   const [query, setQuery] = useState('')
@@ -59,7 +61,7 @@ export function SearchPage() {
 
   return (
     <>
-      <PageHeader title="Search" subtitle="Find farmers and experts in the community." />
+      <PageHeader title={t('search.title')} subtitle={t('search.subtitle')} />
 
       <div className="asa-search__bar">
         <Input
@@ -67,8 +69,8 @@ export function SearchPage() {
           name="userSearch"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search users…"
-          aria-label="Search users"
+          placeholder={t('search.placeholder')}
+          aria-label={t('search.ariaLabel')}
           className="asa-search__input"
           autoFocus
         />
@@ -77,13 +79,13 @@ export function SearchPage() {
 
       {status === 'idle' && (
         <EmptyState
-          title="Search for farmers and experts"
-          description="Type a name or username to find people in the community."
+          title={t('search.idleTitle')}
+          description={t('search.idleDescription')}
           icon="🔍"
         />
       )}
 
-      {status === 'loading' && <LoadingState label="Searching…" />}
+      {status === 'loading' && <LoadingState label={t('search.searching')} />}
 
       {status === 'error' && (
         <ErrorState message={error ?? undefined} onRetry={() => runSearch(query.trim())} />
@@ -91,8 +93,8 @@ export function SearchPage() {
 
       {status === 'ready' && results.length === 0 && (
         <EmptyState
-          title="No farmers found"
-          description="Try searching with a different name or username."
+          title={t('search.noResultsTitle')}
+          description={t('search.noResultsDescription')}
         />
       )}
 

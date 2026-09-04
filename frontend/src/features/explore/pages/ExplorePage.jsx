@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { EmptyState, ErrorState, Input, LoadingState, PageHeader } from '@/components/ui'
 import { SearchIcon } from '@/components/icons'
 import { errorMessage } from '@/features/auth/AuthContext'
@@ -19,6 +20,7 @@ import '@/features/search/search.css'
 const DEBOUNCE_MS = 350
 
 export function ExplorePage() {
+  const { t } = useTranslation('search')
   const dispatch = useAppDispatch()
   const followingIds = useAppSelector((state) => state.experts.followingIds)
   const experts = useAppSelector((state) => state.experts.experts)
@@ -94,7 +96,7 @@ export function ExplorePage() {
 
   return (
     <>
-      <PageHeader title="Explore" subtitle="Discover farmers, communities, and posts." />
+      <PageHeader title={t('explore.title')} subtitle={t('explore.subtitle')} />
 
       <div className="asa-search__bar">
         <Input
@@ -102,8 +104,8 @@ export function ExplorePage() {
           name="explore-search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search farmers, crops, communities…"
-          aria-label="Search farmers, crops, communities"
+          placeholder={t('explore.placeholder')}
+          aria-label={t('explore.ariaLabel')}
           className="asa-search__input"
         />
         <SearchIcon width={18} height={18} className="asa-search__icon" />
@@ -111,15 +113,15 @@ export function ExplorePage() {
 
       {searching ? (
         <>
-          {status === 'loading' && <LoadingState label="Searching…" />}
+          {status === 'loading' && <LoadingState label={t('search.searching')} />}
           {status === 'error' && <ErrorState message={error ?? undefined} onRetry={() => runSearch(query.trim())} />}
 
           {status === 'ready' && (
             <>
               <section className="asa-community-discovery__section">
-                <h2 className="asa-community-discovery__section-title">Farmers</h2>
+                <h2 className="asa-community-discovery__section-title">{t('explore.farmers')}</h2>
                 {results.length === 0 ? (
-                  <EmptyState title="No farmers found" description="Try searching with a different name or username." />
+                  <EmptyState title={t('search.noResultsTitle')} description={t('search.noResultsDescription')} />
                 ) : (
                   results.map((person) => (
                     <ExpertCard
@@ -133,7 +135,7 @@ export function ExplorePage() {
 
               {matchingCommunities.length > 0 && (
                 <section className="asa-community-discovery__section">
-                  <h2 className="asa-community-discovery__section-title">Communities</h2>
+                  <h2 className="asa-community-discovery__section-title">{t('explore.communities')}</h2>
                   <div className="asa-community-grid">
                     {matchingCommunities.map((community) => (
                       <CommunityCard key={community.id} community={community} />
@@ -144,7 +146,7 @@ export function ExplorePage() {
 
               {matchingPosts.length > 0 && (
                 <section className="asa-community-discovery__section">
-                  <h2 className="asa-community-discovery__section-title">Posts &amp; Reels</h2>
+                  <h2 className="asa-community-discovery__section-title">{t('explore.postsAndReels')}</h2>
                   <PostGrid posts={matchingPosts} />
                 </section>
               )}
@@ -154,10 +156,10 @@ export function ExplorePage() {
       ) : (
         <>
           <section className="asa-community-discovery__section">
-            <h2 className="asa-community-discovery__section-title">Farmers to follow</h2>
-            {expertsStatus === 'loading' && <LoadingState label="Loading farmers…" />}
+            <h2 className="asa-community-discovery__section-title">{t('explore.farmersToFollow')}</h2>
+            {expertsStatus === 'loading' && <LoadingState label={t('explore.loadingFarmers')} />}
             {expertsStatus === 'ready' && experts.length === 0 && (
-              <EmptyState title="No farmers to suggest yet" icon="🌾" />
+              <EmptyState title={t('explore.noFarmersYet')} icon="🌾" />
             )}
             {expertsStatus === 'ready' &&
               experts
@@ -167,16 +169,16 @@ export function ExplorePage() {
                 ))}
             {experts.length > 5 && (
               <Link to="/experts" className="asa-community-discovery__see-all">
-                See all farmers
+                {t('explore.seeAllFarmers')}
               </Link>
             )}
           </section>
 
           <section className="asa-community-discovery__section">
-            <h2 className="asa-community-discovery__section-title">Communities</h2>
-            {communitiesStatus === 'loading' && <LoadingState label="Loading communities…" />}
+            <h2 className="asa-community-discovery__section-title">{t('explore.communities')}</h2>
+            {communitiesStatus === 'loading' && <LoadingState label={t('explore.loadingCommunities')} />}
             {communitiesStatus === 'ready' && communities.length === 0 && (
-              <EmptyState title="No communities yet" icon="🌽" />
+              <EmptyState title={t('explore.noCommunitiesYet')} icon="🌽" />
             )}
             {communitiesStatus === 'ready' && communities.length > 0 && (
               <div className="asa-community-grid">
@@ -186,14 +188,14 @@ export function ExplorePage() {
               </div>
             )}
             <Link to="/communities" className="asa-community-discovery__see-all">
-              See all communities
+              {t('explore.seeAllCommunities')}
             </Link>
           </section>
 
           <section className="asa-community-discovery__section">
-            <h2 className="asa-community-discovery__section-title">Recent posts &amp; Reels</h2>
+            <h2 className="asa-community-discovery__section-title">{t('explore.recentPostsAndReels')}</h2>
             {feedStatus === 'loading' && <GridSkeleton />}
-            {feedStatus === 'ready' && feed.length === 0 && <EmptyState title="No posts yet" icon="🌱" />}
+            {feedStatus === 'ready' && feed.length === 0 && <EmptyState title={t('explore.noPostsYet')} icon="🌱" />}
             {feedStatus === 'ready' && feed.length > 0 && <PostGrid posts={feed} />}
           </section>
         </>

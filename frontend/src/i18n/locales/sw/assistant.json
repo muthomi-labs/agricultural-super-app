@@ -1,0 +1,43 @@
+{
+  "page": {
+    "title": "Msaidizi wa Kilimo wa AI",
+    "subtitle": "Uliza kuhusu mazao, wadudu, udongo, mifugo, na mengineyo.",
+    "newConversation": "Mazungumzo mapya",
+    "disclaimer": "Mwongozo huu umetolewa na AI kwa ushauri wa haraka na wa jumla. Kwa mambo yenye hatari kubwa — mlipuko wa magonjwa, kipimo cha kemikali, maamuzi makubwa ya kifedha — thibitisha na mtaalamu aliyethibitishwa kwenye AgriConnect.",
+    "loading": "Inapakia mazungumzo…",
+    "emptyTitle": "Bado hakuna mazungumzo",
+    "emptyDescription": "Anzisha mazungumzo mapya ili kumuuliza msaidizi kuhusu mazao, mifugo, udongo, wadudu, na mengineyo.",
+    "startFirst": "Anzisha mazungumzo yako ya kwanza",
+    "newConversationFallback": "Mazungumzo mapya",
+    "deleteConversation": "Futa mazungumzo",
+    "delete": "Futa",
+    "confirmDelete": "Futa mazungumzo haya? Hili haliwezi kutenduliwa."
+  },
+  "conversation": {
+    "loading": "Inapakia mazungumzo…",
+    "backToConversations": "Rudi kwenye mazungumzo",
+    "askPlaceholder": "Uliza swali la kilimo…",
+    "askAriaLabel": "Swali lako",
+    "ask": "Uliza",
+    "tryAgain": "Jaribu tena",
+    "translateToKiswahili": "Tafsiri kwa Kiswahili",
+    "translateToEnglish": "Tafsiri kwa Kiingereza",
+    "translating": "Inatafsiri…",
+    "translated": "Imetafsiriwa"
+  },
+  "floating": {
+    "openLabel": "Fungua msaidizi wa AI",
+    "trigger": "AI",
+    "panelLabel": "Msaidizi wa kilimo wa AI",
+    "title": "AI ya Kilimo",
+    "closeLabel": "Funga msaidizi wa AI",
+    "newConversation": "Mazungumzo mapya",
+    "emptyHint": "Uliza kuhusu mazao, wadudu, udongo, mifugo, na mengineyo.",
+    "newConversationFallback": "Mazungumzo mapya",
+    "openFull": "Fungua msaidizi kamili",
+    "askPlaceholder": "Uliza chochote…",
+    "askAriaLabel": "Muulize msaidizi",
+    "send": "Tuma",
+    "tryAgain": "Jaribu tena"
+  }
+}

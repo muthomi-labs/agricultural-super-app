@@ -1,0 +1,40 @@
+{
+  "hero": {
+    "posts": "machapisho",
+    "followers": "wafuasi",
+    "following": "wanaofuatwa",
+    "editProfile": "Hariri wasifu",
+    "changePassword": "Badilisha nenosiri"
+  },
+  "tabs": {
+    "posts": "Machapisho yako",
+    "reels": "Reels",
+    "saved": "Zilizohifadhiwa"
+  },
+  "empty": {
+    "noPostsTitle": "Bado hujachapisha",
+    "noPostsDescription": "Shiriki chapisho lako la kwanza la kilimo na jumuiya.",
+    "writePost": "Andika chapisho",
+    "noReelsTitle": "Hakuna Reels bado",
+    "noReelsDescription": "Shiriki video fupi ya shambani ili uione hapa.",
+    "createReel": "Unda Reel",
+    "noSavedTitle": "Hakuna machapisho yaliyohifadhiwa bado",
+    "noSavedDescription": "Hifadhi machapisho ili uyarudie baadaye."
+  },
+  "edit": {
+    "title": "Hariri wasifu",
+    "subtitle": "Sasisha taarifa zako za hadharani.",
+    "photo": "Picha ya wasifu",
+    "firstName": "Jina la kwanza",
+    "lastName": "Jina la mwisho",
+    "bio": "Wasifu mfupi",
+    "location": "Mahali",
+    "locationPlaceholder": "mfano: Nakuru, Kenya",
+    "phoneNumber": "Nambari ya simu",
+    "language": "Lugha",
+    "languageDescription": "Chagua lugha ya programu na majibu ya Msaidizi wa Kilimo wa AI.",
+    "waitingForPhoto": "Inasubiri picha ipakiwe kikamilifu…",
+    "saveChanges": "Hifadhi mabadiliko",
+    "cancel": "Ghairi"
+  }
+}

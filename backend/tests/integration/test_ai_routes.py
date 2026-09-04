@@ -22,15 +22,22 @@ class _FakeProvider:
         self._chunks = chunks
         self._stream_error = stream_error
         self.calls = []
+        # Parallel to `calls` (same index = same request) -- kept as a
+        # separate list rather than folded into `calls` so existing
+        # assertions that treat `calls[i]` as the messages list directly
+        # don't have to change.
+        self.system_prompts = []
 
     def complete(self, messages, system_prompt):
         self.calls.append(messages)
+        self.system_prompts.append(system_prompt)
         if self._error is not None:
             raise self._error
         return self._reply
 
     def stream_complete(self, messages, system_prompt):
         self.calls.append(messages)
+        self.system_prompts.append(system_prompt)
         for chunk in self._chunks or []:
             yield chunk
         if self._stream_error is not None:
@@ -172,6 +179,79 @@ class TestAskAssistant:
             "/api/ai/assistant", headers=amina["headers"], json={"messages": ["just a string"]}
         )
         assert response.status_code == 422
+
+
+class TestAILanguageAwareness:
+    """
+    The assistant is never told "the user asked in Kiswahili" -- it's
+    always told the user's *preferred* language (User.language) and
+    instructed to mirror whatever language the message itself is in.
+    These tests only check that the right instruction reaches the
+    provider for each entry point (one-shot /assistant, a persisted
+    conversation's send, and its stream) -- not that a real model
+    actually replies in Kiswahili, which is a live-provider concern
+    exercised manually (see the session report), not something a fake
+    provider can meaningfully verify.
+    """
+
+    def test_default_language_is_english(self, client, amina, fake_provider):
+        provider = fake_provider(reply="Water deeply once a week.")
+        client.post(
+            "/api/ai/assistant",
+            headers=amina["headers"],
+            json={"messages": [{"role": "user", "content": "How often should I water tomatoes?"}]},
+        )
+        assert "English" in provider.system_prompts[-1]
+
+    def test_swahili_preference_reaches_one_shot_assistant(self, client, register_user, fake_provider):
+        fatuma = register_user(username="fatuma", language="sw")
+        provider = fake_provider(reply="Mwagilia maji mara moja kwa wiki.")
+        client.post(
+            "/api/ai/assistant",
+            headers=fatuma["headers"],
+            json={"messages": [{"role": "user", "content": "Nimwagilie nyanya mara ngapi?"}]},
+        )
+        prompt = provider.system_prompts[-1]
+        assert "Kiswahili" in prompt
+        assert "mkulima" in prompt  # a spot-check that real terminology, not a generic mention, made it in
+
+    def test_swahili_preference_reaches_conversation_send(self, client, register_user, fake_provider):
+        fatuma = register_user(username="fatuma", language="sw")
+        provider = fake_provider(reply="Mwagilia maji mara moja kwa wiki.")
+        convo_id = client.post("/api/ai/conversations", headers=fatuma["headers"], json={}).get_json()["id"]
+        client.post(
+            f"/api/ai/conversations/{convo_id}/messages",
+            headers=fatuma["headers"],
+            json={"content": "Nimwagilie nyanya mara ngapi?"},
+        )
+        assert "Kiswahili" in provider.system_prompts[-1]
+
+    def test_swahili_preference_reaches_conversation_stream(self, client, register_user, fake_provider):
+        fatuma = register_user(username="fatuma", language="sw")
+        provider = fake_provider(chunks=["Mwagilia ", "maji."])
+        convo_id = client.post("/api/ai/conversations", headers=fatuma["headers"], json={}).get_json()["id"]
+        response = client.post(
+            f"/api/ai/conversations/{convo_id}/messages?stream=true",
+            headers=fatuma["headers"],
+            json={"content": "Nimwagilie nyanya mara ngapi?"},
+        )
+        response.get_data(as_text=True)  # force the streaming generator to run to completion
+        assert "Kiswahili" in provider.system_prompts[-1]
+
+    def test_updating_language_preference_changes_subsequent_ai_requests(self, client, amina, fake_provider):
+        provider = fake_provider(reply="Sure.")
+        client.post(
+            "/api/ai/assistant", headers=amina["headers"], json={"messages": [{"role": "user", "content": "Hi"}]}
+        )
+        assert "English" in provider.system_prompts[-1]
+
+        update = client.put("/api/users/me/language", headers=amina["headers"], json={"language": "sw"})
+        assert update.status_code == 200
+
+        client.post(
+            "/api/ai/assistant", headers=amina["headers"], json={"messages": [{"role": "user", "content": "Hi"}]}
+        )
+        assert "Kiswahili" in provider.system_prompts[-1]
 
 
 # ---------------------------------------------------------------------------

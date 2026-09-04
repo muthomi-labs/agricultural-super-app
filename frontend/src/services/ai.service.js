@@ -11,6 +11,18 @@ import { normalizeAIConversation, normalizeAIMessage } from '@/lib/normalize'
  * of truth, only a cached copy of what the API returned.
  */
 export const aiService = {
+  /**
+   * Stateless one-shot completion (POST /ai/assistant) -- no conversation
+   * is created or persisted. Used for the "Translate to Kiswahili" action
+   * on an existing AI reply (see AiConversationPage.jsx): reuses this
+   * same endpoint/service the chat itself calls, rather than a separate
+   * translation system, per a single crafted user-turn prompt.
+   */
+  async askAssistant(messages) {
+    const result = await httpClient.post('/ai/assistant', { messages })
+    return result.reply
+  },
+
   async listConversations() {
     const conversations = await httpClient.get('/ai/conversations')
     return conversations.map(normalizeAIConversation)

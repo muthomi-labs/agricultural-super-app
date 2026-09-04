@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Avatar, Badge, Button, PostContent, ReactionPicker, RepostButton, SaveButton, ShareButton, VerifiedBadge } from '@/components/ui'
 import { CommentIcon, RepeatIcon } from '@/components/icons'
 import { formatRelativeTime } from '@/lib/format'
@@ -27,6 +28,7 @@ function PostBody({ post, onDoubleTapMedia }) {
 }
 
 function InlineAddComment({ postId, commentsOpen }) {
+  const { t } = useTranslation('posts')
   const dispatch = useAppDispatch()
   const [value, setValue] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -54,8 +56,8 @@ function InlineAddComment({ postId, commentsOpen }) {
       <input
         type="text"
         className="asa-post-card__add-comment-input"
-        placeholder="Add a comment…"
-        aria-label="Add a comment"
+        placeholder={t('card.addCommentPlaceholder')}
+        aria-label={t('card.addComment')}
         value={value}
         onChange={(event) => setValue(event.target.value)}
         disabled={submitting}
@@ -65,13 +67,14 @@ function InlineAddComment({ postId, commentsOpen }) {
         className="asa-post-card__add-comment-submit"
         disabled={!value.trim() || submitting}
       >
-        Post
+        {t('card.post')}
       </button>
     </form>
   )
 }
 
 export function PostCard({ post }) {
+  const { t } = useTranslation(['posts', 'common'])
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const reactionLoading = useAppSelector((state) => state.posts.reactionLoadingPostId === post.id)
@@ -96,7 +99,7 @@ export function PostCard({ post }) {
               {authorName}
             </Link>
             <VerifiedBadge profile={post.author.profile} />
-            <Badge variant="default">{post.author.user.role}</Badge>
+            <Badge variant="default">{t(`common:roles.${post.author.user.role}`)}</Badge>
           </div>
           <span className="asa-post-card__time">
             {post.author.profile.location ? `${post.author.profile.location} · ` : ''}
@@ -110,7 +113,7 @@ export function PostCard({ post }) {
 
       {post.originalPost && (
         <p className="asa-post-card__repost-note">
-          <RepeatIcon width={14} height={14} /> Reposted from {displayName(post.originalPost.author)}
+          <RepeatIcon width={14} height={14} /> {t('card.repostedFrom')} {displayName(post.originalPost.author)}
         </p>
       )}
 
@@ -119,9 +122,9 @@ export function PostCard({ post }) {
       )}
 
       {displayedPost.isAnnouncement && (
-        <span className="asa-post-card__announcement">📢 Community Announcement</span>
+        <span className="asa-post-card__announcement">📢 {t('card.announcement')}</span>
       )}
-      {displayedPost.videoUrl && <span className="asa-post-card__reel-badge">🎬 Reel</span>}
+      {displayedPost.videoUrl && <span className="asa-post-card__reel-badge">🎬 {t('card.reel')}</span>}
 
       {post.originalPost ? (
         <div className="asa-post-card__reposted">
@@ -147,7 +150,7 @@ export function PostCard({ post }) {
         >
           <CommentIcon width={18} height={18} />
           <span>{post.comments.length}</span>
-          <span className="visually-hidden">Comments</span>
+          <span className="visually-hidden">{t('card.comments')}</span>
         </Button>
         <RepostButton
           reposted={post.repostedByMe}
@@ -161,13 +164,14 @@ export function PostCard({ post }) {
 
       {post.likeCount > 0 && (
         <p className="asa-post-card__likes">
-          {post.likeCount} likes{post.videoUrl ? ` · ${post.viewCount} views` : ''}
+          {post.likeCount} {t('card.likes')}
+          {post.videoUrl ? ` · ${post.viewCount} ${t('card.views')}` : ''}
         </p>
       )}
 
       {commentCount > 0 && (
         <Link to={`/posts/${post.id}#comments`} className="asa-post-card__view-comments">
-          View all {commentCount} comment{commentCount === 1 ? '' : 's'}
+          {t('card.viewAllComments', { count: commentCount })}
         </Link>
       )}
 

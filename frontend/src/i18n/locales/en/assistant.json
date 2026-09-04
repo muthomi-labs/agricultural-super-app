@@ -1,0 +1,43 @@
+{
+  "page": {
+    "title": "AI Farming Assistant",
+    "subtitle": "Ask about crops, pests, soil, livestock, and more.",
+    "newConversation": "New conversation",
+    "disclaimer": "AI-generated guidance for quick, general advice. For anything high-stakes — disease outbreaks, chemical dosing, big financial decisions — confirm with a verified expert on AgriConnect.",
+    "loading": "Loading conversations…",
+    "emptyTitle": "No conversations yet",
+    "emptyDescription": "Start a new conversation to ask the assistant about crops, livestock, soil, pests, and more.",
+    "startFirst": "Start your first conversation",
+    "newConversationFallback": "New conversation",
+    "deleteConversation": "Delete conversation",
+    "delete": "Delete",
+    "confirmDelete": "Delete this conversation? This cannot be undone."
+  },
+  "conversation": {
+    "loading": "Loading conversation…",
+    "backToConversations": "Back to conversations",
+    "askPlaceholder": "Ask a farming question…",
+    "askAriaLabel": "Your question",
+    "ask": "Ask",
+    "tryAgain": "Try again",
+    "translateToKiswahili": "Tafsiri kwa Kiswahili",
+    "translateToEnglish": "Translate to English",
+    "translating": "Translating…",
+    "translated": "Translated"
+  },
+  "floating": {
+    "openLabel": "Open AI assistant",
+    "trigger": "AI",
+    "panelLabel": "Agricultural AI assistant",
+    "title": "Agricultural AI",
+    "closeLabel": "Close AI assistant",
+    "newConversation": "New conversation",
+    "emptyHint": "Ask about crops, pests, soil, livestock, and more.",
+    "newConversationFallback": "New conversation",
+    "openFull": "Open full assistant",
+    "askPlaceholder": "Ask anything…",
+    "askAriaLabel": "Ask the assistant",
+    "send": "Send",
+    "tryAgain": "Try again"
+  }
+}

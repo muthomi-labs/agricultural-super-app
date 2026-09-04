@@ -1,0 +1,30 @@
+{
+  "home": "Home",
+  "explore": "Explore",
+  "create": "Create",
+  "farmclips": "FarmClips",
+  "communities": "Communities",
+  "experts": "Experts",
+  "messages": "Messages",
+  "notifications": "Notifications",
+  "activity": "Activity",
+  "saved": "Saved",
+  "profile": "Profile",
+  "admin": "Admin",
+  "search": "Explore and search",
+  "accountMenu": "Account menu",
+  "myProfile": "My profile",
+  "adminDashboard": "Admin dashboard",
+  "createPost": "Create post",
+  "createStory": "Create story",
+  "createReel": "Create reel",
+  "createMenu": {
+    "title": "Create",
+    "post": "Post",
+    "postDescription": "Share an update with the community",
+    "story": "Story",
+    "storyDescription": "Share a photo that disappears from your feed",
+    "reel": "Reel",
+    "reelDescription": "Share a short farm video"
+  }
+}

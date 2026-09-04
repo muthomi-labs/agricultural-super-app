@@ -61,6 +61,32 @@
   border-color: transparent;
 }
 
+.asa-assistant-message__translate {
+  margin-top: var(--space-2);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--color-border);
+}
+
+.asa-assistant-message__translate-btn {
+  border: none;
+  background: none;
+  padding: 0;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-primary);
+  cursor: pointer;
+}
+
+.asa-assistant-message__translate-btn:disabled {
+  color: var(--color-text-muted);
+  cursor: default;
+}
+
+.asa-assistant-message__translated-tag {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
 .asa-assistant__suggestions {
   display: flex;
   flex-wrap: wrap;
