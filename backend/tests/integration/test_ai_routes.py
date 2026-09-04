@@ -181,6 +181,99 @@ class TestAskAssistant:
         assert response.status_code == 422
 
 
+class TestAskAssistantCache:
+    """
+    ask_assistant() caches standalone single-question requests -- see
+    the comment above ASK_ASSISTANT_CACHE_TTL_SECONDS in ai_service.py
+    for why only that specific shape is safe to cache.
+    """
+
+    def test_identical_single_question_is_served_from_cache(self, client, amina, fake_provider):
+        provider = fake_provider(reply="Water tomatoes deeply once a week.")
+        body = {"messages": [{"role": "user", "content": "How often should I water tomatoes?"}]}
+
+        first = client.post("/api/ai/assistant", headers=amina["headers"], json=body)
+        second = client.post("/api/ai/assistant", headers=amina["headers"], json=body)
+
+        assert first.status_code == 200
+        assert second.status_code == 200
+        assert first.get_json() == second.get_json()
+        # The fake provider only records a call when actually invoked --
+        # a second identical call must be served from cache, not the
+        # provider, or this would be 2.
+        assert len(provider.calls) == 1
+
+    def test_different_question_is_not_cached_together(self, client, amina, fake_provider):
+        provider = fake_provider(reply="It depends on the crop.")
+        client.post(
+            "/api/ai/assistant",
+            headers=amina["headers"],
+            json={"messages": [{"role": "user", "content": "How often should I water tomatoes?"}]},
+        )
+        client.post(
+            "/api/ai/assistant",
+            headers=amina["headers"],
+            json={"messages": [{"role": "user", "content": "How often should I water maize?"}]},
+        )
+        assert len(provider.calls) == 2
+
+    def test_case_and_whitespace_variants_share_a_cache_entry(self, client, amina, fake_provider):
+        provider = fake_provider(reply="Water tomatoes deeply once a week.")
+        client.post(
+            "/api/ai/assistant",
+            headers=amina["headers"],
+            json={"messages": [{"role": "user", "content": "How often should I water tomatoes?"}]},
+        )
+        client.post(
+            "/api/ai/assistant",
+            headers=amina["headers"],
+            json={"messages": [{"role": "user", "content": "  HOW often should I   water tomatoes?  "}]},
+        )
+        assert len(provider.calls) == 1
+
+    def test_conversation_history_bypasses_cache(self, client, amina, fake_provider):
+        """A multi-turn request must never be cached or served from
+        cache -- its reply depends on the prior turns, which are unique
+        per conversation."""
+        provider = fake_provider(reply="Sure, here's more detail.")
+        body = {
+            "messages": [
+                {"role": "user", "content": "How often should I water tomatoes?"},
+                {"role": "assistant", "content": "Once a week."},
+                {"role": "user", "content": "What about in sandy soil?"},
+            ]
+        }
+        client.post("/api/ai/assistant", headers=amina["headers"], json=body)
+        client.post("/api/ai/assistant", headers=amina["headers"], json=body)
+        assert len(provider.calls) == 2
+
+    def test_different_language_is_not_served_from_others_cache_entry(
+        self, client, amina, register_user, fake_provider
+    ):
+        provider = fake_provider(reply="Some answer.")
+        swahili_user = register_user(username="swahili_farmer", language="sw")
+        body = {"messages": [{"role": "user", "content": "How often should I water tomatoes?"}]}
+
+        client.post("/api/ai/assistant", headers=amina["headers"], json=body)
+        client.post("/api/ai/assistant", headers=swahili_user["headers"], json=body)
+
+        assert len(provider.calls) == 2
+
+    def test_provider_failure_is_not_cached(self, client, amina, fake_provider):
+        """A failed request must never poison the cache with an error --
+        the next identical question should still get a real attempt."""
+        fake_provider(error=AIProviderError("The AI assistant is temporarily unavailable."))
+        body = {"messages": [{"role": "user", "content": "How often should I water tomatoes?"}]}
+
+        first = client.post("/api/ai/assistant", headers=amina["headers"], json=body)
+        assert first.status_code == 503
+
+        provider = fake_provider(reply="Water tomatoes deeply once a week.")
+        second = client.post("/api/ai/assistant", headers=amina["headers"], json=body)
+        assert second.status_code == 200
+        assert len(provider.calls) == 1
+
+
 class TestAILanguageAwareness:
     """
     The assistant is never told "the user asked in Kiswahili" -- it's

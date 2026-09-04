@@ -152,6 +152,62 @@ class AIServiceUnavailableError(ApiError):
     status_code = 503
 
 
+# ---------------------------------------------------------------------------
+# ask_assistant() cache -- deliberately narrow in what it's allowed to
+# cache. Only a single, standalone user question with no prior history
+# qualifies: at that point the reply depends on nothing but the question
+# text and the language, both of which are part of the cache key -- never
+# on who's asking, so a cached reply can never leak one user's context to
+# another. The persisted-conversation paths (send_message/stream_message)
+# are NOT cached: their context window makes every request meaningfully
+# unique, and there is nothing generic left to safely reuse.
+#
+# Plain in-process dict, not something like Redis: this deployment runs
+# WEB_CONCURRENCY=1 (see render.yaml), so there's only ever one process
+# to keep consistent, and a lock is enough to make it safe if that ever
+# changes to threaded/multi-worker.
+# ---------------------------------------------------------------------------
+
+ASK_ASSISTANT_CACHE_TTL_SECONDS = 6 * 60 * 60  # long enough to meaningfully cut repeated-common-question load; short enough that advice can't go stale for a whole season
+ASK_ASSISTANT_CACHE_MAX_ENTRIES = 200
+
+_ask_assistant_cache = {}
+_ask_assistant_cache_lock = threading.Lock()
+
+
+def _ask_assistant_cache_key(language, question):
+    normalized = " ".join(question.strip().lower().split())
+    return (language or "en", normalized)
+
+
+def _ask_assistant_cache_get(key):
+    with _ask_assistant_cache_lock:
+        entry = _ask_assistant_cache.get(key)
+        if entry is None:
+            return None
+        reply, cached_at = entry
+        if time.monotonic() - cached_at > ASK_ASSISTANT_CACHE_TTL_SECONDS:
+            del _ask_assistant_cache[key]
+            return None
+        return reply
+
+
+def _ask_assistant_cache_set(key, reply):
+    with _ask_assistant_cache_lock:
+        if key not in _ask_assistant_cache and len(_ask_assistant_cache) >= ASK_ASSISTANT_CACHE_MAX_ENTRIES:
+            oldest_key = min(_ask_assistant_cache, key=lambda k: _ask_assistant_cache[k][1])
+            del _ask_assistant_cache[oldest_key]
+        _ask_assistant_cache[key] = (reply, time.monotonic())
+
+
+def clear_ask_assistant_cache():
+    """Test-only hook -- the cache is module-level state that would
+    otherwise leak between tests (and between unrelated requests in a
+    long-running process only in the sense that it's *supposed* to)."""
+    with _ask_assistant_cache_lock:
+        _ask_assistant_cache.clear()
+
+
 def ask_assistant(messages, language=None):
     """
     `messages` is a list of {"role": "user"|"assistant", "content": str},
@@ -165,15 +221,33 @@ def ask_assistant(messages, language=None):
     escape this function -- everything is normalized to
     AIServiceUnavailableError with a user-safe message, and the real
     detail is logged server-side for debugging.
+
+    A standalone single-question request (no prior history) is served
+    from -- and saved to -- the module-level cache above; see its
+    comment for why that's safe. Anything with history bypasses the
+    cache entirely, in both directions.
     """
     trimmed = messages[-MAX_HISTORY_MESSAGES:]
 
+    cache_key = None
+    if len(trimmed) == 1 and trimmed[0]["role"] == "user":
+        cache_key = _ask_assistant_cache_key(language, trimmed[0]["content"])
+        cached_reply = _ask_assistant_cache_get(cache_key)
+        if cached_reply is not None:
+            current_app.logger.info("ai_cache hit channel=web mode=oneshot")
+            return cached_reply
+
     try:
         provider = get_provider(current_app.config)
-        return provider.complete(trimmed, _build_system_prompt(language))
+        reply = provider.complete(trimmed, _build_system_prompt(language))
     except AIProviderError as err:
         current_app.logger.error("AI assistant provider error: %s", err.log_message)
         raise AIServiceUnavailableError(err.public_message)
+
+    if cache_key is not None:
+        _ask_assistant_cache_set(cache_key, reply)
+
+    return reply
 
 
 # ---------------------------------------------------------------------------

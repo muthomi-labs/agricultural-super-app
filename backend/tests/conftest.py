@@ -30,6 +30,7 @@ from app import create_app
 from app.auth.jwt import encode_token
 from app.extensions import db as _db
 from app.models import User
+from app.services.ai_service import clear_ask_assistant_cache
 
 
 @pytest.fixture(scope="session")
@@ -47,6 +48,16 @@ def db(app):
     yield _db
     _db.session.remove()
     _db.drop_all()
+
+
+@pytest.fixture(autouse=True)
+def _reset_ask_assistant_cache():
+    """ask_assistant()'s cache is module-level state (see ai_service.py)
+    -- without this, a reply cached by one test could be served, wrong,
+    to a different test that happens to ask the same question."""
+    clear_ask_assistant_cache()
+    yield
+    clear_ask_assistant_cache()
 
 
 @pytest.fixture
