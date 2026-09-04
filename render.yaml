@@ -97,7 +97,7 @@ services:
         sync: false
       - key: SUPABASE_STORAGE_BUCKET
         sync: false
-    # Alternative to Cloudinary above: a paid persistent disk, so local-
+    # Alternative to Supabase Storage above: a paid persistent disk, so local-
     # disk storage itself survives redeploys. Requires a paid `plan:`
     # above, and add UPLOAD_FOLDER=/var/data/uploads (matching
     # mountPath) to envVars above once this is enabled.
