@@ -173,6 +173,11 @@ class User(db.Model):
         cascade="all, delete-orphan"
     )
 
+    phone_identities = db.relationship(
+        "PhoneIdentity",
+        back_populates="user"
+    )
+
     # -------------------------
     # Password methods
     # -------------------------

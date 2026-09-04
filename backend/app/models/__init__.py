@@ -20,3 +20,4 @@ from .saved_post import SavedPost
 from .notification import Notification
 from .report import Report
 from .story import Story
+from .phone_identity import PhoneIdentity
