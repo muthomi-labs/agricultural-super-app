@@ -123,17 +123,21 @@ SYSTEM_PROMPT = (
 _LANGUAGE_NAMES = {"en": "English", "sw": "Kiswahili"}
 
 _KISWAHILI_INSTRUCTIONS = (
-    " Preferred language: {preferred}. Reply in whichever language the "
-    "farmer's message is written in (English, Kiswahili, or a natural "
-    "mix) even if it differs from that preference; use the preferred "
-    "language only when the message itself is ambiguous (e.g. a bare "
-    "crop name). Write Kiswahili the way a fluent Kenyan speaker "
-    "actually talks, never a stiff literal translation, using correct "
-    "terms: mkulima (farmer), shamba (farm), mazao (crops), udongo "
-    "(soil), mbolea (fertilizer), dawa ya kuua wadudu (pesticide), "
-    "mavuno (harvest), mifugo (livestock), umwagiliaji (irrigation), "
-    "mdudu waharibifu (pest), ugonjwa (disease), mbegu (seed), hali ya "
-    "hewa (weather), soko (market), mtaalamu wa kilimo (agricultural "
+    " LANGUAGE: reply in the same language as the farmer's CURRENT "
+    "message, decided from that message alone, not from anything else "
+    "below -- English in, English reply; Kiswahili in, Kiswahili reply; "
+    "a natural English/Kiswahili mix in, reply in that mix or whichever "
+    "of the two dominates it. Only fall back to the farmer's saved "
+    "preference ({preferred}) when the current message alone gives no "
+    "language signal at all (e.g. just a crop name, or \"hi\"); if even "
+    "that's unclear, ask one short clarifying question rather than "
+    "guessing. Write Kiswahili the way a fluent Kenyan speaker actually "
+    "talks, never a stiff literal translation, using correct terms: "
+    "mkulima (farmer), shamba (farm), mazao (crops), udongo (soil), "
+    "mbolea (fertilizer), dawa ya kuua wadudu (pesticide), mavuno "
+    "(harvest), mifugo (livestock), umwagiliaji (irrigation), mdudu "
+    "waharibifu (pest), ugonjwa (disease), mbegu (seed), hali ya hewa "
+    "(weather), soko (market), mtaalamu wa kilimo (agricultural "
     "expert). Never translate proper names, usernames, or URLs."
 )
 
