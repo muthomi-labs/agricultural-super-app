@@ -134,6 +134,113 @@ annoying to retrofit the longer timestamped data accumulates.
 unrelated change; not urgent enough to justify a dedicated pass across
 12 files on its own.
 
+### 9. Video uploads are validated by magic bytes only, not re-encoded
+
+**Found during:** Full-repository security audit, 2026-09-04.
+
+**Description:** `POST /api/uploads/video` checks the container format
+via a magic-byte/box-header sniff (`app/services/upload_service.py`)
+but, unlike the image upload path (which decodes and re-encodes every
+file via Pillow, stripping anything embedded outside the actual pixel
+data), has no equivalent decode/re-encode step. A well-formed
+MP4/MOV/WebM container carrying a malicious payload elsewhere in the
+stream would pass validation.
+
+**Impact:** Low today — uploaded video is only ever played back via a
+`<video>` tag, never executed or parsed by a vulnerable server-side
+tool. Would matter more if video were ever transcoded server-side or
+opened by less-defensive tooling.
+
+**Recommended solution:** Add a real video validation/transcode step
+(e.g. via ffmpeg) if video ever gains more trust downstream.
+Deliberately not added now — it's a new, fairly heavy dependency for a
+risk that's currently low, and adding dependencies without a concrete
+need was explicitly out of scope for the audit pass that found this.
+
+**Priority:** Low. **Target milestone:** If/when video is processed
+server-side for any reason (thumbnailing, transcoding, moderation).
+
+### 10. Community and post search endpoints don't exist
+
+**Found during:** Full-repository frontend/backend audit, 2026-09-04.
+
+**Description:** `GET /api/users?search=` is real (ILIKE-backed).
+There is no equivalent for communities or posts — the frontend's
+"Search" page only searches users; community/post discovery is
+list-and-scroll only.
+
+**Impact:** Low-medium UX gap, not a defect — nothing is broken, the
+app just doesn't have a feature its "global search" framing might
+imply.
+
+**Recommended solution:** Add `?search=` to `GET /api/communities`
+(and, if needed, posts) mirroring `user_service.py`'s existing ILIKE
+pattern.
+
+**Priority:** Low. **Target milestone:** When community/post discovery
+becomes a real user complaint, not preemptively.
+
+### 11. Some list endpoints return unbounded or fully-nested collections
+
+**Found during:** Full-repository backend audit, 2026-09-04.
+
+**Description:** `CommunitySchema.members` dumps the entire member
+list on every community read, and `message_service.list_conversations`/
+`list_messages` have no pagination at all.
+
+**Impact:** Low today at this app's scale; would degrade for a
+community or conversation with a large member/message count.
+
+**Recommended solution:** Paginate both, consistent with how
+`post_service.list_posts` already does it.
+
+**Priority:** Low. **Target milestone:** Before any community/
+conversation is expected to have hundreds+ of members/messages.
+
+### 12. No real telecom, speech-to-text, or text-to-speech provider is configured
+
+**Found during:** Multi-channel access implementation, 2026-09-04.
+
+**Description:** `app/services/channel_providers.py` defines
+`SmsProvider`/`SpeechToTextProvider`/`TextToSpeechProvider` interfaces
+with `Null*` implementations that deliberately raise/return "not
+configured" rather than pretending to work. `POST /api/channels/sms`
+computes a real AI reply but cannot actually deliver it over SMS;
+`POST /api/channels/voice` returns a plain 501.
+
+**Impact:** None today — this is the intended, honest state of an
+MVP with no telecom account provisioned, not a bug.
+
+**Recommended solution:** Implement a concrete `SmsProvider` (e.g. for
+Africa's Talking or Twilio) once an account/credentials exist; the
+interface is ready and requires no changes to `channel_service.py` or
+`ai_service.py` to plug one in.
+
+**Priority:** N/A — deliberately deferred, not a defect.
+**Target milestone:** When a real telecom/STT/TTS account is
+provisioned.
+
+### 13. Channel rate limiter is single-instance only
+
+**Found during:** Multi-channel access implementation, 2026-09-04.
+
+**Description:** `app/services/channel_rate_limiter.py` is an
+in-process, module-level sliding window (dict + lock) — correct and
+sufficient for this deployment's `WEB_CONCURRENCY=1`, but would not
+coordinate limits across multiple worker processes/instances.
+
+**Impact:** None today. Would under-enforce the configured rate limit
+(each instance would allow the full limit independently) if this ever
+runs with more than one worker/instance.
+
+**Recommended solution:** Move to a shared store (Redis, or the
+database) if this deployment ever scales beyond a single instance.
+Deliberately not done now — no such need exists yet, and Redis would
+be a new piece of infrastructure for a currently-hypothetical problem.
+
+**Priority:** Low. **Target milestone:** Before `WEB_CONCURRENCY` (or
+instance count) is ever increased above 1.
+
 ---
 
 ## Resolved
