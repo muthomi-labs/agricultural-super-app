@@ -18,7 +18,7 @@ The backend provides the server-side application for the **Agricultural Super Ap
 | Routes — auth, users, posts, comments, communities, messages, admin, uploads, stories, notifications, AI, channels | Done |
 | Migrations | Flask-Migrate/Alembic, migration history committed under `migrations/versions/` |
 | API docs | Flasgger/Swagger UI at `/apidocs/`, spec at `/apispec.json` — see "API documentation" below |
-| Tests | 830+ passing — see "Testing" |
+| Tests | 830 passing — see "Testing" |
 | CI | `../.github/workflows/backend-ci.yml` — tests, migrations, and Swagger boot check on every push/PR |
 
 See `docs/TECHNICAL_DEBT.md` for known limitations and their priority.
