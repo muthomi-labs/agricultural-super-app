@@ -263,7 +263,21 @@ def _stream_conversation_message(conversation_id, content):
             return
         yield _sse("done", {})
 
-    return Response(stream_with_context(generate()), mimetype="text/event-stream")
+    response = Response(stream_with_context(generate()), mimetype="text/event-stream")
+    # Render sits behind Cloudflare's edge proxy in production, which by
+    # default buffers/compresses responses before forwarding them --
+    # fine for normal JSON, but it defeats the entire point of an SSE
+    # stream (observed in practice: the connection delivered only the
+    # first event, then silently died, well before any AI-generated
+    # chunk -- verified this was NOT a gunicorn/Flask issue by
+    # reproducing true incremental delivery against gunicorn directly).
+    # `no-transform` tells any compliant intermediary (Cloudflare
+    # included) not to alter/buffer the body for compression;
+    # `X-Accel-Buffering: no` is the equivalent instruction nginx-style
+    # proxies look for specifically.
+    response.headers["Cache-Control"] = "no-cache, no-transform"
+    response.headers["X-Accel-Buffering"] = "no"
+    return response
 
 
 @ai_bp.post("/conversations/<int:conversation_id>/messages")
