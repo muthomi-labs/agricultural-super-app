@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Button, Spinner, Textarea } from '@/components/ui'
+import { Button, PostContent, Spinner, Textarea } from '@/components/ui'
 import { BotIcon, XIcon } from '@/components/icons'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import {
@@ -143,12 +143,12 @@ export function FloatingAssistant() {
             {currentStatus === 'loading' && <Spinner size="sm" />}
             {current?.messages.map((message) => (
               <div key={message.id} className={`asa-floating-ai-message asa-floating-ai-message--${message.role}`}>
-                {message.content}
+                {message.role === 'assistant' ? <PostContent content={message.content} /> : message.content}
               </div>
             ))}
             {streamingReply && (
               <div className="asa-floating-ai-message asa-floating-ai-message--assistant">
-                {streamingReply.content || <Spinner size="sm" />}
+                {streamingReply.content ? <PostContent content={streamingReply.content} /> : <Spinner size="sm" />}
               </div>
             )}
             {sendError && (

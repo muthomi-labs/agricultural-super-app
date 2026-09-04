@@ -6,7 +6,11 @@ services:
     rootDir: backend
     branch: feature/Evans
     buildCommand: "pip install -r requirements.txt && flask db upgrade"
-    startCommand: "gunicorn wsgi:app --bind 0.0.0.0:$PORT"
+    # --timeout 90: gunicorn's default 30s worker timeout is shorter than
+    # GeminiProvider's 60s request timeout (see ai_providers.py) -- under
+    # its own "high demand" slowness, a worker could get killed for
+    # appearing hung before our own timeout ever gets a chance to fire.
+    startCommand: "gunicorn wsgi:app --bind 0.0.0.0:$PORT --timeout 90"
     envVars:
       - key: FLASK_APP
         value: wsgi.py

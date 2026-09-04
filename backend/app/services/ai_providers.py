@@ -411,7 +411,11 @@ class GeminiProvider(AIProvider):
     """
 
     API_BASE = "https://generativelanguage.googleapis.com/v1beta/models"
-    REQUEST_TIMEOUT_SECONDS = 20
+    # The free tier queues requests under load and individual chunks (in
+    # streaming) can arrive well after Anthropic's tuned 20s -- seen in
+    # practice as spurious "read operation timed out" failures on requests
+    # that would have succeeded with more headroom.
+    REQUEST_TIMEOUT_SECONDS = 60
     MAX_OUTPUT_TOKENS = 1024
 
     def __init__(self, api_key, model):

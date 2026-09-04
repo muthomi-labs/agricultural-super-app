@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { Button, ErrorState, LoadingState, Spinner, Textarea } from '@/components/ui'
+import { Button, ErrorState, LoadingState, PostContent, Spinner, Textarea } from '@/components/ui'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { clearAISendError, fetchAIConversation, streamAIMessage } from '@/store/slices/aiSlice'
 import '../assistant.css'
@@ -84,14 +84,20 @@ export function AiConversationPage() {
       <div className="asa-assistant__messages">
         {conversation.messages.map((message) => (
           <div key={message.id} className={`asa-assistant-message asa-assistant-message--${message.role}`}>
-            <div className="asa-assistant-message__bubble">{message.content}</div>
+            <div className="asa-assistant-message__bubble">
+              {message.role === 'assistant' ? (
+                <PostContent content={message.content} />
+              ) : (
+                message.content
+              )}
+            </div>
           </div>
         ))}
 
         {streamingReply && (
           <div className="asa-assistant-message asa-assistant-message--assistant">
             <div className="asa-assistant-message__bubble">
-              {streamingReply.content || <Spinner size="sm" />}
+              {streamingReply.content ? <PostContent content={streamingReply.content} /> : <Spinner size="sm" />}
             </div>
           </div>
         )}
