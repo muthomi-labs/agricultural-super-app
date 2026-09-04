@@ -14,7 +14,7 @@ from app.schemas import (
 )
 from app.services import ai_service
 from app.services.ai_providers import AIProviderError
-from app.services.ai_service import MAX_MESSAGE_LENGTH
+from app.services.ai_service import HEARTBEAT, MAX_MESSAGE_LENGTH
 
 ai_bp = Blueprint("ai", __name__, url_prefix="/api/ai")
 
@@ -244,7 +244,11 @@ def _stream_conversation_message(conversation_id, content):
     Returns a text/event-stream Response emitting, in order:
       - a "user_message" event with the saved user message
       - zero or more "chunk" events, each a piece of the reply as it's
-        generated
+        generated (interspersed with SSE comment lines standing in for
+        HEARTBEAT sentinels -- see ai_service.HEARTBEAT_INTERVAL_SECONDS
+        -- so a proxy in front of this app never sees the connection go
+        idle during a slow-starting or sparsely-chunked reply; comment
+        lines are invisible to any spec-compliant SSE client)
       - either a "done" event (success -- the full reply is already
         saved to the database by this point) or an "error" event (the
         HTTP response is already committed to status 200 by the time a
@@ -257,6 +261,9 @@ def _stream_conversation_message(conversation_id, content):
         yield _sse("user_message", ai_message_schema.dump(user_message))
         try:
             for chunk in chunks:
+                if chunk is HEARTBEAT:
+                    yield ": keep-alive\n\n"
+                    continue
                 yield _sse("chunk", chunk)
         except AIProviderError as err:
             yield _sse("error", err.public_message)

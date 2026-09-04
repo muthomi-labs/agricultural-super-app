@@ -21,6 +21,9 @@ actual model. The frontend only ever talks to this Flask endpoint; it
 never sees which provider answered or any provider credentials.
 """
 
+import queue
+import threading
+import time
 from datetime import datetime
 
 from flask import current_app
@@ -33,6 +36,64 @@ from app.services.ai_providers import AIProviderError, get_provider
 MAX_HISTORY_MESSAGES = 20
 MAX_MESSAGE_LENGTH = 4000
 CONVERSATION_TITLE_MAX_LENGTH = 60
+
+# How often a stalled stream emits a heartbeat -- see HEARTBEAT below.
+# Comfortably shorter than every idle-connection timeout we've actually
+# observed cut a stream short in production (Render's deployment sits
+# behind Cloudflare's edge proxy, which -- confirmed by reproducing true
+# incremental delivery locally through gunicorn on the exact same code --
+# was silently dropping the connection after only a couple of seconds of
+# no bytes flowing, well before the AI provider's first token).
+HEARTBEAT_INTERVAL_SECONDS = 2.5
+
+
+class _Heartbeat:
+    """Sentinel yielded by _iter_with_heartbeats when the wrapped
+    iterator hasn't produced anything within HEARTBEAT_INTERVAL_SECONDS.
+    Never real content -- routes translate this into an SSE comment line
+    (`: keep-alive`), which the SSE spec defines clients must ignore, so
+    it's invisible to the user but keeps bytes flowing on the wire."""
+
+
+HEARTBEAT = _Heartbeat()
+
+
+def _iter_with_heartbeats(source_iter, interval=HEARTBEAT_INTERVAL_SECONDS):
+    """
+    Wraps a plain (blocking) iterator -- here, an AIProvider's
+    stream_complete() generator, which blocks on network I/O between
+    chunks -- so the consumer also gets a HEARTBEAT sentinel at least
+    every `interval` seconds while nothing new has arrived. Python gives
+    no way to put a timeout on a plain iterator's `next()`, so this runs
+    the actual source iteration on a background thread and relays items
+    through a queue, which *does* support a timed get().
+    """
+    q = queue.Queue()
+    DONE = object()
+
+    def produce():
+        try:
+            for item in source_iter:
+                q.put(("item", item))
+        except Exception as exc:  # re-raised on the consumer side below
+            q.put(("error", exc))
+        finally:
+            q.put(("done", DONE))
+
+    threading.Thread(target=produce, daemon=True).start()
+
+    while True:
+        try:
+            kind, value = q.get(timeout=interval)
+        except queue.Empty:
+            yield HEARTBEAT
+            continue
+        if kind == "item":
+            yield value
+        elif kind == "error":
+            raise value
+        else:
+            return
 
 SYSTEM_PROMPT = (
     "You are the AI Farming Assistant inside AgriConnect, a community app "
@@ -263,6 +324,7 @@ def stream_message(user, conversation_id, content):
     exhausted, the full assistant reply has already been saved to the
     database (or, on failure, deliberately has not been -- see below).
     """
+    request_received_at = time.monotonic()
     conversation = get_conversation_for_user(user, conversation_id)
     content = _validate_content(content)
     user_message = _save_user_message(conversation, content)
@@ -276,11 +338,28 @@ def stream_message(user, conversation_id, content):
         raise AIServiceUnavailableError(err.public_message)
 
     def generate_chunks():
+        """
+        Yields real text chunks (never HEARTBEAT -- that sentinel is
+        consumed here and never leaks past this function) as they arrive
+        from the provider, via _iter_with_heartbeats so a slow-starting
+        or sparsely-chunked reply still keeps the SSE connection visibly
+        alive for any proxy in front of this app (see
+        HEARTBEAT_INTERVAL_SECONDS). Heartbeats themselves are relayed
+        up to the route as HEARTBEAT so it can emit an SSE comment line
+        instead of a "chunk" event -- see ai_routes.py.
+        """
         chunks = []
+        ai_request_started_at = time.monotonic()
+        first_token_at = None
         try:
-            for chunk in provider.stream_complete(context, _build_system_prompt(user.language)):
-                chunks.append(chunk)
-                yield chunk
+            for item in _iter_with_heartbeats(provider.stream_complete(context, _build_system_prompt(user.language))):
+                if item is HEARTBEAT:
+                    yield HEARTBEAT
+                    continue
+                if first_token_at is None:
+                    first_token_at = time.monotonic()
+                chunks.append(item)
+                yield item
         except AIProviderError as err:
             # However much (if anything) already reached the client, it
             # isn't a complete, trustworthy reply -- don't persist a
@@ -297,5 +376,16 @@ def stream_message(user, conversation_id, content):
         db.session.add(assistant_message)
         conversation.updated_at = datetime.utcnow()
         db.session.commit()
+
+        now = time.monotonic()
+        current_app.logger.info(
+            "ai_latency channel=web mode=stream "
+            "context_ready=%.2fs first_token=%.2fs ai_completed=%.2fs total=%.2fs reply_chars=%d",
+            ai_request_started_at - request_received_at,
+            (first_token_at - ai_request_started_at) if first_token_at else -1,
+            now - ai_request_started_at,
+            now - request_received_at,
+            len(full_text),
+        )
 
     return user_message, generate_chunks()
