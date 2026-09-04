@@ -428,7 +428,14 @@ class GeminiProvider(AIProvider):
     # practice as spurious "read operation timed out" failures on requests
     # that would have succeeded with more headroom.
     REQUEST_TIMEOUT_SECONDS = 60
-    MAX_OUTPUT_TOKENS = 1024
+    # Target answer length (per SYSTEM_PROMPT) is a few short paragraphs --
+    # observed real replies in testing ran ~100-170 words (~150-230
+    # tokens). 512 gives comfortable headroom above that for longer
+    # legitimate answers while still capping the worst case at half of
+    # the previous 1024 -- a runaway generation now costs at most half as
+    # much latency/quota. A farmer wanting more than this can already
+    # just ask a follow-up in the same conversation.
+    MAX_OUTPUT_TOKENS = 512
 
     def __init__(self, api_key, model):
         self.api_key = api_key
