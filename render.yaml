@@ -88,35 +88,6 @@ services:
         source: /*
         destination: /index.html
 
-  - type: cron
-    name: agricultural-story-cleanup
-    runtime: python
-    plan: free
-    rootDir: backend
-    branch: feature/Evans
-    # Hourly is a housekeeping cadence, not a correctness requirement --
-    # story_service.list_active_stories()/get_active_story_or_404()
-    # already exclude expired stories from every response regardless of
-    # how often (or whether) this job has run.
-    schedule: "0 * * * *"
-    buildCommand: "pip install -r requirements.txt"
-    startCommand: "python scripts/cleanup_expired_stories.py"
-    envVars:
-      - key: FLASK_APP
-        value: wsgi.py
-      - key: FLASK_ENV
-        value: production
-      - key: PYTHON_VERSION
-        value: "3.11.9"
-      - key: SECRET_KEY
-        generateValue: true
-      - key: JWT_SECRET_KEY
-        generateValue: true
-      - key: DATABASE_URL
-        fromDatabase:
-          name: agricultural-db
-          property: connectionString
-
 databases:
   - name: agricultural-db
     plan: free
