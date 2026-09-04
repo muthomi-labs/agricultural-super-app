@@ -69,10 +69,22 @@ services:
         sync: false
       - key: ADMIN_NOTIFICATION_EMAILS
         sync: false
-    # Uncomment to make uploaded files (post images, profile photos,
-    # story images) survive redeploys -- requires a paid `plan:` above,
-    # and add UPLOAD_FOLDER=/var/data/uploads (matching mountPath) to
-    # envVars above once this is enabled.
+      # Uploaded files (post images, profile photos, story images, reel
+      # videos) go to Cloudinary's free tier instead of local disk, which
+      # is ephemeral on this (free) plan -- wiped on every redeploy. Get
+      # both values from a free https://cloudinary.com account: cloud
+      # name from the dashboard home page, and an unsigned upload preset
+      # from Settings -> Upload -> Add upload preset (Signing Mode:
+      # Unsigned). See app/services/upload_service.py. Falls back to
+      # local disk when either is left blank.
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_UPLOAD_PRESET
+        sync: false
+    # Alternative to Cloudinary above: a paid persistent disk, so local-
+    # disk storage itself survives redeploys. Requires a paid `plan:`
+    # above, and add UPLOAD_FOLDER=/var/data/uploads (matching
+    # mountPath) to envVars above once this is enabled.
     # disk:
     #   name: agricultural-uploads
     #   mountPath: /var/data/uploads

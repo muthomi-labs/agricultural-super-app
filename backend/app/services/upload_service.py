@@ -21,12 +21,18 @@ there's no path-traversal or overwrite-another-upload surface at all.
 """
 
 import io
+import json
 import os
+import urllib.error
+import urllib.request
 import uuid
 
+from flask import current_app
 from PIL import Image, UnidentifiedImageError
 
 from app.errors import ValidationAPIError
+
+CLOUDINARY_UPLOAD_TIMEOUT_SECONDS = 30
 
 MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024  # 5 MB
 MAX_DIMENSION_PX = 2000  # downscale anything larger, aspect ratio preserved
@@ -68,13 +74,69 @@ def _ensure_upload_folder(upload_folder):
     os.makedirs(upload_folder, exist_ok=True)
 
 
-def save_uploaded_image(file_storage, upload_folder):
+def _upload_to_cloudinary(raw_bytes, filename, resource_type, cloud_name, upload_preset):
+    """
+    Uploads via Cloudinary's unsigned upload API. `resource_type` is
+    "image" or "video". Returns the resulting secure_url, or raises
+    ValidationAPIError if Cloudinary rejects or is unreachable -- callers
+    already only have that one error path documented for this endpoint,
+    so this doesn't introduce a new one.
+    """
+    boundary = uuid.uuid4().hex
+
+    def _field_part(name, value):
+        return (
+            f"--{boundary}\r\n"
+            f'Content-Disposition: form-data; name="{name}"\r\n\r\n'
+            f"{value}\r\n"
+        ).encode("utf-8")
+
+    file_part = (
+        f"--{boundary}\r\n"
+        f'Content-Disposition: form-data; name="file"; filename="{filename}"\r\n'
+        "Content-Type: application/octet-stream\r\n\r\n"
+    ).encode("utf-8") + raw_bytes + b"\r\n"
+
+    body = (
+        _field_part("upload_preset", upload_preset)
+        + file_part
+        + f"--{boundary}--\r\n".encode("utf-8")
+    )
+
+    request_obj = urllib.request.Request(
+        f"https://api.cloudinary.com/v1_1/{cloud_name}/{resource_type}/upload",
+        data=body,
+        method="POST",
+        headers={"Content-Type": f"multipart/form-data; boundary={boundary}"},
+    )
+
+    try:
+        with urllib.request.urlopen(request_obj, timeout=CLOUDINARY_UPLOAD_TIMEOUT_SECONDS) as response:
+            payload = json.loads(response.read().decode("utf-8"))
+    except urllib.error.HTTPError as err:
+        detail = err.read().decode("utf-8", errors="replace")
+        current_app.logger.error("Cloudinary upload rejected (HTTP %s): %s", err.code, detail)
+        raise ValidationAPIError("The file could not be uploaded right now. Please try again.")
+    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as err:
+        current_app.logger.error("Cloudinary upload failed: %s", err)
+        raise ValidationAPIError("The file could not be uploaded right now. Please try again.")
+
+    secure_url = payload.get("secure_url")
+    if not secure_url:
+        current_app.logger.error("Cloudinary response missing secure_url: %r", payload)
+        raise ValidationAPIError("The file could not be uploaded right now. Please try again.")
+    return secure_url
+
+
+def save_uploaded_image(file_storage, upload_folder, cloud_name=None, upload_preset=None):
     """
     Validate and persist an uploaded image file.
 
     `file_storage` is a werkzeug FileStorage (from request.files). Raises
-    ValidationAPIError for anything that fails validation. Returns the
-    generated filename (not a full path/URL -- the route builds that).
+    ValidationAPIError for anything that fails validation. Returns
+    (filename, external_url): external_url is the Cloudinary secure_url
+    when `cloud_name`/`upload_preset` are set, otherwise None -- the
+    route builds a local /api/uploads/<filename> URL in that case.
     """
     if file_storage is None or not file_storage.filename:
         raise ValidationAPIError("No image file was provided.")
@@ -119,20 +181,26 @@ def save_uploaded_image(file_storage, upload_folder):
     elif not allows_alpha and image.mode == "P":
         image = image.convert("RGB")
 
-    _ensure_upload_folder(upload_folder)
     filename = f"{uuid.uuid4().hex}.{extension}"
-    destination = os.path.join(upload_folder, filename)
 
     save_kwargs = {"format": save_format}
     if save_format == "JPEG":
         save_kwargs["quality"] = 85
         save_kwargs["optimize"] = True
+
+    if cloud_name and upload_preset:
+        buffer = io.BytesIO()
+        image.save(buffer, **save_kwargs)
+        url = _upload_to_cloudinary(buffer.getvalue(), filename, "image", cloud_name, upload_preset)
+        return filename, url
+
+    _ensure_upload_folder(upload_folder)
+    destination = os.path.join(upload_folder, filename)
     image.save(destination, **save_kwargs)
+    return filename, None
 
-    return filename
 
-
-def save_uploaded_video(file_storage, upload_folder):
+def save_uploaded_video(file_storage, upload_folder, cloud_name=None, upload_preset=None):
     """
     Validate and persist an uploaded video file (for Reels/FarmClips).
 
@@ -141,6 +209,8 @@ def save_uploaded_video(file_storage, upload_folder):
     they're only used to pick which magic-byte check to run, never
     trusted on their own. The file is stored as-is (no re-encode -- that
     would need ffmpeg, which this project doesn't depend on).
+
+    Returns (filename, external_url) -- see save_uploaded_image.
     """
     if file_storage is None or not file_storage.filename:
         raise ValidationAPIError("No video file was provided.")
@@ -171,10 +241,14 @@ def save_uploaded_video(file_storage, upload_folder):
             "Supported formats: MP4, MOV, WebM."
         )
 
-    _ensure_upload_folder(upload_folder)
     filename = f"{uuid.uuid4().hex}.{extension}"
+
+    if cloud_name and upload_preset:
+        url = _upload_to_cloudinary(raw_bytes, filename, "video", cloud_name, upload_preset)
+        return filename, url
+
+    _ensure_upload_folder(upload_folder)
     destination = os.path.join(upload_folder, filename)
     with open(destination, "wb") as out:
         out.write(raw_bytes)
-
-    return filename
+    return filename, None

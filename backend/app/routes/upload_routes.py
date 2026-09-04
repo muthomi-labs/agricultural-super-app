@@ -51,9 +51,14 @@ def upload_image():
           $ref: '#/definitions/Error'
     """
     file_storage = request.files.get("image")
-    filename = upload_service.save_uploaded_image(file_storage, current_app.config["UPLOAD_FOLDER"])
+    filename, external_url = upload_service.save_uploaded_image(
+        file_storage,
+        current_app.config["UPLOAD_FOLDER"],
+        cloud_name=current_app.config.get("CLOUDINARY_CLOUD_NAME"),
+        upload_preset=current_app.config.get("CLOUDINARY_UPLOAD_PRESET"),
+    )
 
-    url = request.host_url.rstrip("/") + f"/api/uploads/{filename}"
+    url = external_url or request.host_url.rstrip("/") + f"/api/uploads/{filename}"
     return jsonify({"url": url, "filename": filename}), 201
 
 
@@ -99,9 +104,14 @@ def upload_video():
           $ref: '#/definitions/Error'
     """
     file_storage = request.files.get("video")
-    filename = upload_service.save_uploaded_video(file_storage, current_app.config["UPLOAD_FOLDER"])
+    filename, external_url = upload_service.save_uploaded_video(
+        file_storage,
+        current_app.config["UPLOAD_FOLDER"],
+        cloud_name=current_app.config.get("CLOUDINARY_CLOUD_NAME"),
+        upload_preset=current_app.config.get("CLOUDINARY_UPLOAD_PRESET"),
+    )
 
-    url = request.host_url.rstrip("/") + f"/api/uploads/{filename}"
+    url = external_url or request.host_url.rstrip("/") + f"/api/uploads/{filename}"
     return jsonify({"url": url, "filename": filename}), 201
 
 

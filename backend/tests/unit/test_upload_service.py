@@ -24,13 +24,13 @@ def _file_storage(data, filename="test.png", content_type="image/png"):
 
 class TestSaveUploadedImage:
     def test_saves_valid_png_and_returns_filename(self, tmp_path):
-        filename = upload_service.save_uploaded_image(_file_storage(_image_bytes("PNG")), str(tmp_path))
+        filename, _ = upload_service.save_uploaded_image(_file_storage(_image_bytes("PNG")), str(tmp_path))
         assert filename.endswith(".png")
         assert os.path.exists(os.path.join(tmp_path, filename))
 
     def test_saves_valid_jpeg(self, tmp_path):
         data = _image_bytes("JPEG")
-        filename = upload_service.save_uploaded_image(
+        filename, _ = upload_service.save_uploaded_image(
             _file_storage(data, filename="photo.jpg", content_type="image/jpeg"), str(tmp_path)
         )
         assert filename.endswith(".jpg")
@@ -39,7 +39,7 @@ class TestSaveUploadedImage:
 
     def test_saves_valid_webp(self, tmp_path):
         data = _image_bytes("WEBP")
-        filename = upload_service.save_uploaded_image(
+        filename, _ = upload_service.save_uploaded_image(
             _file_storage(data, filename="photo.webp", content_type="image/webp"), str(tmp_path)
         )
         assert filename.endswith(".webp")
@@ -50,7 +50,7 @@ class TestSaveUploadedImage:
         # bytes that are actually a JPEG still gets saved as .jpg, and a
         # path-traversal-style client filename has zero effect either way.
         data = _image_bytes("JPEG")
-        filename = upload_service.save_uploaded_image(
+        filename, _ = upload_service.save_uploaded_image(
             _file_storage(data, filename="../../etc/passwd.png", content_type="image/png"), str(tmp_path)
         )
         assert ".." not in filename
@@ -79,19 +79,19 @@ class TestSaveUploadedImage:
     def test_downscales_oversized_dimensions(self, tmp_path, monkeypatch):
         monkeypatch.setattr(upload_service, "MAX_DIMENSION_PX", 100)
         data = _image_bytes("PNG", size=(400, 300))
-        filename = upload_service.save_uploaded_image(_file_storage(data), str(tmp_path))
+        filename, _ = upload_service.save_uploaded_image(_file_storage(data), str(tmp_path))
         with Image.open(os.path.join(tmp_path, filename)) as img:
             assert max(img.size) <= 100
 
     def test_two_uploads_never_collide(self, tmp_path):
         data = _image_bytes("PNG")
-        first = upload_service.save_uploaded_image(_file_storage(data), str(tmp_path))
-        second = upload_service.save_uploaded_image(_file_storage(data), str(tmp_path))
+        first, _ = upload_service.save_uploaded_image(_file_storage(data), str(tmp_path))
+        second, _ = upload_service.save_uploaded_image(_file_storage(data), str(tmp_path))
         assert first != second
 
     def test_creates_upload_folder_if_missing(self, tmp_path):
         nested = str(tmp_path / "does" / "not" / "exist" / "yet")
-        filename = upload_service.save_uploaded_image(_file_storage(_image_bytes("PNG")), nested)
+        filename, _ = upload_service.save_uploaded_image(_file_storage(_image_bytes("PNG")), nested)
         assert os.path.exists(os.path.join(nested, filename))
 
 
@@ -103,7 +103,7 @@ def _video_bytes(kind="mp4", padding=200):
 
 class TestSaveUploadedVideo:
     def test_saves_valid_mp4_and_returns_filename(self, tmp_path):
-        filename = upload_service.save_uploaded_video(
+        filename, _ = upload_service.save_uploaded_video(
             _file_storage(_video_bytes("mp4"), filename="clip.mp4", content_type="video/mp4"),
             str(tmp_path),
         )
@@ -111,21 +111,21 @@ class TestSaveUploadedVideo:
         assert os.path.exists(os.path.join(tmp_path, filename))
 
     def test_saves_valid_webm(self, tmp_path):
-        filename = upload_service.save_uploaded_video(
+        filename, _ = upload_service.save_uploaded_video(
             _file_storage(_video_bytes("webm"), filename="clip.webm", content_type="video/webm"),
             str(tmp_path),
         )
         assert filename.endswith(".webm")
 
     def test_saves_valid_quicktime_as_mov(self, tmp_path):
-        filename = upload_service.save_uploaded_video(
+        filename, _ = upload_service.save_uploaded_video(
             _file_storage(_video_bytes("mp4"), filename="clip.mov", content_type="video/quicktime"),
             str(tmp_path),
         )
         assert filename.endswith(".mov")
 
     def test_generates_random_filename_ignoring_client_supplied_name(self, tmp_path):
-        filename = upload_service.save_uploaded_video(
+        filename, _ = upload_service.save_uploaded_video(
             _file_storage(_video_bytes("mp4"), filename="../../etc/passwd.mp4", content_type="video/mp4"),
             str(tmp_path),
         )
@@ -166,10 +166,10 @@ class TestSaveUploadedVideo:
 
     def test_two_uploads_never_collide(self, tmp_path):
         data = _video_bytes("mp4")
-        first = upload_service.save_uploaded_video(
+        first, _ = upload_service.save_uploaded_video(
             _file_storage(data, filename="a.mp4", content_type="video/mp4"), str(tmp_path)
         )
-        second = upload_service.save_uploaded_video(
+        second, _ = upload_service.save_uploaded_video(
             _file_storage(data, filename="b.mp4", content_type="video/mp4"), str(tmp_path)
         )
         assert first != second
