@@ -27,7 +27,8 @@ class ConversationParticipant(db.Model):
             "users.id",
             ondelete="CASCADE"
         ),
-        nullable=False
+        nullable=False,
+        index=True
     )
 
     joined_at = db.Column(

@@ -18,7 +18,8 @@ class Message(db.Model):
             "conversations.id",
             ondelete="CASCADE"
         ),
-        nullable=False
+        nullable=False,
+        index=True
     )
 
     sender_id = db.Column(
@@ -27,7 +28,8 @@ class Message(db.Model):
             "users.id",
             ondelete="CASCADE"
         ),
-        nullable=False
+        nullable=False,
+        index=True
     )
 
     content = db.Column(

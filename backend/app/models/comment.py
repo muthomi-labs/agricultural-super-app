@@ -15,13 +15,15 @@ class Comment(db.Model):
     user_id = db.Column(
         db.Integer,
         db.ForeignKey("users.id", ondelete="CASCADE"),
-        nullable=False
+        nullable=False,
+        index=True
     )
 
     post_id = db.Column(
         db.Integer,
         db.ForeignKey("posts.id", ondelete="CASCADE"),
-        nullable=False
+        nullable=False,
+        index=True
     )
 
     parent_comment_id = db.Column(

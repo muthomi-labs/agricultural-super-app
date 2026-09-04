@@ -76,4 +76,9 @@ class Notification(db.Model):
             f"type IN {NOTIFICATION_TYPES}",
             name="ck_notifications_type"
         ),
+        db.Index(
+            "ix_notifications_recipient_id_is_read",
+            "recipient_id",
+            "is_read"
+        ),
     )

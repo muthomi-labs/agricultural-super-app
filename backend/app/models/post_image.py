@@ -15,7 +15,8 @@ class PostImage(db.Model):
     post_id = db.Column(
         db.Integer,
         db.ForeignKey("posts.id", ondelete="CASCADE"),
-        nullable=False
+        nullable=False,
+        index=True
     )
 
     image_url = db.Column(
