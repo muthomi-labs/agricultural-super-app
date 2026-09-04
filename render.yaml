@@ -70,16 +70,20 @@ services:
       - key: ADMIN_NOTIFICATION_EMAILS
         sync: false
       # Uploaded files (post images, profile photos, story images, reel
-      # videos) go to Cloudinary's free tier instead of local disk, which
-      # is ephemeral on this (free) plan -- wiped on every redeploy. Get
-      # both values from a free https://cloudinary.com account: cloud
-      # name from the dashboard home page, and an unsigned upload preset
-      # from Settings -> Upload -> Add upload preset (Signing Mode:
-      # Unsigned). See app/services/upload_service.py. Falls back to
-      # local disk when either is left blank.
-      - key: CLOUDINARY_CLOUD_NAME
+      # videos) go to a free Supabase Storage bucket instead of local
+      # disk, which is ephemeral on this (free) plan -- wiped on every
+      # redeploy. From a free https://supabase.com project: SUPABASE_URL
+      # is the project URL (Settings -> API); SUPABASE_SERVICE_ROLE_KEY
+      # is the "service_role" secret key on that same page (NOT the
+      # "anon" key -- anon can't write to Storage); SUPABASE_STORAGE_BUCKET
+      # is a bucket you create under Storage, set to Public so uploaded
+      # files are viewable. See app/services/upload_service.py. Falls
+      # back to local disk when any of the three is left blank.
+      - key: SUPABASE_URL
         sync: false
-      - key: CLOUDINARY_UPLOAD_PRESET
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_STORAGE_BUCKET
         sync: false
     # Alternative to Cloudinary above: a paid persistent disk, so local-
     # disk storage itself survives redeploys. Requires a paid `plan:`

@@ -54,8 +54,9 @@ def upload_image():
     filename, external_url = upload_service.save_uploaded_image(
         file_storage,
         current_app.config["UPLOAD_FOLDER"],
-        cloud_name=current_app.config.get("CLOUDINARY_CLOUD_NAME"),
-        upload_preset=current_app.config.get("CLOUDINARY_UPLOAD_PRESET"),
+        supabase_url=current_app.config.get("SUPABASE_URL"),
+        supabase_key=current_app.config.get("SUPABASE_SERVICE_ROLE_KEY"),
+        supabase_bucket=current_app.config.get("SUPABASE_STORAGE_BUCKET"),
     )
 
     url = external_url or request.host_url.rstrip("/") + f"/api/uploads/{filename}"
@@ -107,8 +108,9 @@ def upload_video():
     filename, external_url = upload_service.save_uploaded_video(
         file_storage,
         current_app.config["UPLOAD_FOLDER"],
-        cloud_name=current_app.config.get("CLOUDINARY_CLOUD_NAME"),
-        upload_preset=current_app.config.get("CLOUDINARY_UPLOAD_PRESET"),
+        supabase_url=current_app.config.get("SUPABASE_URL"),
+        supabase_key=current_app.config.get("SUPABASE_SERVICE_ROLE_KEY"),
+        supabase_bucket=current_app.config.get("SUPABASE_STORAGE_BUCKET"),
     )
 
     url = external_url or request.host_url.rstrip("/") + f"/api/uploads/{filename}"

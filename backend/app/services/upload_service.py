@@ -21,7 +21,6 @@ there's no path-traversal or overwrite-another-upload surface at all.
 """
 
 import io
-import json
 import os
 import urllib.error
 import urllib.request
@@ -32,7 +31,18 @@ from PIL import Image, UnidentifiedImageError
 
 from app.errors import ValidationAPIError
 
-CLOUDINARY_UPLOAD_TIMEOUT_SECONDS = 30
+SUPABASE_UPLOAD_TIMEOUT_SECONDS = 30
+
+# Extension -> MIME type for the Content-Type Supabase Storage stores the
+# object under (and later serves it as, on GET).
+CONTENT_TYPE_BY_EXTENSION = {
+    "jpg": "image/jpeg",
+    "png": "image/png",
+    "webp": "image/webp",
+    "mp4": "video/mp4",
+    "mov": "video/quicktime",
+    "webm": "video/webm",
+}
 
 MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024  # 5 MB
 MAX_DIMENSION_PX = 2000  # downscale anything larger, aspect ratio preserved
@@ -74,69 +84,54 @@ def _ensure_upload_folder(upload_folder):
     os.makedirs(upload_folder, exist_ok=True)
 
 
-def _upload_to_cloudinary(raw_bytes, filename, resource_type, cloud_name, upload_preset):
+def _upload_to_supabase(raw_bytes, filename, extension, supabase_url, service_role_key, bucket):
     """
-    Uploads via Cloudinary's unsigned upload API. `resource_type` is
-    "image" or "video". Returns the resulting secure_url, or raises
-    ValidationAPIError if Cloudinary rejects or is unreachable -- callers
-    already only have that one error path documented for this endpoint,
-    so this doesn't introduce a new one.
+    Uploads via the Supabase Storage REST API
+    (POST {supabase_url}/storage/v1/object/{bucket}/{path}, raw body,
+    Authorization: Bearer <service role key> -- Storage requires both
+    that header and `apikey` set to the same key). Returns the resulting
+    public URL (requires the bucket itself be set to Public in the
+    Supabase dashboard), or raises ValidationAPIError if the upload
+    fails -- callers already only have that one error path documented
+    for this endpoint, so this doesn't introduce a new one.
     """
-    boundary = uuid.uuid4().hex
-
-    def _field_part(name, value):
-        return (
-            f"--{boundary}\r\n"
-            f'Content-Disposition: form-data; name="{name}"\r\n\r\n'
-            f"{value}\r\n"
-        ).encode("utf-8")
-
-    file_part = (
-        f"--{boundary}\r\n"
-        f'Content-Disposition: form-data; name="file"; filename="{filename}"\r\n'
-        "Content-Type: application/octet-stream\r\n\r\n"
-    ).encode("utf-8") + raw_bytes + b"\r\n"
-
-    body = (
-        _field_part("upload_preset", upload_preset)
-        + file_part
-        + f"--{boundary}--\r\n".encode("utf-8")
-    )
+    content_type = CONTENT_TYPE_BY_EXTENSION.get(extension, "application/octet-stream")
+    path = f"{filename}"
 
     request_obj = urllib.request.Request(
-        f"https://api.cloudinary.com/v1_1/{cloud_name}/{resource_type}/upload",
-        data=body,
+        f"{supabase_url.rstrip('/')}/storage/v1/object/{bucket}/{path}",
+        data=raw_bytes,
         method="POST",
-        headers={"Content-Type": f"multipart/form-data; boundary={boundary}"},
+        headers={
+            "Content-Type": content_type,
+            "Authorization": f"Bearer {service_role_key}",
+            "apikey": service_role_key,
+        },
     )
 
     try:
-        with urllib.request.urlopen(request_obj, timeout=CLOUDINARY_UPLOAD_TIMEOUT_SECONDS) as response:
-            payload = json.loads(response.read().decode("utf-8"))
+        with urllib.request.urlopen(request_obj, timeout=SUPABASE_UPLOAD_TIMEOUT_SECONDS) as response:
+            response.read()  # drain; success body isn't needed, the URL is built from `path`
     except urllib.error.HTTPError as err:
         detail = err.read().decode("utf-8", errors="replace")
-        current_app.logger.error("Cloudinary upload rejected (HTTP %s): %s", err.code, detail)
+        current_app.logger.error("Supabase Storage upload rejected (HTTP %s): %s", err.code, detail)
         raise ValidationAPIError("The file could not be uploaded right now. Please try again.")
-    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as err:
-        current_app.logger.error("Cloudinary upload failed: %s", err)
+    except (urllib.error.URLError, TimeoutError) as err:
+        current_app.logger.error("Supabase Storage upload failed: %s", err)
         raise ValidationAPIError("The file could not be uploaded right now. Please try again.")
 
-    secure_url = payload.get("secure_url")
-    if not secure_url:
-        current_app.logger.error("Cloudinary response missing secure_url: %r", payload)
-        raise ValidationAPIError("The file could not be uploaded right now. Please try again.")
-    return secure_url
+    return f"{supabase_url.rstrip('/')}/storage/v1/object/public/{bucket}/{path}"
 
 
-def save_uploaded_image(file_storage, upload_folder, cloud_name=None, upload_preset=None):
+def save_uploaded_image(file_storage, upload_folder, supabase_url=None, supabase_key=None, supabase_bucket=None):
     """
     Validate and persist an uploaded image file.
 
     `file_storage` is a werkzeug FileStorage (from request.files). Raises
     ValidationAPIError for anything that fails validation. Returns
-    (filename, external_url): external_url is the Cloudinary secure_url
-    when `cloud_name`/`upload_preset` are set, otherwise None -- the
-    route builds a local /api/uploads/<filename> URL in that case.
+    (filename, external_url): external_url is the Supabase Storage
+    public URL when the `supabase_*` args are all set, otherwise None --
+    the route builds a local /api/uploads/<filename> URL in that case.
     """
     if file_storage is None or not file_storage.filename:
         raise ValidationAPIError("No image file was provided.")
@@ -188,10 +183,10 @@ def save_uploaded_image(file_storage, upload_folder, cloud_name=None, upload_pre
         save_kwargs["quality"] = 85
         save_kwargs["optimize"] = True
 
-    if cloud_name and upload_preset:
+    if supabase_url and supabase_key and supabase_bucket:
         buffer = io.BytesIO()
         image.save(buffer, **save_kwargs)
-        url = _upload_to_cloudinary(buffer.getvalue(), filename, "image", cloud_name, upload_preset)
+        url = _upload_to_supabase(buffer.getvalue(), filename, extension, supabase_url, supabase_key, supabase_bucket)
         return filename, url
 
     _ensure_upload_folder(upload_folder)
@@ -200,7 +195,7 @@ def save_uploaded_image(file_storage, upload_folder, cloud_name=None, upload_pre
     return filename, None
 
 
-def save_uploaded_video(file_storage, upload_folder, cloud_name=None, upload_preset=None):
+def save_uploaded_video(file_storage, upload_folder, supabase_url=None, supabase_key=None, supabase_bucket=None):
     """
     Validate and persist an uploaded video file (for Reels/FarmClips).
 
@@ -243,8 +238,8 @@ def save_uploaded_video(file_storage, upload_folder, cloud_name=None, upload_pre
 
     filename = f"{uuid.uuid4().hex}.{extension}"
 
-    if cloud_name and upload_preset:
-        url = _upload_to_cloudinary(raw_bytes, filename, "video", cloud_name, upload_preset)
+    if supabase_url and supabase_key and supabase_bucket:
+        url = _upload_to_supabase(raw_bytes, filename, extension, supabase_url, supabase_key, supabase_bucket)
         return filename, url
 
     _ensure_upload_folder(upload_folder)

@@ -65,16 +65,17 @@ class Config:
     GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
     UPLOAD_FOLDER = os.environ.get("UPLOAD_FOLDER")
 
-    # Cloudinary (see app/services/upload_service.py): when both are set,
-    # uploads go to Cloudinary's free tier instead of local disk, which is
-    # ephemeral on a platform like Render's free plan (wiped on every
-    # redeploy). Both values are non-secret -- an unsigned upload preset
-    # (Cloudinary dashboard -> Settings -> Upload -> Add upload preset,
-    # Signing Mode: Unsigned) needs no API key/secret server-side, and the
-    # cloud name is already public in every resulting URL. Falls back to
-    # local disk when unset, e.g. local dev.
-    CLOUDINARY_CLOUD_NAME = os.environ.get("CLOUDINARY_CLOUD_NAME")
-    CLOUDINARY_UPLOAD_PRESET = os.environ.get("CLOUDINARY_UPLOAD_PRESET")
+    # Supabase Storage (see app/services/upload_service.py): when all
+    # three are set, uploads go to a free Supabase Storage bucket instead
+    # of local disk, which is ephemeral on a platform like Render's free
+    # plan (wiped on every redeploy). SUPABASE_SERVICE_ROLE_KEY is a real
+    # secret (bypasses Storage's row-level security, so it can write to
+    # the bucket) -- unlike Cloudinary's unsigned-preset approach,
+    # Supabase Storage has no keyless upload path. Falls back to local
+    # disk when unset, e.g. local dev.
+    SUPABASE_URL = os.environ.get("SUPABASE_URL")
+    SUPABASE_SERVICE_ROLE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
+    SUPABASE_STORAGE_BUCKET = os.environ.get("SUPABASE_STORAGE_BUCKET")
     # 50MB ceiling so video uploads (up to MAX_VIDEO_SIZE_BYTES in
     # upload_service.py) aren't rejected by Flask before reaching that
     # validation; the image upload path still enforces its own stricter
