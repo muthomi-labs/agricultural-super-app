@@ -19,6 +19,7 @@
     "askPlaceholder": "Ask a farming question…",
     "askAriaLabel": "Your question",
     "ask": "Ask",
+    "cancel": "Cancel",
     "tryAgain": "Try again",
     "translateToKiswahili": "Tafsiri kwa Kiswahili",
     "translateToEnglish": "Translate to English",
@@ -38,6 +39,7 @@
     "askPlaceholder": "Ask anything…",
     "askAriaLabel": "Ask the assistant",
     "send": "Send",
+    "cancel": "Cancel",
     "tryAgain": "Try again"
   }
 }

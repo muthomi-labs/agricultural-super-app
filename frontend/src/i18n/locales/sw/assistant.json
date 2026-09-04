@@ -19,6 +19,7 @@
     "askPlaceholder": "Uliza swali la kilimo…",
     "askAriaLabel": "Swali lako",
     "ask": "Uliza",
+    "cancel": "Ghairi",
     "tryAgain": "Jaribu tena",
     "translateToKiswahili": "Tafsiri kwa Kiswahili",
     "translateToEnglish": "Tafsiri kwa Kiingereza",
@@ -38,6 +39,7 @@
     "askPlaceholder": "Uliza chochote…",
     "askAriaLabel": "Muulize msaidizi",
     "send": "Tuma",
+    "cancel": "Ghairi",
     "tryAgain": "Jaribu tena"
   }
 }

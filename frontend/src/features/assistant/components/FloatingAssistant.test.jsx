@@ -76,4 +76,40 @@ describe('FloatingAssistant', () => {
     expect(textarea).toHaveValue(question)
     expect(textarea).toHaveFocus()
   })
+
+  it('cancels an in-flight stream and unlocks the composer again', async () => {
+    const { aiService } = await import('@/services')
+    aiService.createConversation.mockResolvedValue({ id: 1, title: null, messages: [] })
+    // Mirrors what a real aborted fetch() does (see ai.service.js's
+    // streamMessage signal doc comment): the promise only settles when
+    // the signal fires, rejecting with an AbortError.
+    aiService.streamMessage.mockImplementation(
+      (_conversationId, _content, _handlers, { signal } = {}) =>
+        new Promise((_resolve, reject) => {
+          signal?.addEventListener('abort', () => {
+            const error = new Error('The operation was aborted.')
+            error.name = 'AbortError'
+            reject(error)
+          })
+        }),
+    )
+
+    const user = userEvent.setup()
+    renderAssistant()
+
+    await user.click(screen.getByRole('button', { name: /open ai assistant/i }))
+    await user.click(screen.getByRole('button', { name: /new conversation/i }))
+
+    const textarea = await screen.findByLabelText(/ask the assistant/i)
+    await user.type(textarea, 'How often should I water tomatoes?')
+    await user.click(screen.getByRole('button', { name: /^send$/i }))
+
+    const cancelButton = await screen.findByRole('button', { name: /cancel/i })
+    expect(screen.queryByRole('button', { name: /^send$/i })).not.toBeInTheDocument()
+
+    await user.click(cancelButton)
+
+    expect(await screen.findByRole('button', { name: /^send$/i })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /cancel/i })).not.toBeInTheDocument()
+  })
 })

@@ -63,8 +63,19 @@ export const aiService = {
    * stream ends (successfully or with an in-band "error" event -- both
    * are reported through `handlers`, not by throwing, since by the time
    * either can happen the HTTP response is already a committed 200).
+   *
+   * `signal` (an AbortSignal, optional) lets the caller cancel -- see
+   * store/slices/aiSlice.js's cancelAIStream(). This stops us from
+   * waiting for or rendering any more of the reply and frees the UI to
+   * send a new message immediately; it does NOT reach into the backend
+   * and stop the AI provider's generation in progress there, which
+   * keeps running to completion server-side regardless (gunicorn's sync
+   * worker has no way to interrupt the blocking read mid-generation --
+   * genuinely cancelling that would need a different worker/concurrency
+   * model, out of scope for this pass). "Cancel" here means "stop
+   * waiting for it," not "stop it happening."
    */
-  async streamMessage(conversationId, content, handlers = {}) {
+  async streamMessage(conversationId, content, handlers = {}, { signal } = {}) {
     const token = getAccessToken()
     const response = await fetch(`${env.apiBaseUrl}/ai/conversations/${conversationId}/messages?stream=true`, {
       method: 'POST',
@@ -74,6 +85,7 @@ export const aiService = {
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
       body: JSON.stringify({ content }),
+      signal,
     })
 
     if (!response.ok || !response.body) {

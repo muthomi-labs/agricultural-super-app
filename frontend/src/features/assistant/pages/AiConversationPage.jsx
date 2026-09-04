@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Button, ErrorState, LoadingState, PostContent, Spinner, Textarea } from '@/components/ui'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
-import { clearAISendError, fetchAIConversation, streamAIMessage } from '@/store/slices/aiSlice'
+import { cancelAIStream, clearAISendError, fetchAIConversation, streamAIMessage } from '@/store/slices/aiSlice'
 import { looksKiswahili } from '@/lib/language'
 import { aiService } from '@/services'
 import '../assistant.css'
@@ -190,9 +190,15 @@ export function AiConversationPage() {
             }
           }}
         />
-        <Button type="submit" loading={sending} disabled={!draft.trim()}>
-          {t('conversation.ask')}
-        </Button>
+        {sending ? (
+          <Button type="button" variant="outline" onClick={() => cancelAIStream()}>
+            {t('conversation.cancel')}
+          </Button>
+        ) : (
+          <Button type="submit" loading={sending} disabled={!draft.trim()}>
+            {t('conversation.ask')}
+          </Button>
+        )}
       </form>
     </div>
   )

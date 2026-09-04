@@ -63,6 +63,20 @@ export const deleteAIConversation = createAsyncThunk(
   },
 )
 
+// Tracks the in-flight stream's AbortController so cancelAIStream() (called
+// from wherever the "Cancel" button lives) can reach it. Module-level, not
+// Redux state, since an AbortController isn't serializable -- and a plain
+// single slot is enough because the UI already only allows one send at a
+// time (see the `sending` guard in AiConversationPage.jsx/FloatingAssistant.jsx).
+let currentStreamController = null
+
+/** Cancels the in-flight streamAIMessage(), if any. See streamMessage()'s
+ * `signal` doc comment in ai.service.js for exactly what "cancel" means
+ * here. A no-op if nothing is streaming. */
+export function cancelAIStream() {
+  currentStreamController?.abort()
+}
+
 /**
  * Sends a message and streams the reply. Not a plain createAsyncThunk --
  * it needs to dispatch several times as the stream progresses (the user
@@ -72,16 +86,29 @@ export const deleteAIConversation = createAsyncThunk(
 export function streamAIMessage({ conversationId, content }) {
   return async (dispatch) => {
     dispatch(aiStreamStarted())
+    const controller = new AbortController()
+    currentStreamController = controller
     try {
-      await aiService.streamMessage(conversationId, content, {
-        onUserMessage: (message) => dispatch(aiUserMessageReceived({ conversationId, message })),
-        onChunk: (text) => dispatch(aiChunkReceived(text)),
-        onDone: () => dispatch(aiStreamCompleted({ conversationId })),
-        onError: (message) =>
-          dispatch(aiStreamFailed(message || 'The AI assistant could not respond. Please try again.')),
-      })
+      await aiService.streamMessage(
+        conversationId,
+        content,
+        {
+          onUserMessage: (message) => dispatch(aiUserMessageReceived({ conversationId, message })),
+          onChunk: (text) => dispatch(aiChunkReceived(text)),
+          onDone: () => dispatch(aiStreamCompleted({ conversationId })),
+          onError: (message) =>
+            dispatch(aiStreamFailed(message || 'The AI assistant could not respond. Please try again.')),
+        },
+        { signal: controller.signal },
+      )
     } catch (error) {
-      dispatch(aiStreamFailed(error?.message ?? 'Failed to reach the AI assistant.'))
+      if (error?.name === 'AbortError') {
+        dispatch(aiStreamCancelled())
+      } else {
+        dispatch(aiStreamFailed(error?.message ?? 'Failed to reach the AI assistant.'))
+      }
+    } finally {
+      if (currentStreamController === controller) currentStreamController = null
     }
   }
 }
@@ -143,6 +170,16 @@ const aiSlice = createSlice({
       state.streamingReply = null
       state.sendError = action.payload
     },
+    aiStreamCancelled(state) {
+      // Deliberately not treated as an error (no sendError) and the
+      // partial reply is dropped rather than kept as a message -- the
+      // backend never persisted it (its own DB write only happens after
+      // the generator finishes normally; see stream_message() in
+      // ai_service.py), so keeping it locally would show the user
+      // something a page reload would then make disappear.
+      state.sending = false
+      state.streamingReply = null
+    },
     clearAISendError(state) {
       state.sendError = null
     },
@@ -195,6 +232,7 @@ export const {
   aiChunkReceived,
   aiStreamCompleted,
   aiStreamFailed,
+  aiStreamCancelled,
   clearAISendError,
 } = aiSlice.actions
 

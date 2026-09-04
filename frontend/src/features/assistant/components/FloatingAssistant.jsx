@@ -5,6 +5,7 @@ import { Button, PostContent, Spinner, Textarea } from '@/components/ui'
 import { BotIcon, XIcon } from '@/components/icons'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import {
+  cancelAIStream,
   clearAISendError,
   createAIConversation,
   fetchAIConversation,
@@ -180,9 +181,15 @@ export function FloatingAssistant() {
                 }
               }}
             />
-            <Button type="submit" size="sm" loading={sending} disabled={!draft.trim()} aria-label={t('floating.send')}>
-              ➤
-            </Button>
+            {sending ? (
+              <Button type="button" variant="outline" size="sm" onClick={() => cancelAIStream()} aria-label={t('floating.cancel')}>
+                ✕
+              </Button>
+            ) : (
+              <Button type="submit" size="sm" loading={sending} disabled={!draft.trim()} aria-label={t('floating.send')}>
+                ➤
+              </Button>
+            )}
           </form>
         </>
       )}
