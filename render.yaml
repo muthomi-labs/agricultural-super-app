@@ -51,6 +51,18 @@ services:
         sync: false
       - key: ANTHROPIC_API_KEY
         sync: false
+      # Shared secret required on every request to /api/channels/* (SMS/
+      # USSD/voice webhooks -- see app/routes/channel_routes.py). These
+      # routes can't use JWT (telecom providers don't carry a browser
+      # session), so this is their only authentication; the check fails
+      # closed if this is left unset, in every environment, not just
+      # production. Set this to a real, unique secret before pointing
+      # any telecom provider's webhook URL at this deployment, e.g.
+      # `?secret=<this value>` appended to the callback URL, or the
+      # X-Channel-Webhook-Secret header if the provider supports custom
+      # headers.
+      - key: CHANNEL_WEBHOOK_SECRET
+        sync: false
       # SMTP delivery for password-reset / admin-notification emails.
       # Optional -- email_service.py degrades gracefully without it.
       - key: MAIL_SERVER
