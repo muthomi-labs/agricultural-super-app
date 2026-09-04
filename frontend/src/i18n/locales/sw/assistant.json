@@ -24,7 +24,9 @@
     "translateToKiswahili": "Tafsiri kwa Kiswahili",
     "translateToEnglish": "Tafsiri kwa Kiingereza",
     "translating": "Inatafsiri…",
-    "translated": "Imetafsiriwa"
+    "translated": "Imetafsiriwa",
+    "explainMore": "Eleza zaidi",
+    "explainMorePrompt": "Je, unaweza kueleza hilo kwa undani zaidi?"
   },
   "floating": {
     "openLabel": "Fungua msaidizi wa AI",

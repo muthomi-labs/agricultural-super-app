@@ -24,7 +24,9 @@
     "translateToKiswahili": "Tafsiri kwa Kiswahili",
     "translateToEnglish": "Translate to English",
     "translating": "Translating…",
-    "translated": "Translated"
+    "translated": "Translated",
+    "explainMore": "Explain more",
+    "explainMorePrompt": "Can you explain that in more detail?"
   },
   "floating": {
     "openLabel": "Open AI assistant",

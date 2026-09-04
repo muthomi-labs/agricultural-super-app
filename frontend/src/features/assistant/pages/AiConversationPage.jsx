@@ -25,7 +25,7 @@ function translationPrompt(content, targetLanguage) {
  * already looks like it's in the target language (looksKiswahili), per
  * "don't unnecessarily translate it again."
  */
-function AssistantBubble({ content }) {
+function AssistantBubble({ content, showExplainMore, explainMoreDisabled, onExplainMore }) {
   const { t } = useTranslation('assistant')
   const [translated, setTranslated] = useState(null)
   const [translating, setTranslating] = useState(false)
@@ -60,6 +60,16 @@ function AssistantBubble({ content }) {
         ) : (
           <button type="button" className="asa-assistant-message__translate-btn" onClick={handleTranslate} disabled={translating}>
             {translating ? t('conversation.translating') : actionLabel}
+          </button>
+        )}
+        {showExplainMore && (
+          <button
+            type="button"
+            className="asa-assistant-message__translate-btn"
+            onClick={onExplainMore}
+            disabled={explainMoreDisabled}
+          >
+            {t('conversation.explainMore')}
           </button>
         )}
       </div>
@@ -142,10 +152,25 @@ export function AiConversationPage() {
       <p className="asa-assistant__disclaimer">{t('page.disclaimer')}</p>
 
       <div className="asa-assistant__messages">
-        {conversation.messages.map((message) => (
+        {conversation.messages.map((message, index) => (
           <div key={message.id} className={`asa-assistant-message asa-assistant-message--${message.role}`}>
             <div className="asa-assistant-message__bubble">
-              {message.role === 'assistant' ? <AssistantBubble content={message.content} /> : message.content}
+              {message.role === 'assistant' ? (
+                <AssistantBubble
+                  content={message.content}
+                  // Only the most recent reply, and only once nothing
+                  // else is in flight -- an older reply is no longer
+                  // "what we're currently discussing," and this reuses
+                  // the same single-flight streamAIMessage() the
+                  // composer below uses, so it must respect the same
+                  // "one at a time" rule.
+                  showExplainMore={!streamingReply && index === conversation.messages.length - 1}
+                  explainMoreDisabled={sending}
+                  onExplainMore={() => send(t('conversation.explainMorePrompt'))}
+                />
+              ) : (
+                message.content
+              )}
             </div>
           </div>
         ))}
