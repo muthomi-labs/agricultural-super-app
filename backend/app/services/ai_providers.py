@@ -39,7 +39,7 @@ from abc import ABC, abstractmethod
 DEFAULT_MODELS = {
     "ollama": "llama3.2:1b",
     "anthropic": "claude-sonnet-5",
-    "gemini": "gemini-2.0-flash",
+    "gemini": "gemini-3.6-flash",
 }
 
 
