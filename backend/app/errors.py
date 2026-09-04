@@ -89,6 +89,12 @@ class ConflictError(ApiError):
     status_code = 409
 
 
+class RateLimitedError(ApiError):
+    """Too many requests from this caller in the current window. HTTP 429."""
+
+    status_code = 429
+
+
 def register_error_handlers(app):
     """
     Attach handlers so every failure mode -- explicit ApiError subclasses,

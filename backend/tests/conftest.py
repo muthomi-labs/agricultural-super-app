@@ -31,6 +31,7 @@ from app.auth.jwt import encode_token
 from app.extensions import db as _db
 from app.models import User
 from app.services.ai_service import clear_ask_assistant_cache
+from app.services.channel_rate_limiter import reset_rate_limits
 
 
 @pytest.fixture(scope="session")
@@ -58,6 +59,13 @@ def _reset_ask_assistant_cache():
     clear_ask_assistant_cache()
     yield
     clear_ask_assistant_cache()
+
+
+@pytest.fixture(autouse=True)
+def _reset_channel_rate_limits():
+    reset_rate_limits()
+    yield
+    reset_rate_limits()
 
 
 @pytest.fixture

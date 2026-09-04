@@ -65,6 +65,12 @@ class Config:
     GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
     UPLOAD_FOLDER = os.environ.get("UPLOAD_FOLDER")
 
+    CHANNEL_WEBHOOK_SECRET = os.environ.get("CHANNEL_WEBHOOK_SECRET")
+    USSD_MAX_RESPONSE_LENGTH = int(os.environ.get("USSD_MAX_RESPONSE_LENGTH", 182))
+    CHANNEL_MAX_INPUT_LENGTH = int(os.environ.get("CHANNEL_MAX_INPUT_LENGTH", 500))
+    CHANNEL_RATE_LIMIT_MAX_REQUESTS = int(os.environ.get("CHANNEL_RATE_LIMIT_MAX_REQUESTS", 5))
+    CHANNEL_RATE_LIMIT_WINDOW_SECONDS = int(os.environ.get("CHANNEL_RATE_LIMIT_WINDOW_SECONDS", 60))
+
     # Supabase Storage (see app/services/upload_service.py): when all
     # three are set, uploads go to a free Supabase Storage bucket instead
     # of local disk, which is ephemeral on a platform like Render's free
@@ -118,6 +124,7 @@ class TestingConfig(Config):
         "TEST_DATABASE_URL", "sqlite:///:memory:"
     )
     JWT_ACCESS_TOKEN_EXPIRES_SECONDS = 3600
+    CHANNEL_WEBHOOK_SECRET = "test-channel-webhook-secret"
     UPLOAD_FOLDER = tempfile.mkdtemp(prefix="agri_super_app_test_uploads_")
     MAIL_SERVER = "smtp.test.example.com"
     MAIL_USERNAME = "test@example.com"

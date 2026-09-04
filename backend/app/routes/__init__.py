@@ -3,6 +3,7 @@
 from .admin_routes import admin_bp
 from .ai_routes import ai_bp
 from .auth_routes import auth_bp
+from .channel_routes import channels_bp
 from .community_routes import communities_bp
 from .message_routes import conversations_bp, messages_bp
 from .notification_routes import notifications_bp
@@ -25,3 +26,4 @@ def register_blueprints(app):
     app.register_blueprint(uploads_bp)
     app.register_blueprint(notifications_bp)
     app.register_blueprint(stories_bp)
+    app.register_blueprint(channels_bp)
