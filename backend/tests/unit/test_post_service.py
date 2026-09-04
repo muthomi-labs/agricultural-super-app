@@ -1,9 +1,29 @@
 import pytest
+from sqlalchemy import event
 
 from app.errors import ConflictError, ForbiddenError, NotFoundError, ValidationAPIError
 from app.extensions import db
 from app.models import Comment, Like, SavedPost
+from app.schemas import posts_schema
 from app.services import community_service, post_service
+
+
+class _QueryCounter:
+    def __init__(self):
+        self.count = 0
+
+    def __call__(self, *args, **kwargs):
+        self.count += 1
+
+
+class QueryCountingContext:
+    def __enter__(self):
+        self.counter = _QueryCounter()
+        event.listen(db.engine, "before_cursor_execute", self.counter)
+        return self.counter
+
+    def __exit__(self, *exc_info):
+        event.remove(db.engine, "before_cursor_execute", self.counter)
 
 
 class TestCreatePost:
@@ -72,6 +92,28 @@ class TestListPosts:
         assert [p.id for p in page_one] == newest_first_ids[0:2]
         assert [p.id for p in page_two] == newest_first_ids[2:4]
         assert set(p.id for p in page_one).isdisjoint(p.id for p in page_two)
+
+    def test_serializing_a_page_of_posts_does_not_scale_query_count_with_post_count(
+        self, create_user
+    ):
+        amina = create_user(username="amina")
+        brian = create_user(username="brian")
+        posts = [post_service.create_post(amina, {"title": f"Post {i}", "content": "c"}) for i in range(8)]
+        for post in posts:
+            post_service.like_post(brian, post.id)
+            post_service.add_comment(brian, post.id, "Nice!")
+
+        with QueryCountingContext() as counter:
+            listed = post_service.list_posts(per_page=8)
+            posts_schema.context = {"current_user_id": brian.id}
+            posts_schema.dump(listed)
+
+        # Whatever the exact number of eager-load queries is, it must not
+        # grow with the number of posts on the page -- that's the N+1
+        # this fix closes. 8 posts * (a query per relationship accessed)
+        # would be dozens of queries under the old lazy-loading behavior;
+        # a small constant bound proves eager loading is doing its job.
+        assert counter.count <= 10
 
 
 class TestListPostsHasVideo:

@@ -1,8 +1,20 @@
+from sqlalchemy.orm import selectinload
+
 from app.errors import ConflictError, ForbiddenError, NotFoundError, ValidationAPIError
 from app.extensions import db
 from app.models import Comment, Community, Like, Post, PostImage, SavedPost
 from app.models.like import REACTION_TYPES
 from app.services import community_service, notification_service
+
+_POST_LIST_EAGER_LOAD = (
+    selectinload(Post.user),
+    selectinload(Post.images),
+    selectinload(Post.likes),
+    selectinload(Post.saves),
+    selectinload(Post.reposts),
+    selectinload(Post.comments).selectinload(Comment.user),
+    selectinload(Post.original_post).selectinload(Post.reposts),
+)
 
 MAX_PAGE_SIZE = 100
 
@@ -45,7 +57,7 @@ def get_post_or_404(post_id):
 
 def list_posts(page=1, per_page=20, community_id=None, has_video=None):
     per_page = min(per_page, MAX_PAGE_SIZE)
-    query = db.session.query(Post).filter_by(community_id=community_id)
+    query = db.session.query(Post).filter_by(community_id=community_id).options(*_POST_LIST_EAGER_LOAD)
     if has_video:
         query = query.filter(Post.video_url.isnot(None))
     return (
@@ -69,6 +81,7 @@ def list_posts_by_user(user_id, page=1, per_page=20):
     return (
         db.session.query(Post)
         .filter_by(user_id=user_id)
+        .options(*_POST_LIST_EAGER_LOAD)
         .order_by(Post.created_at.desc())
         .offset((page - 1) * per_page)
         .limit(per_page)
@@ -333,6 +346,7 @@ def list_saved_posts(current_user, page=1, per_page=20):
         db.session.query(Post)
         .join(SavedPost, SavedPost.post_id == Post.id)
         .filter(SavedPost.user_id == current_user.id)
+        .options(*_POST_LIST_EAGER_LOAD)
         .order_by(SavedPost.created_at.desc())
         .offset((page - 1) * per_page)
         .limit(per_page)
