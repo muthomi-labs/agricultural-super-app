@@ -330,6 +330,15 @@ def stream_message(user, conversation_id, content):
     user_message = _save_user_message(conversation, content)
 
     context = [{"role": m.role, "content": m.content} for m in _recent_context(conversation.id)]
+    # Captured now, while `user` is still attached to this request's DB
+    # session -- generate_chunks() below runs lazily, during response
+    # streaming, by which point Flask has already torn down this
+    # session (SQLAlchemy scoped sessions are tied to app-context
+    # teardown, which fires as soon as the view returns its Response,
+    # not when the streamed body finishes sending). Touching `user` or
+    # `conversation` as ORM objects inside the generator raises
+    # DetachedInstanceError; plain values captured here are safe.
+    user_language = user.language
 
     try:
         provider = get_provider(current_app.config)
@@ -352,7 +361,7 @@ def stream_message(user, conversation_id, content):
         ai_request_started_at = time.monotonic()
         first_token_at = None
         try:
-            for item in _iter_with_heartbeats(provider.stream_complete(context, _build_system_prompt(user.language))):
+            for item in _iter_with_heartbeats(provider.stream_complete(context, _build_system_prompt(user_language))):
                 if item is HEARTBEAT:
                     yield HEARTBEAT
                     continue
@@ -372,9 +381,18 @@ def stream_message(user, conversation_id, content):
             raise
 
         full_text = "".join(chunks).strip()
-        assistant_message = AIMessage(conversation_id=conversation.id, role="assistant", content=full_text)
+        # `conversation` (closed over from the outer scope) is a detached
+        # instance by this point -- see the comment above `user_language`.
+        # `db.session` here also isn't the same Session that loaded it
+        # (stream_with_context re-enters the request context, which gets
+        # a fresh app context and thus a fresh scoped session), so a
+        # plain re-fetch by id is the reliable way to get a live,
+        # attached row to update.
+        live_conversation = db.session.get(AIConversation, conversation_id)
+        assistant_message = AIMessage(conversation_id=conversation_id, role="assistant", content=full_text)
         db.session.add(assistant_message)
-        conversation.updated_at = datetime.utcnow()
+        if live_conversation is not None:
+            live_conversation.updated_at = datetime.utcnow()
         db.session.commit()
 
         now = time.monotonic()
