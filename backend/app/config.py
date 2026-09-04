@@ -62,6 +62,7 @@ class Config:
 
     OLLAMA_BASE_URL = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434")
     ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
+    GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
     UPLOAD_FOLDER = os.environ.get("UPLOAD_FOLDER")
     # 50MB ceiling so video uploads (up to MAX_VIDEO_SIZE_BYTES in
     # upload_service.py) aren't rejected by Flask before reaching that

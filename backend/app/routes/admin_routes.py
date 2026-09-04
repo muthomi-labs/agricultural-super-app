@@ -55,9 +55,14 @@ def get_stats():
         schema:
           $ref: '#/definitions/Error'
     """
+    _ai_provider = current_app.config.get("AI_PROVIDER", "ollama")
+    _ai_key_by_provider = {
+        "anthropic": "ANTHROPIC_API_KEY",
+        "gemini": "GEMINI_API_KEY",
+    }
     ai_configured = (
-        bool(current_app.config.get("ANTHROPIC_API_KEY"))
-        if current_app.config.get("AI_PROVIDER", "ollama") == "anthropic"
+        bool(current_app.config.get(_ai_key_by_provider[_ai_provider]))
+        if _ai_provider in _ai_key_by_provider
         else True  # Ollama needs no key -- "configured" just means it's the selected provider.
     )
     stats = admin_service.get_stats(

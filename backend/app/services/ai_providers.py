@@ -19,9 +19,13 @@ Providers:
   - AnthropicProvider (optional): Claude via the Anthropic Messages API,
     for teams that want a hosted model in staging/production. Requires
     ANTHROPIC_API_KEY.
+  - GeminiProvider    (optional): Google Gemini via the Generative
+    Language API, for a hosted model with a genuinely free tier (no
+    billing setup required to get a key, unlike Anthropic). Requires
+    GEMINI_API_KEY from https://aistudio.google.com.
 
 Select the active provider with the AI_PROVIDER env var (see
-app/config.py): "ollama" (default) or "anthropic".
+app/config.py): "ollama" (default), "anthropic", or "gemini".
 """
 
 import json
@@ -30,11 +34,12 @@ import urllib.request
 from abc import ABC, abstractmethod
 
 # Sensible default per provider when AI_MODEL isn't set. Ollama's is a
-# small, widely-available open model; Anthropic's is the current
-# general-purpose Claude model.
+# small, widely-available open model; Anthropic's and Gemini's are each
+# vendor's current fast/general-purpose model.
 DEFAULT_MODELS = {
     "ollama": "llama3.2:1b",
     "anthropic": "claude-sonnet-5",
+    "gemini": "gemini-2.0-flash",
 }
 
 
@@ -392,6 +397,153 @@ class AnthropicProvider(AIProvider):
             )
 
 
+class GeminiProvider(AIProvider):
+    """
+    Calls the Google Gemini API (Generative Language API). Requires
+    GEMINI_API_KEY -- a free key from https://aistudio.google.com with no
+    billing setup required, unlike Anthropic.
+
+    Gemini's wire format differs from the internal {"role":
+    "user"|"assistant", "content": str} shape in two ways: it calls the
+    AI's turns "model" instead of "assistant", and it nests text under
+    "parts" rather than a flat "content" string -- both handled in
+    _to_gemini_contents() so the rest of the app never has to know.
+    """
+
+    API_BASE = "https://generativelanguage.googleapis.com/v1beta/models"
+    REQUEST_TIMEOUT_SECONDS = 20
+    MAX_OUTPUT_TOKENS = 1024
+
+    def __init__(self, api_key, model):
+        self.api_key = api_key
+        self.model = model
+
+    @staticmethod
+    def _to_gemini_contents(messages):
+        return [
+            {
+                "role": "model" if message["role"] == "assistant" else "user",
+                "parts": [{"text": message["content"]}],
+            }
+            for message in messages
+        ]
+
+    def _request_body(self, messages, system_prompt):
+        return json.dumps(
+            {
+                "system_instruction": {"parts": [{"text": system_prompt}]},
+                "contents": self._to_gemini_contents(messages),
+                "generationConfig": {"maxOutputTokens": self.MAX_OUTPUT_TOKENS},
+            }
+        ).encode("utf-8")
+
+    def complete(self, messages, system_prompt):
+        if not self.api_key:
+            raise AIProviderError(
+                "The AI assistant is not configured. Set the GEMINI_API_KEY "
+                "environment variable on the server (with AI_PROVIDER=gemini) to "
+                "enable this feature."
+            )
+
+        request_obj = urllib.request.Request(
+            f"{self.API_BASE}/{self.model}:generateContent",
+            data=self._request_body(messages, system_prompt),
+            method="POST",
+            headers={"Content-Type": "application/json", "x-goog-api-key": self.api_key},
+        )
+
+        try:
+            with urllib.request.urlopen(request_obj, timeout=self.REQUEST_TIMEOUT_SECONDS) as response:
+                payload = json.loads(response.read().decode("utf-8"))
+        except urllib.error.HTTPError as err:
+            detail = err.read().decode("utf-8", errors="replace")
+            raise AIProviderError(
+                "The AI assistant could not process your request right now. Please try again.",
+                log_message=f"Gemini HTTP error {err.code}: {detail}",
+            )
+        except (urllib.error.URLError, TimeoutError) as err:
+            raise AIProviderError(
+                "The AI assistant is temporarily unavailable. Please try again shortly.",
+                log_message=f"Gemini unreachable: {err}",
+            )
+        except json.JSONDecodeError as err:
+            raise AIProviderError(
+                "The AI assistant returned an unexpected response. Please try again.",
+                log_message=f"Gemini returned non-JSON response: {err}",
+            )
+
+        try:
+            parts = payload["candidates"][0]["content"]["parts"]
+            text = "".join(part.get("text", "") for part in parts).strip()
+        except (KeyError, IndexError, TypeError) as err:
+            raise AIProviderError(
+                "The AI assistant returned an unexpected response. Please try again.",
+                log_message=f"Gemini malformed response shape: {payload!r} ({err})",
+            )
+
+        if not text:
+            raise AIProviderError(
+                "The AI assistant returned an empty response. Please try again.",
+                log_message=f"Gemini returned empty content: {payload!r}",
+            )
+        return text
+
+    def stream_complete(self, messages, system_prompt):
+        if not self.api_key:
+            raise AIProviderError(
+                "The AI assistant is not configured. Set the GEMINI_API_KEY "
+                "environment variable on the server (with AI_PROVIDER=gemini) to "
+                "enable this feature."
+            )
+
+        request_obj = urllib.request.Request(
+            f"{self.API_BASE}/{self.model}:streamGenerateContent?alt=sse",
+            data=self._request_body(messages, system_prompt),
+            method="POST",
+            headers={"Content-Type": "application/json", "x-goog-api-key": self.api_key},
+        )
+
+        try:
+            response = urllib.request.urlopen(request_obj, timeout=self.REQUEST_TIMEOUT_SECONDS)
+        except urllib.error.HTTPError as err:
+            detail = err.read().decode("utf-8", errors="replace")
+            raise AIProviderError(
+                "The AI assistant could not process your request right now. Please try again.",
+                log_message=f"Gemini HTTP error {err.code}: {detail}",
+            )
+        except (urllib.error.URLError, TimeoutError) as err:
+            raise AIProviderError(
+                "The AI assistant is temporarily unavailable. Please try again shortly.",
+                log_message=f"Gemini unreachable: {err}",
+            )
+
+        got_any_content = False
+        with response:
+            for raw_line in response:
+                line = raw_line.decode("utf-8").strip()
+                if not line.startswith("data:"):
+                    continue
+                try:
+                    payload = json.loads(line[len("data:"):].strip())
+                except json.JSONDecodeError:
+                    continue
+
+                candidates = payload.get("candidates") or []
+                if not candidates:
+                    continue
+                parts = (candidates[0].get("content") or {}).get("parts") or []
+                text = "".join(part.get("text", "") for part in parts)
+                if text:
+                    got_any_content = True
+                    yield text
+
+        if not got_any_content:
+            raise AIProviderError(
+                "The AI assistant returned an empty response. Please try again.",
+                log_message="Gemini stream produced no content.",
+            )
+
+
 def get_provider(config):
     """
     Build the configured AIProvider from Flask app config (`current_app.config`
@@ -406,8 +558,10 @@ def get_provider(config):
         return OllamaProvider(base_url=config.get("OLLAMA_BASE_URL"), model=model)
     if provider_name == "anthropic":
         return AnthropicProvider(api_key=config.get("ANTHROPIC_API_KEY"), model=model)
+    if provider_name == "gemini":
+        return GeminiProvider(api_key=config.get("GEMINI_API_KEY"), model=model)
 
     raise AIProviderError(
         "The AI assistant is misconfigured on the server.",
-        log_message=f"Unknown AI_PROVIDER={provider_name!r}; expected 'ollama' or 'anthropic'.",
+        log_message=f"Unknown AI_PROVIDER={provider_name!r}; expected 'ollama', 'anthropic', or 'gemini'.",
     )

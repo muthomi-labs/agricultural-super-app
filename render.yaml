@@ -31,14 +31,20 @@ services:
       - key: MAX_CONTENT_LENGTH
         value: "52428800"
       # AI Farming Assistant: AI_PROVIDER=ollama (the local default) has
-      # no reachable Ollama server on Render, so production must use the
-      # Anthropic provider this app already supports (see
-      # app/services/ai_providers.py). Degrades gracefully (feature
-      # disabled, not a crash) if ANTHROPIC_API_KEY is left blank.
+      # no reachable Ollama server on Render, so production must use a
+      # hosted provider this app already supports (see
+      # app/services/ai_providers.py). Gemini is the default here because
+      # it has a genuinely free tier (a key from
+      # https://aistudio.google.com needs no billing setup); switch to
+      # anthropic + ANTHROPIC_API_KEY instead if preferred. Degrades
+      # gracefully (feature disabled, not a crash) if the selected
+      # provider's key is left blank.
       - key: AI_PROVIDER
-        value: anthropic
+        value: gemini
       - key: AI_MODEL
-        value: claude-sonnet-5
+        value: gemini-2.0-flash
+      - key: GEMINI_API_KEY
+        sync: false
       - key: ANTHROPIC_API_KEY
         sync: false
       # SMTP delivery for password-reset / admin-notification emails.
