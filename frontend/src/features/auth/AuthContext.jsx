@@ -148,5 +148,5 @@ export function errorMessage(error) {
   if (typeof error === 'object' && error !== null && 'message' in error) {
     return error.message
   }
-  return 'Something went wrong. Please try again.'
+  return i18n.t('common:states.somethingWrongTryAgain')
 }

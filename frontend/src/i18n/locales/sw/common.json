@@ -31,9 +31,11 @@
   "states": {
     "loading": "Inapakia…",
     "somethingWrong": "Hitilafu imetokea",
+    "somethingWrongTryAgain": "Hitilafu imetokea. Tafadhali jaribu tena.",
     "couldNotLoad": "Hatukuweza kupakia hili. Tafadhali jaribu tena.",
     "pageNotFound": "Ukurasa haukupatikana",
-    "pageNotFoundDescription": "Ukurasa unaoutafuta haupo."
+    "pageNotFoundDescription": "Ukurasa unaoutafuta haupo.",
+    "checkingSession": "Inakagua kikao chako…"
   },
   "verified": "Amethibitishwa",
   "roles": {

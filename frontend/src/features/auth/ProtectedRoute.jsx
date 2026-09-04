@@ -1,4 +1,5 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { LoadingState } from '@/components/ui'
 import { useAuth } from './AuthContext'
 
@@ -10,9 +11,10 @@ import { useAuth } from './AuthContext'
 export function ProtectedRoute() {
   const { status } = useAuth()
   const location = useLocation()
+  const { t } = useTranslation('common')
 
   if (status === 'loading') {
-    return <LoadingState label="Checking your session…" />
+    return <LoadingState label={t('states.checkingSession')} />
   }
 
   if (status === 'unauthenticated') {

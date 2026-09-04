@@ -14,6 +14,7 @@
     "loading": "Loading conversation…",
     "placeholder": "Type a message…",
     "ariaLabel": "Message",
-    "send": "Send message"
+    "send": "Send message",
+    "sendFailed": "Could not send your message. It has been kept in the box below -- please try again."
   }
 }

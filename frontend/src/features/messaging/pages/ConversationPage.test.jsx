@@ -58,3 +58,45 @@ describe('ConversationPage typing', () => {
     expect(textarea).toHaveFocus()
   })
 })
+
+describe('ConversationPage send failure', () => {
+  it('keeps the draft and shows an error when sending fails, instead of silently losing it', async () => {
+    const { messagesService } = await import('@/services')
+    messagesService.sendMessage.mockRejectedValueOnce({ message: 'Network error' })
+
+    const user = userEvent.setup()
+    renderConversationPage()
+
+    const textarea = await screen.findByRole('textbox', { name: /message/i })
+    const message = 'Are you free to discuss the maize order tomorrow morning?'
+    await user.click(textarea)
+    await user.type(textarea, message)
+    await user.click(screen.getByRole('button', { name: /send message/i }))
+
+    expect(await screen.findByText(/could not send your message/i)).toBeInTheDocument()
+    expect(textarea).toHaveValue(message)
+  })
+
+  it('clears the draft after a successful send', async () => {
+    const { messagesService } = await import('@/services')
+    messagesService.sendMessage.mockResolvedValueOnce({
+      id: 99,
+      conversationId: 5,
+      senderId: 1,
+      content: 'Are you free tomorrow?',
+      createdAt: '2026-09-04T10:00:00Z',
+      isRead: false,
+    })
+
+    const user = userEvent.setup()
+    renderConversationPage()
+
+    const textarea = await screen.findByRole('textbox', { name: /message/i })
+    await user.click(textarea)
+    await user.type(textarea, 'Are you free tomorrow?')
+    await user.click(screen.getByRole('button', { name: /send message/i }))
+
+    expect(await screen.findByText('Are you free tomorrow?')).toBeInTheDocument()
+    expect(textarea).toHaveValue('')
+  })
+})

@@ -6,7 +6,7 @@ import { SendIcon } from '@/components/icons'
 import { formatRelativeTime } from '@/lib/format'
 import { useAuth } from '@/features/auth/AuthContext'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
-import { fetchConversation, markMessageRead, sendMessage } from '@/store/slices/messagesSlice'
+import { clearSendError, fetchConversation, markMessageRead, sendMessage } from '@/store/slices/messagesSlice'
 import '../messaging.css'
 
 export function ConversationPage() {
@@ -20,6 +20,7 @@ export function ConversationPage() {
   const status = useAppSelector((state) => state.messages.currentStatus)
   const error = useAppSelector((state) => state.messages.currentError)
   const sending = useAppSelector((state) => state.messages.sending)
+  const sendError = useAppSelector((state) => state.messages.sendError)
 
   const [draft, setDraft] = useState('')
   const bottomRef = useRef(null)
@@ -53,12 +54,15 @@ export function ConversationPage() {
 
   const orderedMessages = [...conversation.messages].sort((a, b) => a.createdAt.localeCompare(b.createdAt))
 
-  function handleSend(event) {
+  async function handleSend(event) {
     event.preventDefault()
     const content = draft.trim()
     if (!content || sending) return
-    dispatch(sendMessage({ conversationId: conversation.id, content }))
-    setDraft('')
+    dispatch(clearSendError())
+    const result = await dispatch(sendMessage({ conversationId: conversation.id, content }))
+    if (sendMessage.fulfilled.match(result)) {
+      setDraft('')
+    }
   }
 
   return (
@@ -85,6 +89,8 @@ export function ConversationPage() {
         })}
         <div ref={bottomRef} />
       </div>
+
+      {sendError && <p className="asa-thread__send-error">{t('thread.sendFailed')}</p>}
 
       <form className="asa-thread__composer" onSubmit={handleSend}>
         <Textarea

@@ -9,6 +9,7 @@ const initialState = {
   currentStatus: 'idle',
   currentError: null,
   sending: false,
+  sendError: null,
 }
 
 export const fetchConversations = createAsyncThunk(
@@ -91,7 +92,11 @@ export const markMessageRead = createAsyncThunk(
 const messagesSlice = createSlice({
   name: 'messages',
   initialState,
-  reducers: {},
+  reducers: {
+    clearSendError(state) {
+      state.sendError = null
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchConversations.pending, (state) => {
@@ -127,6 +132,7 @@ const messagesSlice = createSlice({
       })
       .addCase(sendMessage.pending, (state) => {
         state.sending = true
+        state.sendError = null
       })
       .addCase(sendMessage.fulfilled, (state, action) => {
         state.sending = false
@@ -139,8 +145,9 @@ const messagesSlice = createSlice({
           state.conversations.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
         }
       })
-      .addCase(sendMessage.rejected, (state) => {
+      .addCase(sendMessage.rejected, (state, action) => {
         state.sending = false
+        state.sendError = action.payload
       })
       .addCase(markMessageRead.fulfilled, (state, action) => {
         if (state.current) {
@@ -150,5 +157,7 @@ const messagesSlice = createSlice({
       })
   },
 })
+
+export const { clearSendError } = messagesSlice.actions
 
 export default messagesSlice.reducer
