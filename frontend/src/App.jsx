@@ -1,16 +1,11 @@
+import { lazy, Suspense } from 'react'
 import { Navigate, createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { EmptyState, Button } from '@/components/ui'
+import { EmptyState, Button, LoadingState } from '@/components/ui'
 import { AuthProvider, useAuth } from '@/features/auth/AuthContext'
 import { ProtectedRoute } from '@/features/auth/ProtectedRoute'
 import { AdminRoute } from '@/features/auth/AdminRoute'
 import { AppLayout } from '@/features/layout/AppLayout'
-import { AdminLayout } from '@/features/admin/AdminLayout'
-import { AdminDashboardPage } from '@/features/admin/pages/AdminDashboardPage'
-import { AdminUsersPage } from '@/features/admin/pages/AdminUsersPage'
-import { AdminContentPage } from '@/features/admin/pages/AdminContentPage'
-import { AdminReportsPage } from '@/features/admin/pages/AdminReportsPage'
-import { AdminCommunitiesPage } from '@/features/admin/pages/AdminCommunitiesPage'
 import { UnauthorizedPage } from '@/features/misc/UnauthorizedPage'
 import { LoginPage } from '@/features/auth/pages/LoginPage'
 import { RegisterPage } from '@/features/auth/pages/RegisterPage'
@@ -22,7 +17,6 @@ import { CreateReelPage } from '@/features/posts/pages/CreateReelPage'
 import { CreateStoryPage } from '@/features/stories/pages/CreateStoryPage'
 import { PostDetailPage } from '@/features/posts/pages/PostDetailPage'
 import { SavedPostsPage } from '@/features/posts/pages/SavedPostsPage'
-import { FarmClipsPage } from '@/features/farmclips/pages/FarmClipsPage'
 import { ExpertsPage } from '@/features/experts/pages/ExpertsPage'
 import { ExpertProfilePage } from '@/features/experts/pages/ExpertProfilePage'
 import { SearchPage } from '@/features/search/pages/SearchPage'
@@ -33,10 +27,47 @@ import { EditProfilePage } from '@/features/profile/pages/EditProfilePage'
 import { ChangePasswordPage } from '@/features/profile/pages/ChangePasswordPage'
 import { CommunitiesPage } from '@/features/communities/pages/CommunitiesPage'
 import { CommunityDetailPage } from '@/features/communities/pages/CommunityDetailPage'
-import { MessagesPage } from '@/features/messaging/pages/MessagesPage'
-import { ConversationPage } from '@/features/messaging/pages/ConversationPage'
-import { AiAssistantPage } from '@/features/assistant/pages/AiAssistantPage'
-import { AiConversationPage } from '@/features/assistant/pages/AiConversationPage'
+
+// Code-split: heavier, less-immediately-needed routes (frontend audit
+// finding -- the whole app shipped as a single ~615kB bundle with no
+// splitting). Each only downloads when actually navigated to, which
+// matters most for low-bandwidth users who may never visit /admin or
+// /farmclips in a given session at all.
+const AdminLayout = lazy(() => import('@/features/admin/AdminLayout').then((m) => ({ default: m.AdminLayout })))
+const AdminDashboardPage = lazy(() =>
+  import('@/features/admin/pages/AdminDashboardPage').then((m) => ({ default: m.AdminDashboardPage })),
+)
+const AdminUsersPage = lazy(() =>
+  import('@/features/admin/pages/AdminUsersPage').then((m) => ({ default: m.AdminUsersPage })),
+)
+const AdminContentPage = lazy(() =>
+  import('@/features/admin/pages/AdminContentPage').then((m) => ({ default: m.AdminContentPage })),
+)
+const AdminReportsPage = lazy(() =>
+  import('@/features/admin/pages/AdminReportsPage').then((m) => ({ default: m.AdminReportsPage })),
+)
+const AdminCommunitiesPage = lazy(() =>
+  import('@/features/admin/pages/AdminCommunitiesPage').then((m) => ({ default: m.AdminCommunitiesPage })),
+)
+const FarmClipsPage = lazy(() =>
+  import('@/features/farmclips/pages/FarmClipsPage').then((m) => ({ default: m.FarmClipsPage })),
+)
+const MessagesPage = lazy(() =>
+  import('@/features/messaging/pages/MessagesPage').then((m) => ({ default: m.MessagesPage })),
+)
+const ConversationPage = lazy(() =>
+  import('@/features/messaging/pages/ConversationPage').then((m) => ({ default: m.ConversationPage })),
+)
+const AiAssistantPage = lazy(() =>
+  import('@/features/assistant/pages/AiAssistantPage').then((m) => ({ default: m.AiAssistantPage })),
+)
+const AiConversationPage = lazy(() =>
+  import('@/features/assistant/pages/AiConversationPage').then((m) => ({ default: m.AiConversationPage })),
+)
+
+function lazyRoute(element) {
+  return <Suspense fallback={<LoadingState />}>{element}</Suspense>
+}
 
 function NotFoundPage() {
   const { t } = useTranslation('common')
@@ -66,15 +97,15 @@ const router = createBrowserRouter([
           { path: 'notifications', element: <NotificationsPage /> },
           { path: 'posts/:postId', element: <PostDetailPage /> },
           { path: 'saved', element: <SavedPostsPage /> },
-          { path: 'farmclips', element: <FarmClipsPage /> },
+          { path: 'farmclips', element: lazyRoute(<FarmClipsPage />) },
           { path: 'experts', element: <ExpertsPage /> },
           { path: 'experts/:userId', element: <ExpertProfilePage /> },
           { path: 'communities', element: <CommunitiesPage /> },
           { path: 'communities/:communityId', element: <CommunityDetailPage /> },
-          { path: 'messages', element: <MessagesPage /> },
-          { path: 'messages/:conversationId', element: <ConversationPage /> },
-          { path: 'assistant', element: <AiAssistantPage /> },
-          { path: 'assistant/:conversationId', element: <AiConversationPage /> },
+          { path: 'messages', element: lazyRoute(<MessagesPage />) },
+          { path: 'messages/:conversationId', element: lazyRoute(<ConversationPage />) },
+          { path: 'assistant', element: lazyRoute(<AiAssistantPage />) },
+          { path: 'assistant/:conversationId', element: lazyRoute(<AiConversationPage />) },
           { path: 'profile', element: <ProfilePage /> },
           { path: 'profile/edit', element: <EditProfilePage /> },
           { path: 'profile/change-password', element: <ChangePasswordPage /> },
@@ -88,13 +119,13 @@ const router = createBrowserRouter([
     element: <AdminRoute />,
     children: [
       {
-        element: <AdminLayout />,
+        element: lazyRoute(<AdminLayout />),
         children: [
-          { index: true, element: <AdminDashboardPage /> },
-          { path: 'users', element: <AdminUsersPage /> },
-          { path: 'posts', element: <AdminContentPage /> },
-          { path: 'reports', element: <AdminReportsPage /> },
-          { path: 'communities', element: <AdminCommunitiesPage /> },
+          { index: true, element: lazyRoute(<AdminDashboardPage />) },
+          { path: 'users', element: lazyRoute(<AdminUsersPage />) },
+          { path: 'posts', element: lazyRoute(<AdminContentPage />) },
+          { path: 'reports', element: lazyRoute(<AdminReportsPage />) },
+          { path: 'communities', element: lazyRoute(<AdminCommunitiesPage />) },
         ],
       },
     ],
